@@ -25,7 +25,7 @@ Currently there is no released binary. You'll have to build the program.
 go get -u github.com/RasmusLindroth/i3keys
 
 //Go to the project directory
-cd $HOME/go/src/RasmusLindroth/i3keys
+cd $HOME/go/src/github.com/RasmusLindroth/i3keys
 
 //Install
 go install
