@@ -22,7 +22,7 @@ Currently there is no released binary. You'll have to build the program.
 #### Go getting and installing
 ```
 //Get this program
-go get -u git github.com/RasmusLindroth/i3keys
+go get -u github.com/RasmusLindroth/i3keys
 
 //Go to the project directory
 cd $HOME/go/src/RasmusLindroth/i3keys
