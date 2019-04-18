@@ -19,7 +19,7 @@ func main() {
 	flag.Parse()
 
 	if port == "" {
-		fmt.Fprintf(os.Stderr, "You need to set -port e.g. i3keys -port 8080\n")
+		fmt.Fprintf(os.Stderr, "You need to set --port e.g. i3keys --port 8080\n")
 		os.Exit(1)
 	}
 

@@ -234,7 +234,7 @@ func parse(confReader io.Reader, err error) (KeyBindings, error) {
 	}
 
 	allBindings = replaceVariables(variables, allBindings)
-	allBindings = stortModifiers(allBindings)
+	allBindings = sortModifiers(allBindings)
 
 	return allBindings, nil
 
@@ -291,7 +291,7 @@ func sortSingleModifiers(bindings []Binding) []Binding {
 	return bindings
 }
 
-func stortModifiers(bindings KeyBindings) KeyBindings {
+func sortModifiers(bindings KeyBindings) KeyBindings {
 	bindings.Symbols = sortSingleModifiers(bindings.Symbols)
 	bindings.Codes = sortSingleModifiers(bindings.Codes)
 	for key := range bindings.Modes {
