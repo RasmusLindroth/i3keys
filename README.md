@@ -19,6 +19,12 @@ combinations. And the keyboard will look like your keymap. I hope :)
 ## How to
 Currently there is no released binary. You'll have to build the program.
 
+### Using Arch?
+
+You can find it in the Arch User Repository (AUR).
+
+https://aur.archlinux.org/packages/i3keys/
+
 #### Go getting and installing
 
 If your version of Go have support for modules
