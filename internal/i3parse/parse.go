@@ -4,12 +4,10 @@ import (
 	"bufio"
 	"errors"
 	"io"
-	"os"
 	"sort"
 	"strings"
 
 	"github.com/RasmusLindroth/i3keys/internal/helpers"
-	"go.i3wm.org/i3"
 )
 
 type lineType uint
@@ -27,39 +25,28 @@ const (
 	modeContext
 )
 
-//getConfigFromRunning returns the i3 config file
-func getConfigFromRunning() (*strings.Reader, error) {
-	conf, err := i3.GetConfig()
-	if err != nil {
-		return nil, err
-	}
-
-	return strings.NewReader(conf.Config), nil
-}
-
-func getConfigFromFile(path string) (*os.File, error) {
-	return os.Open(path)
-}
-
 func getLineType(parts []string) lineType {
-	length := len(parts)
-
-	if length > 1 && parts[0] == "mode" &&
-		(parts[1] == "--pango_markup" || parts[1][0] == '"') {
-		return modeLine
+	if len(parts) == 0 {
+		return skipLine
 	}
 
-	if length > 0 && parts[0] == "}" {
+	switch parts[0] {
+	case "}":
 		return unmodeLine
-	}
-
-	if length > 1 {
-		switch parts[0] {
-		case "set":
+	case "mode":
+		if validateMode(parts) {
+			return modeLine
+		}
+	case "set":
+		if validateVariable(parts) {
 			return variableLine
-		case "bindsym":
+		}
+	case "bindsym":
+		if validateBinding(parts) {
 			return bindSymLine
-		case "bindcode":
+		}
+	case "bindcode":
+		if validateBinding(parts) {
 			return bindCodeLine
 		}
 	}
@@ -111,13 +98,8 @@ func parseMode(line string) string {
 	return line[start:stop]
 }
 
-func parseKeys(parts []string) ([]string, string, string) {
+func parseBindingParts(parts []string) ([]string, string, string) {
 	var modifiers []string
-
-	length := len(parts)
-	if length < 3 {
-		return modifiers, "", ""
-	}
 
 	index := 1
 	if parts[1] == "--release" {
@@ -125,15 +107,9 @@ func parseKeys(parts []string) ([]string, string, string) {
 	}
 
 	keys := strings.Split(parts[index], "+")
-	klen := len(keys)
 
-	key := keys[klen-1]
-	for i, k := range keys {
-		if i == klen-1 {
-			break
-		}
-		modifiers = append(modifiers, k)
-	}
+	key := keys[len(keys)-1]
+	modifiers = append(modifiers, keys[:len(keys)-1]...)
 
 	var cmdParts []string
 	for i := index + 1; i < len(parts) && parts[i][0] != '#'; i++ {
@@ -153,7 +129,7 @@ func parseBinding(parts []string) Binding {
 		bindType = CodeBinding
 	}
 
-	modifiers, key, cmd := parseKeys(parts)
+	modifiers, key, cmd := parseBindingParts(parts)
 
 	return Binding{Modifiers: modifiers, Key: key, Command: cmd, Type: bindType}
 }
@@ -173,9 +149,22 @@ func ParseFromFile(path string) ([]Mode, []Binding, error) {
 	return parse(getConfigFromFile(path))
 }
 
+func readLine(reader *bufio.Reader) (string, []string, lineType, error) {
+	line, err := reader.ReadString('\n')
+
+	if err != nil && err != io.EOF {
+		return "", []string{}, skipLine, err
+	}
+
+	var lineParts = helpers.SplitBySpace(line)
+	lineType := getLineType(lineParts)
+
+	return line, lineParts, lineType, err
+}
+
 func parse(confReader io.Reader, err error) ([]Mode, []Binding, error) {
 	if err != nil {
-		return []Mode{}, []Binding{}, errors.New("Couln't get the config file")
+		return []Mode{}, []Binding{}, errors.New("Couldn't get the config file")
 	}
 
 	reader := bufio.NewReader(confReader)
@@ -187,22 +176,21 @@ func parse(confReader io.Reader, err error) ([]Mode, []Binding, error) {
 	context := mainContext
 	var readErr error
 	var line string
+	var lineParts []string
+	var lineType lineType
 
 	for readErr != io.EOF {
-		line, readErr = reader.ReadString('\n')
-		line = helpers.TrimSpace(line)
+		line, lineParts, lineType, readErr = readLine(reader)
 
 		if readErr != nil && readErr != io.EOF {
 			return []Mode{}, []Binding{}, readErr
 		}
 
-		var lineParts = helpers.SplitBySpace(line)
-
-		lineType := getLineType(lineParts)
-
 		switch lineType {
 		case skipLine:
 			continue
+		case variableLine:
+			variables = append(variables, parseVariable(lineParts))
 		case modeLine:
 			context = modeContext
 			name := parseMode(line)
@@ -212,27 +200,20 @@ func parse(confReader io.Reader, err error) ([]Mode, []Binding, error) {
 			continue
 		}
 
-		if lineType == variableLine && len(lineParts) > 2 && lineParts[1][0] == '$' {
-			v := Variable{Name: lineParts[1], Value: strings.Join(lineParts[2:], " ")}
-			variables = append(variables, v)
+		bindingLine := lineType == bindSymLine || lineType == bindCodeLine
+
+		if context == mainContext && bindingLine {
+			bindings = append(bindings, parseBinding(lineParts))
 		}
 
-		if lineType == bindSymLine || lineType == bindCodeLine {
-			binding := parseBinding(lineParts)
-
-			if context == modeContext {
-				modes[len(modes)-1].Bindings = append(
-					modes[len(modes)-1].Bindings,
-					binding,
-				)
-			} else if context == mainContext {
-				bindings = append(bindings, binding)
-			}
+		if context == modeContext && bindingLine {
+			modes[len(modes)-1].Bindings = append(modes[len(modes)-1].Bindings,
+				parseBinding(lineParts),
+			)
 		}
 	}
 
-	modes = replaceVariablesInModes(variables, modes)
-	bindings = replaceVariablesInBindings(variables, bindings)
+	bindings, modes = replaceVariables(variables, bindings, modes)
 
 	for key := range modes {
 		modes[key].Bindings = sortModifiers(modes[key].Bindings)
@@ -240,22 +221,35 @@ func parse(confReader io.Reader, err error) ([]Mode, []Binding, error) {
 	bindings = sortModifiers(bindings)
 
 	return modes, bindings, nil
+}
 
+func parseVariable(parts []string) Variable {
+	return Variable{Name: parts[1], Value: strings.Join(parts[2:], " ")}
+}
+
+func variableNameToValue(variables []Variable, value string) string {
+	for _, variable := range variables {
+		if variable.Name == value {
+			return variable.Value
+		}
+	}
+
+	return value
+}
+
+func replaceVariables(variables []Variable, bindings []Binding, modes []Mode) ([]Binding, []Mode) {
+	bindings = replaceVariablesInBindings(variables, bindings)
+	modes = replaceVariablesInModes(variables, modes)
+
+	return bindings, modes
 }
 
 func replaceVariablesInBindings(variables []Variable, bindings []Binding) []Binding {
-	for _, variable := range variables {
+	for key := range bindings {
+		bindings[key].Key = variableNameToValue(variables, bindings[key].Key)
 
-		for key, binding := range bindings {
-			if binding.Key == variable.Name {
-				bindings[key].Key = variable.Value
-			}
-
-			for mkey, mod := range binding.Modifiers {
-				if mod == variable.Name {
-					bindings[key].Modifiers[mkey] = variable.Value
-				}
-			}
+		for mkey := range bindings[key].Modifiers {
+			bindings[key].Modifiers[mkey] = variableNameToValue(variables, bindings[key].Modifiers[mkey])
 		}
 	}
 
@@ -264,12 +258,7 @@ func replaceVariablesInBindings(variables []Variable, bindings []Binding) []Bind
 
 func replaceVariablesInModes(variables []Variable, modes []Mode) []Mode {
 	for mkey, mode := range modes {
-		for _, variable := range variables {
-			if variable.Name == mode.Name {
-				modes[mkey].Name = variable.Value
-			}
-		}
-
+		modes[mkey].Name = variableNameToValue(variables, modes[mkey].Name)
 		modes[mkey].Bindings = replaceVariablesInBindings(variables, mode.Bindings)
 	}
 
