@@ -8,7 +8,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/RasmusLindroth/i3keys/pkg/helpers"
+	"github.com/RasmusLindroth/i3keys/internal/helpers"
 	"go.i3wm.org/i3"
 )
 
@@ -44,18 +44,6 @@ func getConfigFromFile(path string) (*os.File, error) {
 func getLineType(parts []string) lineType {
 	length := len(parts)
 
-	if length > 1 && parts[0] == "set" {
-		return variableLine
-	}
-
-	if length > 1 && parts[0] == "bindsym" {
-		return bindSymLine
-	}
-
-	if length > 1 && parts[0] == "bindcode" {
-		return bindCodeLine
-	}
-
 	if length > 1 && parts[0] == "mode" &&
 		(parts[1] == "--pango_markup" || parts[1][0] == '"') {
 		return modeLine
@@ -65,34 +53,48 @@ func getLineType(parts []string) lineType {
 		return unmodeLine
 	}
 
+	if length > 1 {
+		switch parts[0] {
+		case "set":
+			return variableLine
+		case "bindsym":
+			return bindSymLine
+		case "bindcode":
+			return bindCodeLine
+		}
+	}
+
 	return skipLine
 }
 
+//BindingType holds a binding type
+type BindingType int
+
+const (
+	//SymbolBinding = bindsym
+	SymbolBinding BindingType = iota
+	//CodeBinding = bindcode
+	CodeBinding
+)
+
 //Binding holds one key binding. Can be keycode or keysymbol
 type Binding struct {
-	Key       string   `json:"key"`
-	Modifiers []string `json:"modifiers"`
-	Command   string   `json:"command"`
+	Key       string      `json:"key"`
+	Modifiers []string    `json:"modifiers"`
+	Command   string      `json:"command"`
+	Type      BindingType `json:"type"`
 }
 
 //Mode holds i3 bind modes
 type Mode struct {
-	Name    string    `json:"name"`
-	Symbols []Binding `json:"symbols"`
-	Codes   []Binding `json:"codes"`
+	Name     string    `json:"name"`
+	Bindings []Binding `json:"bindings"`
 }
 
 //Variable holds one variable in the config file
 type Variable struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
-}
-
-//KeyBindings holds multiple structs, used for return
-type KeyBindings struct {
-	Modes   []Mode    `json:"modes"`
-	Symbols []Binding `json:"symbols"`
-	Codes   []Binding `json:"codes"`
 }
 
 func parseMode(line string) string {
@@ -110,13 +112,13 @@ func parseMode(line string) string {
 }
 
 func parseKeys(parts []string) ([]string, string, string) {
-
 	var modifiers []string
 
 	length := len(parts)
 	if length < 3 {
 		return modifiers, "", ""
 	}
+
 	index := 1
 	if parts[1] == "--release" {
 		index = 2
@@ -134,20 +136,26 @@ func parseKeys(parts []string) ([]string, string, string) {
 	}
 
 	var cmdParts []string
-	for i := index + 1; i < len(parts); i++ {
-		if len(parts[i]) == 0 {
-			continue
-		}
-
-		if parts[i][0] == '#' {
-			break
-		}
-
+	for i := index + 1; i < len(parts) && parts[i][0] != '#'; i++ {
 		cmdParts = append(cmdParts, parts[i])
 	}
 	cmd := strings.Join(cmdParts, " ")
 
 	return modifiers, key, cmd
+}
+
+func parseBinding(parts []string) Binding {
+	var bindType BindingType
+	switch parts[0] {
+	case "bindsym":
+		bindType = SymbolBinding
+	case "bindcode":
+		bindType = CodeBinding
+	}
+
+	modifiers, key, cmd := parseKeys(parts)
+
+	return Binding{Modifiers: modifiers, Key: key, Command: cmd, Type: bindType}
 }
 
 /* TODO:
@@ -156,26 +164,24 @@ type Group string
 */
 
 //ParseFromRunning loads config from the running i3 instance
-func ParseFromRunning() (KeyBindings, error) {
+func ParseFromRunning() ([]Mode, []Binding, error) {
 	return parse(getConfigFromRunning())
 }
 
 //ParseFromFile loads config from path
-func ParseFromFile(path string) (KeyBindings, error) {
+func ParseFromFile(path string) ([]Mode, []Binding, error) {
 	return parse(getConfigFromFile(path))
 }
 
-func parse(confReader io.Reader, err error) (KeyBindings, error) {
-
+func parse(confReader io.Reader, err error) ([]Mode, []Binding, error) {
 	if err != nil {
-		return KeyBindings{}, errors.New("Couln't get the config file")
+		return []Mode{}, []Binding{}, errors.New("Couln't get the config file")
 	}
 
 	reader := bufio.NewReader(confReader)
 
 	var modes []Mode
-	var syms []Binding
-	var codes []Binding
+	var bindings []Binding
 	var variables []Variable
 
 	context := mainContext
@@ -187,15 +193,7 @@ func parse(confReader io.Reader, err error) (KeyBindings, error) {
 		line = helpers.TrimSpace(line)
 
 		if readErr != nil && readErr != io.EOF {
-			return KeyBindings{}, readErr
-		}
-
-		if len(line) == 0 {
-			continue
-		}
-
-		if line[0] == '#' {
-			continue
+			return []Mode{}, []Binding{}, readErr
 		}
 
 		var lineParts = helpers.SplitBySpace(line)
@@ -211,6 +209,7 @@ func parse(confReader io.Reader, err error) (KeyBindings, error) {
 			modes = append(modes, Mode{Name: name})
 		case unmodeLine:
 			context = mainContext
+			continue
 		}
 
 		if lineType == variableLine && len(lineParts) > 2 && lineParts[1][0] == '$' {
@@ -219,39 +218,28 @@ func parse(confReader io.Reader, err error) (KeyBindings, error) {
 		}
 
 		if lineType == bindSymLine || lineType == bindCodeLine {
-			modifiers, key, cmd := parseKeys(lineParts)
+			binding := parseBinding(lineParts)
 
-			binding := Binding{Key: key, Modifiers: modifiers, Command: cmd}
-
-			if context == modeContext && lineType == bindSymLine {
-				modes[len(modes)-1].Symbols = append(
-					modes[len(modes)-1].Symbols,
+			if context == modeContext {
+				modes[len(modes)-1].Bindings = append(
+					modes[len(modes)-1].Bindings,
 					binding,
 				)
-			} else if context == modeContext && lineType == bindSymLine {
-				modes[len(modes)-1].Codes = append(
-					modes[len(modes)-1].Codes,
-					binding,
-				)
-			} else if context == mainContext && lineType == bindSymLine {
-				syms = append(syms, binding)
-			} else if context == mainContext && lineType == bindCodeLine {
-				codes = append(codes, binding)
+			} else if context == mainContext {
+				bindings = append(bindings, binding)
 			}
 		}
-
 	}
 
-	allBindings := KeyBindings{
-		Modes:   modes,
-		Symbols: syms,
-		Codes:   codes,
+	modes = replaceVariablesInModes(variables, modes)
+	bindings = replaceVariablesInBindings(variables, bindings)
+
+	for key := range modes {
+		modes[key].Bindings = sortModifiers(modes[key].Bindings)
 	}
+	bindings = sortModifiers(bindings)
 
-	allBindings = replaceVariables(variables, allBindings)
-	allBindings = sortModifiers(allBindings)
-
-	return allBindings, nil
+	return modes, bindings, nil
 
 }
 
@@ -275,7 +263,6 @@ func replaceVariablesInBindings(variables []Variable, bindings []Binding) []Bind
 }
 
 func replaceVariablesInModes(variables []Variable, modes []Mode) []Mode {
-
 	for mkey, mode := range modes {
 		for _, variable := range variables {
 			if variable.Name == mode.Name {
@@ -283,35 +270,15 @@ func replaceVariablesInModes(variables []Variable, modes []Mode) []Mode {
 			}
 		}
 
-		modes[mkey].Symbols = replaceVariablesInBindings(variables, mode.Symbols)
-		modes[mkey].Codes = replaceVariablesInBindings(variables, mode.Codes)
+		modes[mkey].Bindings = replaceVariablesInBindings(variables, mode.Bindings)
 	}
 
 	return modes
 }
 
-func replaceVariables(variables []Variable, bindings KeyBindings) KeyBindings {
-	bindings.Symbols = replaceVariablesInBindings(variables, bindings.Symbols)
-	bindings.Codes = replaceVariablesInBindings(variables, bindings.Codes)
-	bindings.Modes = replaceVariablesInModes(variables, bindings.Modes)
-
-	return bindings
-}
-
-func sortSingleModifiers(bindings []Binding) []Binding {
+func sortModifiers(bindings []Binding) []Binding {
 	for key := range bindings {
 		sort.Strings(bindings[key].Modifiers)
-	}
-
-	return bindings
-}
-
-func sortModifiers(bindings KeyBindings) KeyBindings {
-	bindings.Symbols = sortSingleModifiers(bindings.Symbols)
-	bindings.Codes = sortSingleModifiers(bindings.Codes)
-	for key := range bindings.Modes {
-		bindings.Modes[key].Symbols = sortSingleModifiers(bindings.Modes[key].Symbols)
-		bindings.Modes[key].Codes = sortSingleModifiers(bindings.Modes[key].Codes)
 	}
 
 	return bindings

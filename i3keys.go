@@ -6,10 +6,10 @@ import (
 	"log"
 	"os"
 
-	"github.com/RasmusLindroth/i3keys/pkg/i3parse"
-	"github.com/RasmusLindroth/i3keys/pkg/keyboard"
-	"github.com/RasmusLindroth/i3keys/pkg/web"
-	"github.com/RasmusLindroth/i3keys/pkg/xlib"
+	"github.com/RasmusLindroth/i3keys/internal/i3parse"
+	"github.com/RasmusLindroth/i3keys/internal/keyboard"
+	"github.com/RasmusLindroth/i3keys/internal/web"
+	"github.com/RasmusLindroth/i3keys/internal/xlib"
 	flag "github.com/spf13/pflag"
 )
 
@@ -23,20 +23,23 @@ func main() {
 		os.Exit(1)
 	}
 
-	keys, err := i3parse.ParseFromRunning()
+	_, keys, err := i3parse.ParseFromRunning()
 
-	convertedCodes := i3parse.CodesToSymbols(keys.Codes)
-	var matchBindings []i3parse.Binding
-
-	matchBindings = append(matchBindings, keys.Symbols...)
-	matchBindings = append(matchBindings, convertedCodes...)
+	for key, item := range keys {
+		if item.Type == i3parse.CodeBinding {
+			res, err := i3parse.CodeToSymbol(item)
+			if err == nil {
+				keys[key] = res
+			}
+		}
+	}
 
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	var groups []i3parse.ModifierGroup
-	groups = i3parse.GetModifierGroups(matchBindings, groups)
+	groups = i3parse.GetModifierGroups(keys, groups)
 
 	groupsJSON, _ := json.Marshal(groups)
 

@@ -3,7 +3,7 @@ package keyboard
 import (
 	"errors"
 
-	"github.com/RasmusLindroth/i3keys/pkg/xlib"
+	"github.com/RasmusLindroth/i3keys/internal/xlib"
 )
 
 //ANSI holds evdev keys for an ANSI layout
