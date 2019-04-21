@@ -72,6 +72,7 @@ func getLineType(parts []string) lineType {
 type Binding struct {
 	Key       string   `json:"key"`
 	Modifiers []string `json:"modifiers"`
+	Command   string   `json:"command"`
 }
 
 //Mode holds i3 bind modes
@@ -108,13 +109,13 @@ func parseMode(line string) string {
 	return line[start:stop]
 }
 
-func parseKeys(parts []string) ([]string, string) {
+func parseKeys(parts []string) ([]string, string, string) {
 
 	var modifiers []string
 
 	length := len(parts)
 	if length < 3 {
-		return modifiers, ""
+		return modifiers, "", ""
 	}
 	index := 1
 	if parts[1] == "--release" {
@@ -132,7 +133,21 @@ func parseKeys(parts []string) ([]string, string) {
 		modifiers = append(modifiers, k)
 	}
 
-	return modifiers, key
+	var cmdParts []string
+	for i := index + 1; i < len(parts); i++ {
+		if len(parts[i]) == 0 {
+			continue
+		}
+
+		if parts[i][0] == '#' {
+			break
+		}
+
+		cmdParts = append(cmdParts, parts[i])
+	}
+	cmd := strings.Join(cmdParts, " ")
+
+	return modifiers, key, cmd
 }
 
 /* TODO:
@@ -204,9 +219,9 @@ func parse(confReader io.Reader, err error) (KeyBindings, error) {
 		}
 
 		if lineType == bindSymLine || lineType == bindCodeLine {
-			modifiers, key := parseKeys(lineParts)
+			modifiers, key, cmd := parseKeys(lineParts)
 
-			binding := Binding{Key: key, Modifiers: modifiers}
+			binding := Binding{Key: key, Modifiers: modifiers, Command: cmd}
 
 			if context == modeContext && lineType == bindSymLine {
 				modes[len(modes)-1].Symbols = append(

@@ -161,6 +161,10 @@ var indexTmplCSS = `:root {
 	line-height: normal;
   }
 
+  .key-desc {
+    font-weight: bold;
+  }
+
   .key-modifier {
 	background-color: #5cff87;
   }
@@ -240,6 +244,14 @@ function generateKeyboardGroup(kbLayout, generated, group) {
     let keyboardEl = document.createElement('div');
     keyboardEl.className = 'keyboard';
 
+    let kbTextDescElement = document.createElement('div');
+    let kbTextDescPElement = document.createElement('p');
+    let kbTextDescResElement = document.createElement('span');
+    kbTextDescResElement.className = "key-desc";
+    kbTextDescPElement.innerHTML = "Hover over a key to see the command bound to the key here: ";
+    kbTextDescPElement.appendChild(kbTextDescResElement);
+    kbTextDescElement.appendChild(kbTextDescPElement);
+
     modifierListKeys = Object.keys(modifierList);
 
     let enterHit = 0;
@@ -272,6 +284,10 @@ function generateKeyboardGroup(kbLayout, generated, group) {
                 for (let gi = 0; gi < group.bindings.length; gi++) {
                     if (group.bindings[gi].key == generated.content[i][k]) {
                         gHit = 2;
+                        keyEl.addEventListener("mouseover", () => {
+                          kbTextDescResElement.innerHTML = group.bindings[gi].command;
+                        });
+                        keyEl.dataset.command = group.bindings[gi].command;
                         break;
                     }
                 }
@@ -304,6 +320,7 @@ function generateKeyboardGroup(kbLayout, generated, group) {
     }
 
     kbWrapper.appendChild(keyboardEl);
+    kbWrapper.appendChild(kbTextDescElement);
 
     return kbWrapper;
 }

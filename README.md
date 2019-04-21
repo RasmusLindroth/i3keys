@@ -74,7 +74,7 @@ up an issue.
 Now you will need to start your browser and head over to the URL printed in 
 your terminal e.g. http://localhost:8080
 
-There you can select your keyboard layout and voilá!
+There you can select your keyboard layout and voilà!
 
 ### Disclaimer
 * It's only tested with evdev handling input. So maybe you get the wrong 
