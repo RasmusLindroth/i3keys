@@ -161,21 +161,26 @@ func Generate(kb keyboard.Keyboard, group i3parse.ModifierGroup, modifiers map[s
 		log.Fatalln(err)
 	}
 
-	for i := 0; i < len(iso); i++ {
+	usedKb := iso
+	if kb.Type == "ANSI" {
+		usedKb = ansi
+	}
+
+	for i := 0; i < len(usedKb); i++ {
 		k := 0
-		for j := 0; j < len(iso[i]); j++ {
-			if iso[i][j].Visible == false {
+		for j := 0; j < len(usedKb[i]); j++ {
+			if usedKb[i][j].Visible == false {
 				continue
 			}
 
 			content := kb.Content[i][k]
-			iso[i][j].Text = content
+			usedKb[i][j].Text = content
 
 			for _, modifier := range group.Modifiers {
 				if mlist, ok := modifiers[modifier]; ok {
 					for _, mval := range mlist {
 						if mval == content {
-							iso[i][j].Modifier = true
+							usedKb[i][j].Modifier = true
 						}
 					}
 				}
@@ -183,7 +188,7 @@ func Generate(kb keyboard.Keyboard, group i3parse.ModifierGroup, modifiers map[s
 
 			for _, binding := range group.Bindings {
 				if binding.Key == content {
-					iso[i][j].Active = true
+					usedKb[i][j].Active = true
 				}
 			}
 
@@ -192,7 +197,7 @@ func Generate(kb keyboard.Keyboard, group i3parse.ModifierGroup, modifiers map[s
 	}
 
 	var data bytes.Buffer
-	err = templ.Execute(&data, iso)
+	err = templ.Execute(&data, usedKb)
 	if err != nil {
 		log.Fatalln(err)
 	}

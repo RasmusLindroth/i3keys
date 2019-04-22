@@ -2,27 +2,23 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/RasmusLindroth/i3keys/internal/i3parse"
 	"github.com/RasmusLindroth/i3keys/internal/keyboard"
+	"github.com/RasmusLindroth/i3keys/internal/svg"
 	"github.com/RasmusLindroth/i3keys/internal/web"
 	"github.com/RasmusLindroth/i3keys/internal/xlib"
-	flag "github.com/spf13/pflag"
 )
 
-func main() {
-	var port string
-	flag.StringVarP(&port, "port", "p", "", "port for the web ui to listen on")
-	flag.Parse()
+const version string = "0.0.3"
 
-	if port == "" {
-		fmt.Fprintf(os.Stderr, "You need to set --port e.g. i3keys --port 8080\n")
-		os.Exit(1)
-	}
-
+func webOutput(port string) {
 	_, keys, err := i3parse.ParseFromRunning()
 
 	for key, item := range keys {
@@ -41,8 +37,6 @@ func main() {
 	var groups []i3parse.ModifierGroup
 	groups = i3parse.GetModifierGroups(keys, groups)
 
-	groupsJSON, _ := json.Marshal(groups)
-
 	kbISO, err := keyboard.MapKeyboard("ISO")
 
 	if err != nil {
@@ -55,6 +49,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
+	groupsJSON, _ := json.Marshal(groups)
 	ISOkeyboardJSON, _ := json.Marshal(kbISO)
 	ANSIkeyboardJSON, _ := json.Marshal(kbANSI)
 	blacklistJSON, _ := json.Marshal(web.Blacklist)
@@ -65,10 +60,110 @@ func main() {
 	handler := web.New(js)
 
 	fmt.Printf("Starting server at http://localhost:%s\nGo there "+
-		"to see all of your available keys.", port)
+		"to see all of your available keys.\n\n", port)
 	err = handler.Start(port)
 	if err != nil {
 		log.Fatalln(err)
 	}
+}
 
+func svgOutput(layout string, dest string) {
+	_, keys, err := i3parse.ParseFromRunning()
+
+	layout = strings.ToUpper(layout)
+	if dest == "" {
+		dest = filepath.Join("./")
+	}
+
+	for key, item := range keys {
+		if item.Type == i3parse.CodeBinding {
+			res, err := i3parse.CodeToSymbol(item)
+			if err == nil {
+				keys[key] = res
+			}
+		}
+	}
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	var groups []i3parse.ModifierGroup
+	groups = i3parse.GetModifierGroups(keys, groups)
+
+	kb, err := keyboard.MapKeyboard(layout)
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	for _, group := range groups {
+		data := svg.Generate(kb, group, xlib.GetModifiers())
+
+		fname := "no-modifiers"
+		if len(group.Modifiers) > 0 {
+			fname = strings.Join(group.Modifiers, "-")
+		}
+		fname = fname + "-" + layout + ".svg"
+
+		file, err := os.Create(filepath.Join(dest, fname))
+
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		file.Write(data)
+	}
+
+}
+
+func helpText(exitCode int) {
+	fmt.Printf("Usage:\n\n\ti3keys <command> [arguments]\n\n")
+	fmt.Printf("The commands are:\n\n")
+	fmt.Println("\tweb <port>            start the web ui and listen on <port>")
+	fmt.Println("\tsvg <layout> [dest]   outputs one SVG file for each modifier group. <layout> can be ISO or ANSI, [dest] defaults to current directory")
+	fmt.Println("\tversion               print i3keys version")
+	os.Exit(exitCode)
+}
+
+func main() {
+	webCmd := flag.NewFlagSet("web", flag.ExitOnError)
+	webCmd.String("port", "", "port to listen on")
+
+	if len(os.Args) == 1 {
+		helpText(2)
+	}
+
+	cmd := os.Args[1]
+
+	if cmd == "web" && len(os.Args) < 3 {
+		fmt.Println("You need to set the <port>")
+		os.Exit(2)
+	}
+
+	if (cmd == "svg" && len(os.Args) < 3) ||
+		(cmd == "svg" && len(os.Args) > 2 &&
+			(strings.ToUpper(os.Args[2]) != "ISO" &&
+				strings.ToUpper(os.Args[2]) != "ANSI")) {
+		fmt.Println("You need to set the <layout> to ISO or ANSI")
+		os.Exit(2)
+	}
+
+	switch cmd {
+	case "web":
+		webOutput(os.Args[2])
+	case "svg":
+		if len(os.Args) < 4 {
+			svgOutput(os.Args[2], "")
+		} else {
+			svgOutput(os.Args[2], os.Args[3])
+		}
+	case "version":
+		fmt.Printf("i3keys version %s by Rasmus Lindroth\n", version)
+		os.Exit(0)
+	case "help":
+		helpText(0)
+	default:
+		helpText(2)
+	}
 }
