@@ -1,11 +1,5 @@
 package i3parse
 
-//ModifierGroup holds bindings with the same modifiers
-type ModifierGroup struct {
-	Modifiers []string  `json:"modifiers"`
-	Bindings  []Binding `json:"bindings"`
-}
-
 func compareSlices(a []string, b []string) bool {
 	if len(a) != len(b) {
 		return false
