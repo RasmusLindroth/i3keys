@@ -10,21 +10,6 @@ import (
 	"github.com/RasmusLindroth/i3keys/internal/helpers"
 )
 
-type lineType uint
-type context uint
-
-const (
-	skipLine lineType = iota
-	variableLine
-	bindCodeLine
-	bindSymLine
-	modeLine
-	unmodeLine
-
-	mainContext context = iota
-	modeContext
-)
-
 func getLineType(parts []string) lineType {
 	if len(parts) == 0 {
 		return skipLine
@@ -52,86 +37,6 @@ func getLineType(parts []string) lineType {
 	}
 
 	return skipLine
-}
-
-//BindingType holds a binding type
-type BindingType int
-
-const (
-	//SymbolBinding = bindsym
-	SymbolBinding BindingType = iota
-	//CodeBinding = bindcode
-	CodeBinding
-)
-
-//Binding holds one key binding. Can be keycode or keysymbol
-type Binding struct {
-	Key       string      `json:"key"`
-	Modifiers []string    `json:"modifiers"`
-	Command   string      `json:"command"`
-	Type      BindingType `json:"type"`
-}
-
-//Mode holds i3 bind modes
-type Mode struct {
-	Name     string    `json:"name"`
-	Bindings []Binding `json:"bindings"`
-}
-
-//Variable holds one variable in the config file
-type Variable struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
-}
-
-func parseMode(line string) string {
-	start, stop := 0, 0
-	for i := 0; i < len(line); i++ {
-		if line[i] == '"' && start == 0 {
-			start = i + 1
-		}
-
-		if line[i] == '"' && start != 0 {
-			stop = i
-		}
-	}
-	return line[start:stop]
-}
-
-func parseBindingParts(parts []string) ([]string, string, string) {
-	var modifiers []string
-
-	index := 1
-	if parts[1] == "--release" {
-		index = 2
-	}
-
-	keys := strings.Split(parts[index], "+")
-
-	key := keys[len(keys)-1]
-	modifiers = append(modifiers, keys[:len(keys)-1]...)
-
-	var cmdParts []string
-	for i := index + 1; i < len(parts) && parts[i][0] != '#'; i++ {
-		cmdParts = append(cmdParts, parts[i])
-	}
-	cmd := strings.Join(cmdParts, " ")
-
-	return modifiers, key, cmd
-}
-
-func parseBinding(parts []string) Binding {
-	var bindType BindingType
-	switch parts[0] {
-	case "bindsym":
-		bindType = SymbolBinding
-	case "bindcode":
-		bindType = CodeBinding
-	}
-
-	modifiers, key, cmd := parseBindingParts(parts)
-
-	return Binding{Modifiers: modifiers, Key: key, Command: cmd, Type: bindType}
 }
 
 /* TODO:
@@ -221,6 +126,56 @@ func parse(confReader io.Reader, err error) ([]Mode, []Binding, error) {
 	bindings = sortModifiers(bindings)
 
 	return modes, bindings, nil
+}
+
+func parseMode(line string) string {
+	start, stop := 0, 0
+	for i := 0; i < len(line); i++ {
+		if line[i] == '"' && start == 0 {
+			start = i + 1
+		}
+
+		if line[i] == '"' && start != 0 {
+			stop = i
+		}
+	}
+	return line[start:stop]
+}
+
+func parseBindingParts(parts []string) ([]string, string, string) {
+	var modifiers []string
+
+	index := 1
+	if parts[1] == "--release" {
+		index = 2
+	}
+
+	keys := strings.Split(parts[index], "+")
+
+	key := keys[len(keys)-1]
+	modifiers = append(modifiers, keys[:len(keys)-1]...)
+
+	var cmdParts []string
+	for i := index + 1; i < len(parts) && parts[i][0] != '#'; i++ {
+		cmdParts = append(cmdParts, parts[i])
+	}
+	cmd := strings.Join(cmdParts, " ")
+
+	return modifiers, key, cmd
+}
+
+func parseBinding(parts []string) Binding {
+	var bindType BindingType
+	switch parts[0] {
+	case "bindsym":
+		bindType = SymbolBinding
+	case "bindcode":
+		bindType = CodeBinding
+	}
+
+	modifiers, key, cmd := parseBindingParts(parts)
+
+	return Binding{Modifiers: modifiers, Key: key, Command: cmd, Type: bindType}
 }
 
 func parseVariable(parts []string) Variable {

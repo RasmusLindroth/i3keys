@@ -9,6 +9,9 @@ anymore.
 The program will ouput one separate keyboard for all of your different modifier 
 combinations. And the keyboard will look like your keymap. I hope :)
 
+You can see the results in two ways. Either by opening a local web page or 
+output the keyboards as SVG files.
+
 ### Example of the output for Mod4 + any key
 ![Example image](https://i.imgur.com/4J1fbdQ.png)
 * Green = the modifier key(s)
@@ -35,14 +38,13 @@ git clone https://github.com/RasmusLindroth/i3keys.git
 //Install
 go install
 
-//Run
-i3keys --port 8080
+//Run web interface on port 8080
+i3keys web 8080
 
-//If run doesn't work
-cd $HOME/go/bin
+//or output SVG to the current directory
+i3keys svg ISO ./
 
-//Try again
-i3keys --port 8080
+//If starting doesn't work try running it from $HOME/go/bin
 ```
 
 Alternative way to install
@@ -56,14 +58,13 @@ cd $HOME/go/src/github.com/RasmusLindroth/i3keys
 //Install
 go install
 
-//Run
-i3keys --port 8080
+//Run web interface on port 8080
+i3keys web 8080
 
-//If run doesn't work
-cd $HOME/go/bin
+//or output SVG to the current directory
+i3keys svg ISO ./
 
-//Try again
-i3keys --port 8080
+//If starting doesn't work try running it from $HOME/go/bin
 ```
 
 If you still having problems see the 
@@ -75,6 +76,23 @@ Now you will need to start your browser and head over to the URL printed in
 your terminal e.g. http://localhost:8080
 
 There you can select your keyboard layout and voilà!
+
+Or if you have selected to out SVG files. Open them with a program that supports 
+SVG files. For example your program for viewing images, InkScape or a browser.
+
+### Help message
+
+```
+Usage:
+
+	i3keys <command> [arguments]
+
+The commands are:
+
+	web <port>            start the web ui and listen on <port>
+	svg <layout> [dest]   outputs one SVG file for each modifier group. <layout> can be ISO or ANSI, [dest] defaults to current directory
+	version               print i3keys version
+```
 
 ### Disclaimer
 * It's only tested with evdev handling input. So maybe you get the wrong 
