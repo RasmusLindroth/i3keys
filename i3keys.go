@@ -16,7 +16,7 @@ import (
 	"github.com/RasmusLindroth/i3keys/internal/xlib"
 )
 
-const version string = "0.0.3"
+const version string = "0.0.4"
 
 func webOutput(port string) {
 	_, keys, err := i3parse.ParseFromRunning()
@@ -67,6 +67,69 @@ func webOutput(port string) {
 	}
 }
 
+func textOutput(layout string) {
+	_, keys, err := i3parse.ParseFromRunning()
+
+	layout = strings.ToUpper(layout)
+
+	for key, item := range keys {
+		if item.Type == i3parse.CodeBinding {
+			res, err := i3parse.CodeToSymbol(item)
+			if err == nil {
+				keys[key] = res
+			}
+		}
+	}
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	var groups []i3parse.ModifierGroup
+	groups = i3parse.GetModifierGroups(keys, groups)
+
+	kb, err := keyboard.MapKeyboard(layout)
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	fmt.Printf("Available keybindings per modifier group\n\n")
+	for gIndex, group := range groups {
+		mgroup := strings.Join(group.Modifiers, "+")
+		if mgroup == "" {
+			mgroup = "No modifiers"
+		}
+		dots := "-"
+		for i := 0; i < len(mgroup); i++ {
+			dots = dots + "-"
+		}
+
+		fmt.Printf("%s:\n%s\n", mgroup, dots)
+
+		for _, keyRow := range kb.Content {
+			var unused []string
+			for _, key := range keyRow {
+				used := false
+				for _, usedKey := range group.Bindings {
+					if usedKey.Key == key {
+						used = true
+						break
+					}
+				}
+				if used == false {
+					unused = append(unused, key)
+				}
+			}
+			unusedStr := strings.Join(unused, ", ")
+			fmt.Printf("%s\n", unusedStr)
+		}
+		if gIndex+1 < len(groups) {
+			fmt.Printf("\n\n")
+		}
+	}
+}
+
 func svgOutput(layout string, dest string) {
 	_, keys, err := i3parse.ParseFromRunning()
 
@@ -114,13 +177,13 @@ func svgOutput(layout string, dest string) {
 
 		file.Write(data)
 	}
-
 }
 
 func helpText(exitCode int) {
 	fmt.Printf("Usage:\n\n\ti3keys <command> [arguments]\n\n")
 	fmt.Printf("The commands are:\n\n")
 	fmt.Println("\tweb <port>            start the web ui and listen on <port>")
+	fmt.Println("\ttext <layout>         output available keybindings in the terminal. <layout> can be ISO or ANSI")
 	fmt.Println("\tsvg <layout> [dest]   outputs one SVG file for each modifier group. <layout> can be ISO or ANSI, [dest] defaults to current directory")
 	fmt.Println("\tversion               print i3keys version")
 	os.Exit(exitCode)
@@ -141,10 +204,15 @@ func main() {
 		os.Exit(2)
 	}
 
+	layoutCheck := len(os.Args) > 2 && (strings.ToUpper(os.Args[2]) != "ISO" && strings.ToUpper(os.Args[2]) != "ANSI")
+
+	if cmd == "text" && len(os.Args) < 3 || layoutCheck {
+		fmt.Println("You need to set the <layout> to ISO or ANSI")
+		os.Exit(2)
+	}
+
 	if (cmd == "svg" && len(os.Args) < 3) ||
-		(cmd == "svg" && len(os.Args) > 2 &&
-			(strings.ToUpper(os.Args[2]) != "ISO" &&
-				strings.ToUpper(os.Args[2]) != "ANSI")) {
+		(cmd == "svg" && layoutCheck) {
 		fmt.Println("You need to set the <layout> to ISO or ANSI")
 		os.Exit(2)
 	}
@@ -152,6 +220,8 @@ func main() {
 	switch cmd {
 	case "web":
 		webOutput(os.Args[2])
+	case "text":
+		textOutput(os.Args[2])
 	case "svg":
 		if len(os.Args) < 4 {
 			svgOutput(os.Args[2], "")
