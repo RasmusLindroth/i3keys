@@ -16,7 +16,7 @@ import (
 	"github.com/RasmusLindroth/i3keys/internal/xlib"
 )
 
-const version string = "0.0.4"
+const version string = "0.0.5"
 
 func webOutput(port string) {
 	_, keys, err := i3parse.ParseFromRunning()
