@@ -206,7 +206,7 @@ func main() {
 
 	layoutCheck := len(os.Args) > 2 && (strings.ToUpper(os.Args[2]) != "ISO" && strings.ToUpper(os.Args[2]) != "ANSI")
 
-	if cmd == "text" && len(os.Args) < 3 || layoutCheck {
+	if cmd == "text" && len(os.Args) < 3 || (cmd == "text" && layoutCheck) {
 		fmt.Println("You need to set the <layout> to ISO or ANSI")
 		os.Exit(2)
 	}
