@@ -72,6 +72,10 @@ var indexTmplCSS = `:root {
 	text-align: center;
 	line-height: var(--key-size);
   }
+
+  .key > .txt {
+  pointer-events: none;
+  }
   
   .emptySmall {
 	grid-column: auto / span 2;
@@ -175,163 +179,139 @@ var indexTmplCSS = `:root {
 `
 var indexTmplJS = `/*
 keyTypes = {
-    'single': [1, 1], //one key
-    'emptySingle': [1, 1], //empty one key
-    'emptySmall': [0.5, 1], //gap between f-keys
-    'double': [2, 1], //backspace
-    'onehalf': [1.5, 1], //tab
-    'doubleY': [1, 2], //numpad +, enter
-    'semidouble': [1.75, 1], //caps
-    'modifier': [1.25, 1], //ctrl
-    'semilarge': [2.25, 1],
-    'large': [2.75, 1], //right shift
-    'space': [6.25, 1], //space
-    'enterUp': [1.5, 1],  //enter
-    'enterDown': [1.25, 1],  //enter
+  'single': [1, 1], //one key
+  'emptySingle': [1, 1], //empty one key
+  'emptySmall': [0.5, 1], //gap between f-keys
+  'double': [2, 1], //backspace
+  'onehalf': [1.5, 1], //tab
+  'doubleY': [1, 2], //numpad +, enter
+  'semidouble': [1.75, 1], //caps
+  'modifier': [1.25, 1], //ctrl
+  'semilarge': [2.25, 1],
+  'large': [2.75, 1], //right shift
+  'space': [6.25, 1], //space
+  'enterUp': [1.5, 1],  //enter
+  'enterDown': [1.25, 1],  //enter
 };
 */
 
 ansi = [
-    ["single", "emptySingle", "single", "single", "single", "single", "emptySmall", "single", "single", "single", "single", "emptySmall", "single", "single", "single", "single", "emptySmall", "single", "single", "single"],
-    ["single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "double", "emptySmall", "single", "single", "single", "emptySmall", "single", "single", "single", "single"],
-    ["onehalf", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "onehalf", "emptySmall", "single", "single", "single", "emptySmall", "single", "single", "single", "doubleY"],
-    ["semidouble", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "semilarge", "emptySmall", "emptySingle", "emptySingle", "emptySingle", "emptySmall", "single", "single", "single"],
-    ["semilarge", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "large", "emptySmall", "emptySingle", "single", "emptySingle", "emptySmall", "single", "single", "single", "doubleY"],
-    ["modifier", "modifier", "modifier", "space", "modifier", "modifier", "modifier", "modifier", "emptySmall", "single", "single", "single", "emptySmall", "double", "single"]
+  ["single", "emptySingle", "single", "single", "single", "single", "emptySmall", "single", "single", "single", "single", "emptySmall", "single", "single", "single", "single", "emptySmall", "single", "single", "single"],
+  ["single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "double", "emptySmall", "single", "single", "single", "emptySmall", "single", "single", "single", "single"],
+  ["onehalf", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "onehalf", "emptySmall", "single", "single", "single", "emptySmall", "single", "single", "single", "doubleY"],
+  ["semidouble", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "semilarge", "emptySmall", "emptySingle", "emptySingle", "emptySingle", "emptySmall", "single", "single", "single"],
+  ["semilarge", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "large", "emptySmall", "emptySingle", "single", "emptySingle", "emptySmall", "single", "single", "single", "doubleY"],
+  ["modifier", "modifier", "modifier", "space", "modifier", "modifier", "modifier", "modifier", "emptySmall", "single", "single", "single", "emptySmall", "double", "single"]
 ];
 
 iso = [
-    ["single", "emptySingle", "single", "single", "single", "single", "emptySmall", "single", "single", "single", "single", "emptySmall", "single", "single", "single", "single", "emptySmall", "single", "single", "single"],
-    ["single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "double", "emptySmall", "single", "single", "single", "emptySmall", "single", "single", "single", "single"],
-    ["onehalf", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "enterUp", "emptySmall", "single", "single", "single", "emptySmall", "single", "single", "single", "doubleY"],
-    ["semidouble", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "enterDown", "emptySmall", "emptySingle", "emptySingle", "emptySingle", "emptySmall", "single", "single", "single"],
-    ["modifier", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "large", "emptySmall", "emptySingle", "single", "emptySingle", "emptySmall", "single", "single", "single", "doubleY"],
-    ["modifier", "modifier", "modifier", "space", "modifier", "modifier", "modifier", "modifier", "emptySmall", "single", "single", "single", "emptySmall", "double", "single"]
+  ["single", "emptySingle", "single", "single", "single", "single", "emptySmall", "single", "single", "single", "single", "emptySmall", "single", "single", "single", "single", "emptySmall", "single", "single", "single"],
+  ["single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "double", "emptySmall", "single", "single", "single", "emptySmall", "single", "single", "single", "single"],
+  ["onehalf", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "enterUp", "emptySmall", "single", "single", "single", "emptySmall", "single", "single", "single", "doubleY"],
+  ["semidouble", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "enterDown", "emptySmall", "emptySingle", "emptySingle", "emptySingle", "emptySmall", "single", "single", "single"],
+  ["modifier", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "large", "emptySmall", "emptySingle", "single", "emptySingle", "emptySmall", "single", "single", "single", "doubleY"],
+  ["modifier", "modifier", "modifier", "space", "modifier", "modifier", "modifier", "modifier", "emptySmall", "single", "single", "single", "emptySmall", "double", "single"]
 ];
 
 let keyboardHolder = document.querySelector('#keyboard-holder');
 
 
-function generateKeyboard(generated) {
+function generateKeyboard(layout, generated) {
 
-    let kbLayout;
+  let kbLayout;
 
-    if (generated.type == "ANSI") {
-        kbLayout = ansi;
-    } else {
-        kbLayout = iso;
-    }
+  if (layout == "ANSI") {
+      kbLayout = ansi;
+  } else {
+      kbLayout = iso;
+  }
 
-    for (let i = 0; i < groups.length; i++) {
-        let newKeyboardGroup = generateKeyboardGroup(kbLayout, generated, groups[i]);
-        keyboardHolder.appendChild(newKeyboardGroup);
-    }
+  for (let i = 0; i < generated.length; i++) {
+      let newKeyboardGroup = generateKeyboardGroup(kbLayout, generated[i]);
+      keyboardHolder.appendChild(newKeyboardGroup);
+  }
 }
 
-function generateKeyboardGroup(kbLayout, generated, group) {
-    let kbWrapper = document.createElement('div');
+function generateKeyboardGroup(kbLayout, generated) {
+  let kbWrapper = document.createElement('div');
 
-    let headingEl = document.createElement('h3');
-    let headingContent = 'No modifiers';
+  let headingEl = document.createElement('h3');
+  let headingContent = generated.Name;
 
-    if (group.modifiers != null && group.modifiers.length > 0) {
-        headingContent = group.modifiers.join('+');
-    }
 
-    headingEl.innerHTML = headingContent;
-    kbWrapper.appendChild(headingEl);
+  headingEl.innerHTML = headingContent;
+  kbWrapper.appendChild(headingEl);
 
-    let keyboardEl = document.createElement('div');
-    keyboardEl.className = 'keyboard';
+  let keyboardEl = document.createElement('div');
+  keyboardEl.className = 'keyboard';
 
-    let kbTextDescElement = document.createElement('div');
-    let kbTextDescPElement = document.createElement('p');
-    let kbTextDescResElement = document.createElement('span');
-    kbTextDescResElement.className = "key-desc";
-    kbTextDescPElement.innerHTML = "Hover over a key to see the command bound to the key here: ";
-    kbTextDescPElement.appendChild(kbTextDescResElement);
-    kbTextDescElement.appendChild(kbTextDescPElement);
+  let kbTextDescElement = document.createElement('div');
+  let kbTextDescPElement = document.createElement('p');
+  let kbTextDescResElement = document.createElement('span');
+  kbTextDescResElement.className = "key-desc";
+  kbTextDescPElement.innerHTML = "Hover over a key to see the command bound to the key here: ";
+  kbTextDescPElement.appendChild(kbTextDescResElement);
+  kbTextDescElement.appendChild(kbTextDescPElement);
 
-    modifierListKeys = Object.keys(modifierList);
+  let enterHit = 0;
 
-    let enterHit = 0;
+  for (let i = 0; i < kbLayout.length; i++) {
+      let k = 0;
+      for (let j = 0; j < kbLayout[i].length; j++) {
+          keyEl = document.createElement('div');
+          let gHit = 0;
+          if (kbLayout[i][j] != "emptySingle" && kbLayout[i][j] != "emptySmall" && kbLayout[i][j] != "enterDown") {
 
-    for (let i = 0; i < kbLayout.length; i++) {
-        let k = 0;
-        for (let j = 0; j < kbLayout[i].length; j++) {
-            keyEl = document.createElement('div');
-            let gHit = 0;
-            if (kbLayout[i][j] != "emptySingle" && kbLayout[i][j] != "emptySmall" && kbLayout[i][j] != "enterDown") {
+              if (generated.Keys[i][k].Modifier) {
+                  gHit = 1;
+              }
 
-                for (let mi = 0; group.modifiers != null && mi < group.modifiers.length; mi++) {
-                    if (!modifierListKeys.includes(group.modifiers[mi])) {
-                        continue;
-                    }
-                    for (let mj = 0; mj < modifierListKeys.length; mj++) {
-                        let mk = modifierListKeys[mj];
-                        if (mk != group.modifiers[mi]) {
-                            continue;
-                        }
+              if (generated.Keys[i][k].InUse) {
+                  gHit = 2;
+                  keyEl.dataset.command = generated.Keys[i][k].Binding.command;
 
-                        for (let mx = 0; mx < modifierList[mk].length; mx++) {
-                            if (generated.content[i][k] == modifierList[mk][mx]) {
-                                gHit = 1;
-                            }
-                        }
-                    }
-                }
+                  keyEl.addEventListener("mouseover", (e) => {
+                      kbTextDescResElement.innerHTML = e.target.dataset.command;
+                  });
+              }
 
-                for (let gi = 0; gi < group.bindings.length; gi++) {
-                    if (group.bindings[gi].key == generated.content[i][k]) {
-                        gHit = 2;
-                        keyEl.addEventListener("mouseover", () => {
-                          kbTextDescResElement.innerHTML = group.bindings[gi].command;
-                        });
-                        keyEl.dataset.command = group.bindings[gi].command;
-                        break;
-                    }
-                }
+              if (kbLayout[i][j] == "enterUp") {
+                  enterHit = gHit
+              }
 
-                if (kbLayout[i][j] == "enterUp") {
-                    enterHit = gHit
-                }
+              keyEl.innerHTML = '<span class="txt">' + generated.Keys[i][k].Symbol + '</span>';
 
-                if (typeof generated.keys[i][k] !== 'undefiend' && generated.keys[i][k][0] == "A" && !blacklist.includes(generated.codes[i][k])) {
-                    keyEl.innerHTML = "<span class=\"txt\">&#" + generated.codes[i][k] + ";</span>";
-                } else {
-                    keyEl.innerHTML = '<span class="txt">' + generated.content[i][k] + '</span>';
-                }
-                k++;
-            }
+              k++;
+          }
 
-            if (kbLayout[i][j] == "enterDown") {
-                gHit = enterHit;
-            }
+          if (kbLayout[i][j] == "enterDown") {
+              gHit = enterHit;
+          }
 
-            let usedStatus = "";
-            if (gHit == 1) {
-                usedStatus = "key-modifier";
-            } else if (gHit == 2) {
-                usedStatus = 'key-used';
-            }
-            keyEl.className = "key " + kbLayout[i][j] + " row-" + i + " " + usedStatus;
-            keyboardEl.appendChild(keyEl);
-        }
-    }
+          let usedStatus = "";
+          if (gHit == 1) {
+              usedStatus = "key-modifier";
+          } else if (gHit == 2) {
+              usedStatus = 'key-used';
+          }
+          keyEl.className = "key " + kbLayout[i][j] + " row-" + i + " " + usedStatus;
+          keyboardEl.appendChild(keyEl);
+      }
+  }
 
-    kbWrapper.appendChild(keyboardEl);
-    kbWrapper.appendChild(kbTextDescElement);
+  kbWrapper.appendChild(keyboardEl);
+  kbWrapper.appendChild(kbTextDescElement);
 
-    return kbWrapper;
+  return kbWrapper;
 }
 
 document.getElementById('select-iso').addEventListener('click', function () {
-    generateKeyboard(generatedISO);
-    document.getElementById('select-layout').style.display = 'none';
+  generateKeyboard('ISO', generatedISO);
+  document.getElementById('select-layout').style.display = 'none';
 });
 
 document.getElementById('select-ansi').addEventListener('click', function () {
-    generateKeyboard(generatedANSI);
-    document.getElementById('select-layout').style.display = 'none';
+  generateKeyboard('ANSI', generatedANSI);
+  document.getElementById('select-layout').style.display = 'none';
 });
 `
