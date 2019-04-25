@@ -15,7 +15,8 @@ func compareSlices(a []string, b []string) bool {
 }
 
 //GetModifierGroups groups bindings that have the same modifiers
-func GetModifierGroups(bindings []Binding, groups []ModifierGroup) []ModifierGroup {
+func GetModifierGroups(bindings []Binding) []ModifierGroup {
+	var groups []ModifierGroup
 	for _, binding := range bindings {
 		match := false
 		for gKey, group := range groups {

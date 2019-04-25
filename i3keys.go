@@ -18,9 +18,7 @@ import (
 
 const version string = "0.0.5"
 
-func webOutput(port string) {
-	_, keys, err := i3parse.ParseFromRunning()
-
+func keysToSymbol(keys []i3parse.Binding) []i3parse.Binding {
 	for key, item := range keys {
 		if item.Type == i3parse.CodeBinding {
 			res, err := i3parse.CodeToSymbol(item)
@@ -29,33 +27,41 @@ func webOutput(port string) {
 			}
 		}
 	}
+	return keys
+}
+
+func webOutput(port string) {
+	_, keys, err := i3parse.ParseFromRunning()
 
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	var groups []i3parse.ModifierGroup
-	groups = i3parse.GetModifierGroups(keys, groups)
+	keys = keysToSymbol(keys)
 
-	kbISO, err := keyboard.MapKeyboard("ISO")
+	modifiers := xlib.GetModifiers()
+	groups := i3parse.GetModifierGroups(keys)
 
-	if err != nil {
-		log.Fatalln(err)
+	var isoKeyboards []keyboard.Keyboard
+	var ansiKeyboards []keyboard.Keyboard
+	for _, group := range groups {
+		kbISO, err := keyboard.MapKeyboard("ISO", group, modifiers)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		isoKeyboards = append(isoKeyboards, kbISO)
+
+		kbANSI, err := keyboard.MapKeyboard("ANSI", group, modifiers)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		ansiKeyboards = append(ansiKeyboards, kbANSI)
 	}
 
-	kbANSI, err := keyboard.MapKeyboard("ANSI")
+	ISOkeyboardJSON, _ := json.Marshal(isoKeyboards)
+	ANSIkeyboardJSON, _ := json.Marshal(ansiKeyboards)
 
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	groupsJSON, _ := json.Marshal(groups)
-	ISOkeyboardJSON, _ := json.Marshal(kbISO)
-	ANSIkeyboardJSON, _ := json.Marshal(kbANSI)
-	blacklistJSON, _ := json.Marshal(web.Blacklist)
-	modifiers, _ := json.Marshal(xlib.GetModifiers())
-
-	js := fmt.Sprintf("let blacklist = %s;\nlet groups = %s;\nlet generatedISO = %s;\nlet generatedANSI = %s;\n let modifierList = %s;", blacklistJSON, groupsJSON, ISOkeyboardJSON, ANSIkeyboardJSON, modifiers)
+	js := fmt.Sprintf("let generatedISO = %s;\nlet generatedANSI = %s;", ISOkeyboardJSON, ANSIkeyboardJSON)
 
 	handler := web.New(js)
 
@@ -70,61 +76,45 @@ func webOutput(port string) {
 func textOutput(layout string) {
 	_, keys, err := i3parse.ParseFromRunning()
 
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	layout = strings.ToUpper(layout)
 
-	for key, item := range keys {
-		if item.Type == i3parse.CodeBinding {
-			res, err := i3parse.CodeToSymbol(item)
-			if err == nil {
-				keys[key] = res
-			}
+	keys = keysToSymbol(keys)
+
+	groups := i3parse.GetModifierGroups(keys)
+	modifiers := xlib.GetModifiers()
+
+	var keyboards []keyboard.Keyboard
+	for _, group := range groups {
+		kb, err := keyboard.MapKeyboard(layout, group, modifiers)
+		if err == nil {
+			keyboards = append(keyboards, kb)
 		}
-	}
-
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	var groups []i3parse.ModifierGroup
-	groups = i3parse.GetModifierGroups(keys, groups)
-
-	kb, err := keyboard.MapKeyboard(layout)
-
-	if err != nil {
-		log.Fatalln(err)
 	}
 
 	fmt.Printf("Available keybindings per modifier group\n\n")
-	for gIndex, group := range groups {
-		mgroup := strings.Join(group.Modifiers, "+")
-		if mgroup == "" {
-			mgroup = "No modifiers"
-		}
+	for kbIndex, kb := range keyboards {
 		dots := "-"
-		for i := 0; i < len(mgroup); i++ {
+		for i := 0; i < len(kb.Name); i++ {
 			dots = dots + "-"
 		}
 
-		fmt.Printf("%s:\n%s\n", mgroup, dots)
+		fmt.Printf("%s:\n%s\n", kb.Name, dots)
 
-		for _, keyRow := range kb.Content {
+		for _, keyRow := range kb.Keys {
 			var unused []string
 			for _, key := range keyRow {
-				used := false
-				for _, usedKey := range group.Bindings {
-					if usedKey.Key == key {
-						used = true
-						break
-					}
-				}
-				if used == false {
-					unused = append(unused, key)
+				if key.InUse == false {
+					unused = append(unused, key.Symbol)
 				}
 			}
 			unusedStr := strings.Join(unused, ", ")
 			fmt.Printf("%s\n", unusedStr)
 		}
-		if gIndex+1 < len(groups) {
+		if kbIndex+1 < len(groups) {
 			fmt.Printf("\n\n")
 		}
 	}
@@ -133,35 +123,28 @@ func textOutput(layout string) {
 func svgOutput(layout string, dest string) {
 	_, keys, err := i3parse.ParseFromRunning()
 
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	keys = keysToSymbol(keys)
+
 	layout = strings.ToUpper(layout)
 	if dest == "" {
 		dest = filepath.Join("./")
 	}
 
-	for key, item := range keys {
-		if item.Type == i3parse.CodeBinding {
-			res, err := i3parse.CodeToSymbol(item)
-			if err == nil {
-				keys[key] = res
-			}
-		}
-	}
-
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	var groups []i3parse.ModifierGroup
-	groups = i3parse.GetModifierGroups(keys, groups)
-
-	kb, err := keyboard.MapKeyboard(layout)
-
-	if err != nil {
-		log.Fatalln(err)
-	}
+	groups := i3parse.GetModifierGroups(keys)
+	modifiers := xlib.GetModifiers()
 
 	for _, group := range groups {
-		data := svg.Generate(kb, group, xlib.GetModifiers())
+		kb, err := keyboard.MapKeyboard(layout, group, modifiers)
+
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		data := svg.Generate(layout, kb)
 
 		fname := "no-modifiers"
 		if len(group.Modifiers) > 0 {

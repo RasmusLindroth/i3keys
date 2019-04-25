@@ -7,7 +7,6 @@ import (
 	"math"
 	"text/template"
 
-	"github.com/RasmusLindroth/i3keys/internal/i3parse"
 	"github.com/RasmusLindroth/i3keys/internal/keyboard"
 )
 
@@ -45,7 +44,7 @@ type keyType struct {
 	Enter    bool
 	Text     string
 	Modifier bool
-	Active   bool
+	InUse    bool
 }
 
 var (
@@ -83,7 +82,7 @@ var iso = [][]keyType{
 }
 
 //Generate creates an SVG image of the keyboard
-func Generate(kb keyboard.Keyboard, group i3parse.ModifierGroup, modifiers map[string][]string) []byte {
+func Generate(layout string, kb keyboard.Keyboard) []byte {
 	funcMap := template.FuncMap{
 		// The name "inc" is what the function will be called in the template text.
 		"incX": func(currX float64, key keyType) (n float64) {
@@ -119,7 +118,7 @@ func Generate(kb keyboard.Keyboard, group i3parse.ModifierGroup, modifiers map[s
 				return "#5cff87"
 			}
 
-			if key.Active {
+			if key.InUse {
 				return "#ff655c"
 			}
 
@@ -162,7 +161,7 @@ func Generate(kb keyboard.Keyboard, group i3parse.ModifierGroup, modifiers map[s
 	}
 
 	usedKb := iso
-	if kb.Type == "ANSI" {
+	if layout == "ANSI" {
 		usedKb = ansi
 	}
 
@@ -173,24 +172,10 @@ func Generate(kb keyboard.Keyboard, group i3parse.ModifierGroup, modifiers map[s
 				continue
 			}
 
-			content := kb.Content[i][k]
-			usedKb[i][j].Text = content
-
-			for _, modifier := range group.Modifiers {
-				if mlist, ok := modifiers[modifier]; ok {
-					for _, mval := range mlist {
-						if mval == content {
-							usedKb[i][j].Modifier = true
-						}
-					}
-				}
-			}
-
-			for _, binding := range group.Bindings {
-				if binding.Key == content {
-					usedKb[i][j].Active = true
-				}
-			}
+			currKey := kb.Keys[i][k]
+			usedKb[i][j].Text = currKey.Symbol
+			usedKb[i][j].Modifier = currKey.Modifier
+			usedKb[i][j].InUse = currKey.InUse
 
 			k++
 		}

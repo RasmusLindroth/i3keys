@@ -2,6 +2,9 @@ package keyboard
 
 import (
 	"errors"
+	"strings"
+
+	"github.com/RasmusLindroth/i3keys/internal/i3parse"
 
 	"github.com/RasmusLindroth/i3keys/internal/xlib"
 )
@@ -26,48 +29,92 @@ var ISO = [][]string{
 	[]string{"LCTL", "LWIN", "LALT", "SPCE", "RALT", "RWIN", "MENU", "RCTL", "LEFT", "DOWN", "RGHT", "KP0", "KPDL"},
 }
 
-//Keyboard holds all keys, codes and so on used for rendering
+//Keyboard holds one keyboard for one modifier group
 type Keyboard struct {
-	Type    string     `json:"type"`
-	Keys    [][]string `json:"keys"`
-	Content [][]string `json:"content"` //symbol
-	Codes   [][]int    `json:"codes"`   //symol int
+	Name string
+	Keys [][]Key
+}
+
+//Key holds one key. Used for rendering
+type Key struct {
+	Binding    i3parse.Binding
+	Modifier   bool
+	InUse      bool
+	Symbol     string
+	SymbolCode int
+	Identifier string
+}
+
+func bindingMatch(symbol string, symbolCode int, identifier string, group i3parse.ModifierGroup, modifiers map[string][]string) Key {
+	rKey := Key{
+		Binding:    i3parse.Binding{},
+		Modifier:   false,
+		InUse:      false,
+		Symbol:     symbol,
+		SymbolCode: symbolCode,
+		Identifier: identifier,
+	}
+
+	for _, key := range group.Bindings {
+		if symbol == key.Key {
+			rKey.InUse = true
+			rKey.Binding = key
+			return rKey
+		}
+	}
+
+	for _, modifier := range group.Modifiers {
+		if mlist, ok := modifiers[modifier]; ok {
+			for _, mval := range mlist {
+				if mval == symbol {
+					rKey.Modifier = true
+					return rKey
+				}
+			}
+		}
+	}
+
+	return rKey
 }
 
 //MapKeyboard returns a Keyboard matching desired layout
-func MapKeyboard(layout string) (Keyboard, error) {
-	var kb Keyboard
+func MapKeyboard(layout string, group i3parse.ModifierGroup, modifiers map[string][]string) (Keyboard, error) {
+	var kb [][]Key
+	var kbMap [][]string
 
 	switch layout {
 	case "ANSI":
-		kb.Type = "ANSI"
-		kb.Keys = ANSI
+		kbMap = ANSI
 	case "ISO":
-		kb.Type = "ISO"
-		kb.Keys = ISO
+		kbMap = ISO
 	default:
-		return kb, errors.New("No keyboard with that layout")
+		return Keyboard{}, errors.New("No keyboard with that layout")
 	}
 
 	defaultVal := "NULL"
 
-	for i := 0; i < len(kb.Keys); i++ {
-		kb.Content = append(kb.Content, []string{})
-		kb.Codes = append(kb.Codes, []int{})
-		for j := 0; j < len(kb.Keys[i]); j++ {
-			value := defaultVal
-			code := 0
-			if val, ok := xlib.Evdev[kb.Keys[i][j]]; ok {
-				code = xlib.KeyCodeToInt(val)
+	for i := 0; i < len(kbMap); i++ {
+		var row []Key
 
-				if x, ok := xlib.KeySyms[xlib.ToHex(code)]; ok {
-					value = x
+		for j := 0; j < len(kbMap[i]); j++ {
+			symbol := defaultVal
+			symbolCode := 0
+			if val, ok := xlib.Evdev[kbMap[i][j]]; ok {
+				symbolCode = xlib.KeyCodeToInt(val)
+
+				if x, ok := xlib.KeySyms[xlib.ToHex(symbolCode)]; ok {
+					symbol = x
 				}
 			}
-			kb.Content[len(kb.Content)-1] = append(kb.Content[len(kb.Content)-1], value)
-			kb.Codes[len(kb.Codes)-1] = append(kb.Codes[len(kb.Codes)-1], code)
-		}
-	}
 
-	return kb, nil
+			k := bindingMatch(symbol, symbolCode, kbMap[i][j], group, modifiers)
+			row = append(row, k)
+		}
+		kb = append(kb, row)
+	}
+	name := strings.Join(group.Modifiers, "+")
+	if name == "" {
+		name = "No modifiers"
+	}
+	return Keyboard{Name: name, Keys: kb}, nil
 }
