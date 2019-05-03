@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/RasmusLindroth/i3keys/internal/i3parse"
-
 	"github.com/RasmusLindroth/i3keys/internal/xlib"
 )
 

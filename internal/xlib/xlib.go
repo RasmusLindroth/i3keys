@@ -58,7 +58,7 @@ func CanUse() bool {
 	return dpy != nil
 }
 
-/* Almost all under is taken from https://github.com/freedesktop/xmodmap/blob/6d5aa481669cdbf2f0cb83bb0b8f142ba94307ae/exec.c */
+/* Almost all under is taken from https://github.com/Unrud/remote-touchpad/blob/147a4b2874fc87b9a8dddace0005fb8785ae311c/backend_x11.go */
 
 //GetModifiers grabs the name of the keys that corresponds the each modifier
 func GetModifiers() map[string][]string {

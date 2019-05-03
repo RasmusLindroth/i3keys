@@ -48,15 +48,15 @@ type keyType struct {
 }
 
 var (
-	single      = keyType{1, 1, true, false, "", false, false}    //one key
-	emptySingle = keyType{1, 1, false, false, "", false, false}   //empty one key
-	emptySmall  = keyType{0.5, 1, false, false, "", false, false} //gap between f-keys
-	double      = keyType{2, 1, true, false, "", false, false}    //backspace
-	onehalf     = keyType{1.5, 1, true, false, "", false, false}  //tab
-	doubleY     = keyType{1, 2, true, false, "", false, false}    //numpad +, enter
-	semidouble  = keyType{1.75, 1, true, false, "", false, false} //caps
-	modifier    = keyType{1.25, 1, true, false, "", false, false} //ctrl
-	semilarge   = keyType{2.25, 1, true, false, "", false, false}
+	single      = keyType{1, 1, true, false, "", false, false}     //one key
+	emptySingle = keyType{1, 1, false, false, "", false, false}    //empty one key
+	emptySmall  = keyType{0.5, 1, false, false, "", false, false}  //gap between f-keys
+	double      = keyType{2, 1, true, false, "", false, false}     //backspace
+	onehalf     = keyType{1.5, 1, true, false, "", false, false}   //tab
+	doubleY     = keyType{1, 2, true, false, "", false, false}     //numpad +, enter
+	semidouble  = keyType{1.75, 1, true, false, "", false, false}  //caps
+	modifier    = keyType{1.25, 1, true, false, "", false, false}  //ctrl
+	semilarge   = keyType{2.25, 1, true, false, "", false, false}  //ansi shift
 	large       = keyType{2.75, 1, true, false, "", false, false}  //right shift
 	space       = keyType{6.25, 1, true, false, "", false, false}  //space
 	enterISO    = keyType{1.5, 1, true, true, "", false, false}    //enter

@@ -36,7 +36,7 @@ func Generate() {
 		log.Fatalln("Can't get current dir")
 	}
 
-	path := filepath.Join(dir, "pkg/xlib/keysyms.go")
+	path := filepath.Join(dir, "internal/xlib/keysyms.go")
 
 	file, err := os.Create(path)
 

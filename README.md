@@ -6,7 +6,7 @@ all keys that are not bound to any actions. Now you don't have to search
 through your configuration file or going down the track of trial and error 
 anymore.
 
-The program will ouput one separate keyboard for all of your different modifier 
+The program will output one separate keyboard for all of your different modifier 
 combinations. And the keyboard will look like your keymap. I hope :)
 
 You can see the results in three ways. By opening a local web page,
@@ -78,13 +78,16 @@ If you still having problems see the
 up an issue.
 
 #### You have started i3keys
-Now you will need to start your browser and head over to the URL printed in 
-your terminal e.g. http://localhost:8080
 
-There you can select your keyboard layout and voilà!
+For web output you will need to start your browser and head over to the URL 
+printed in  your terminal e.g. http://localhost:8080. This is is the most 
+feature-rich option. Because here you can see the command bound to each key.
 
-Or if you have selected to out SVG files. Open them with a program that supports 
+If you have selected to out SVG files. Open them with a program that supports 
 SVG files. For example your program for viewing images, InkScape or a browser.
+
+If you have selected text output, you should already have seen the result in 
+your terminal.
 
 ### Text example
 
