@@ -41,7 +41,7 @@ func Generate() {
 	file, err := os.Create(path)
 
 	if err != nil {
-		log.Fatalln("Couln't create keysyms.go")
+		log.Fatalln("Couldn't create keysyms.go")
 	}
 
 	var data bytes.Buffer
@@ -49,7 +49,7 @@ func Generate() {
 	content, err := format.Source(data.Bytes())
 
 	if err != nil {
-		log.Fatalln("Couln't format the code in keysyms.go")
+		log.Fatalln("Couldn't format the code in keysyms.go")
 	}
 
 	file.Write(content)
