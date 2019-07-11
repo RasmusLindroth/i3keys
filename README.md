@@ -7,7 +7,8 @@ through your configuration file or going down the track of trial and error
 anymore.
 
 The program will output one separate keyboard for all of your different modifier 
-combinations. And the keyboard will look like your keymap. I hope :)
+combinations. It will also output each combination for all of your modes.
+The keyboard should look like your keymap if everything works as expected :)
 
 You can see the results in three ways. By opening a local web page,
 output the keyboards as text in the terminal or generate SVG files.
@@ -85,6 +86,10 @@ feature-rich option. Because here you can see the command bound to each key.
 
 If you have selected to out SVG files. Open them with a program that supports 
 SVG files. For example your program for viewing images, InkScape or a browser.
+Note that each mode will be located in a folder named mode\<int\>-name-of-mode.
+Inside that folder you will find a file named `mode-full-name` where you can see
+the real name of the mode. Because this program removes some characters and 
+shortens the name of the folder.
 
 If you have selected text output, you should already have seen the result in 
 your terminal.

@@ -196,122 +196,136 @@ keyTypes = {
 */
 
 ansi = [
-  ["single", "emptySingle", "single", "single", "single", "single", "emptySmall", "single", "single", "single", "single", "emptySmall", "single", "single", "single", "single", "emptySmall", "single", "single", "single"],
-  ["single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "double", "emptySmall", "single", "single", "single", "emptySmall", "single", "single", "single", "single"],
-  ["onehalf", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "onehalf", "emptySmall", "single", "single", "single", "emptySmall", "single", "single", "single", "doubleY"],
-  ["semidouble", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "semilarge", "emptySmall", "emptySingle", "emptySingle", "emptySingle", "emptySmall", "single", "single", "single"],
-  ["semilarge", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "large", "emptySmall", "emptySingle", "single", "emptySingle", "emptySmall", "single", "single", "single", "doubleY"],
-  ["modifier", "modifier", "modifier", "space", "modifier", "modifier", "modifier", "modifier", "emptySmall", "single", "single", "single", "emptySmall", "double", "single"]
+    ["single", "emptySingle", "single", "single", "single", "single", "emptySmall", "single", "single", "single", "single", "emptySmall", "single", "single", "single", "single", "emptySmall", "single", "single", "single"],
+    ["single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "double", "emptySmall", "single", "single", "single", "emptySmall", "single", "single", "single", "single"],
+    ["onehalf", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "onehalf", "emptySmall", "single", "single", "single", "emptySmall", "single", "single", "single", "doubleY"],
+    ["semidouble", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "semilarge", "emptySmall", "emptySingle", "emptySingle", "emptySingle", "emptySmall", "single", "single", "single"],
+    ["semilarge", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "large", "emptySmall", "emptySingle", "single", "emptySingle", "emptySmall", "single", "single", "single", "doubleY"],
+    ["modifier", "modifier", "modifier", "space", "modifier", "modifier", "modifier", "modifier", "emptySmall", "single", "single", "single", "emptySmall", "double", "single"]
 ];
 
 iso = [
-  ["single", "emptySingle", "single", "single", "single", "single", "emptySmall", "single", "single", "single", "single", "emptySmall", "single", "single", "single", "single", "emptySmall", "single", "single", "single"],
-  ["single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "double", "emptySmall", "single", "single", "single", "emptySmall", "single", "single", "single", "single"],
-  ["onehalf", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "enterUp", "emptySmall", "single", "single", "single", "emptySmall", "single", "single", "single", "doubleY"],
-  ["semidouble", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "enterDown", "emptySmall", "emptySingle", "emptySingle", "emptySingle", "emptySmall", "single", "single", "single"],
-  ["modifier", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "large", "emptySmall", "emptySingle", "single", "emptySingle", "emptySmall", "single", "single", "single", "doubleY"],
-  ["modifier", "modifier", "modifier", "space", "modifier", "modifier", "modifier", "modifier", "emptySmall", "single", "single", "single", "emptySmall", "double", "single"]
+    ["single", "emptySingle", "single", "single", "single", "single", "emptySmall", "single", "single", "single", "single", "emptySmall", "single", "single", "single", "single", "emptySmall", "single", "single", "single"],
+    ["single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "double", "emptySmall", "single", "single", "single", "emptySmall", "single", "single", "single", "single"],
+    ["onehalf", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "enterUp", "emptySmall", "single", "single", "single", "emptySmall", "single", "single", "single", "doubleY"],
+    ["semidouble", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "enterDown", "emptySmall", "emptySingle", "emptySingle", "emptySingle", "emptySmall", "single", "single", "single"],
+    ["modifier", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "large", "emptySmall", "emptySingle", "single", "emptySingle", "emptySmall", "single", "single", "single", "doubleY"],
+    ["modifier", "modifier", "modifier", "space", "modifier", "modifier", "modifier", "modifier", "emptySmall", "single", "single", "single", "emptySmall", "double", "single"]
 ];
 
 let keyboardHolder = document.querySelector('#keyboard-holder');
 
 
-function generateKeyboard(layout, generated) {
+function generateKeyboard(layout, generated, modes) {
+    let kbLayout;
 
-  let kbLayout;
+    if (layout == "ANSI") {
+        kbLayout = ansi;
+    } else {
+        kbLayout = iso;
+    }
 
-  if (layout == "ANSI") {
-      kbLayout = ansi;
-  } else {
-      kbLayout = iso;
-  }
+    let headingEl = document.createElement('h2');
+    headingEl.innerHTML = "Mode: Default";
+    keyboardHolder.appendChild(headingEl);
 
-  for (let i = 0; i < generated.length; i++) {
-      let newKeyboardGroup = generateKeyboardGroup(kbLayout, generated[i]);
-      keyboardHolder.appendChild(newKeyboardGroup);
-  }
+    for (let i = 0; i < generated.length; i++) {
+        let newKeyboardGroup = generateKeyboardGroup(kbLayout, generated[i]);
+        keyboardHolder.appendChild(newKeyboardGroup);
+    }
+
+
+    for (let i = 0; i < modes.length; i++) {
+        let headingEl = document.createElement('h2');
+        headingEl.innerHTML = "Mode: " + modes[i].Name;
+        keyboardHolder.appendChild(headingEl);
+        for (let j = 0; j < modes[i].Keyboards.length; j++) {
+            let newKeyboardGroup = generateKeyboardGroup(kbLayout, modes[i].Keyboards[j]);
+            keyboardHolder.appendChild(newKeyboardGroup);
+        }
+    }
 }
 
 function generateKeyboardGroup(kbLayout, generated) {
-  let kbWrapper = document.createElement('div');
+    let kbWrapper = document.createElement('div');
 
-  let headingEl = document.createElement('h3');
-  let headingContent = generated.Name;
+    let headingEl = document.createElement('h3');
+    let headingContent = generated.Name;
 
 
-  headingEl.innerHTML = headingContent;
-  kbWrapper.appendChild(headingEl);
+    headingEl.innerHTML = headingContent;
+    kbWrapper.appendChild(headingEl);
 
-  let keyboardEl = document.createElement('div');
-  keyboardEl.className = 'keyboard';
+    let keyboardEl = document.createElement('div');
+    keyboardEl.className = 'keyboard';
 
-  let kbTextDescElement = document.createElement('div');
-  let kbTextDescPElement = document.createElement('p');
-  let kbTextDescResElement = document.createElement('span');
-  kbTextDescResElement.className = "key-desc";
-  kbTextDescPElement.innerHTML = "Hover over a key to see the command bound to the key here: ";
-  kbTextDescPElement.appendChild(kbTextDescResElement);
-  kbTextDescElement.appendChild(kbTextDescPElement);
+    let kbTextDescElement = document.createElement('div');
+    let kbTextDescPElement = document.createElement('p');
+    let kbTextDescResElement = document.createElement('span');
+    kbTextDescResElement.className = "key-desc";
+    kbTextDescPElement.innerHTML = "Hover over a key to see the command bound to the key here: ";
+    kbTextDescPElement.appendChild(kbTextDescResElement);
+    kbTextDescElement.appendChild(kbTextDescPElement);
 
-  let enterHit = 0;
+    let enterHit = 0;
 
-  for (let i = 0; i < kbLayout.length; i++) {
-      let k = 0;
-      for (let j = 0; j < kbLayout[i].length; j++) {
-          keyEl = document.createElement('div');
-          let gHit = 0;
-          if (kbLayout[i][j] != "emptySingle" && kbLayout[i][j] != "emptySmall" && kbLayout[i][j] != "enterDown") {
+    for (let i = 0; i < kbLayout.length; i++) {
+        let k = 0;
+        for (let j = 0; j < kbLayout[i].length; j++) {
+            keyEl = document.createElement('div');
+            let gHit = 0;
+            if (kbLayout[i][j] != "emptySingle" && kbLayout[i][j] != "emptySmall" && kbLayout[i][j] != "enterDown") {
 
-              if (generated.Keys[i][k].Modifier) {
-                  gHit = 1;
-              }
+                if (generated.Keys[i][k].Modifier) {
+                    gHit = 1;
+                }
 
-              if (generated.Keys[i][k].InUse) {
-                  gHit = 2;
-                  keyEl.dataset.command = generated.Keys[i][k].Binding.command;
+                if (generated.Keys[i][k].InUse) {
+                    gHit = 2;
+                    keyEl.dataset.command = generated.Keys[i][k].Binding.command;
 
-                  keyEl.addEventListener("mouseover", (e) => {
-                      kbTextDescResElement.innerHTML = e.target.dataset.command;
-                  });
-              }
+                    keyEl.addEventListener("mouseover", (e) => {
+                        kbTextDescResElement.innerHTML = e.target.dataset.command;
+                    });
+                }
 
-              if (kbLayout[i][j] == "enterUp") {
-                  enterHit = gHit
-              }
+                if (kbLayout[i][j] == "enterUp") {
+                    enterHit = gHit
+                }
 
-              keyEl.innerHTML = '<span class="txt">' + generated.Keys[i][k].Symbol + '</span>';
+                keyEl.innerHTML = '<span class="txt">' + generated.Keys[i][k].Symbol + '</span>';
 
-              k++;
-          }
+                k++;
+            }
 
-          if (kbLayout[i][j] == "enterDown") {
-              gHit = enterHit;
-          }
+            if (kbLayout[i][j] == "enterDown") {
+                gHit = enterHit;
+            }
 
-          let usedStatus = "";
-          if (gHit == 1) {
-              usedStatus = "key-modifier";
-          } else if (gHit == 2) {
-              usedStatus = 'key-used';
-          }
-          keyEl.className = "key " + kbLayout[i][j] + " row-" + i + " " + usedStatus;
-          keyboardEl.appendChild(keyEl);
-      }
-  }
+            let usedStatus = "";
+            if (gHit == 1) {
+                usedStatus = "key-modifier";
+            } else if (gHit == 2) {
+                usedStatus = 'key-used';
+            }
+            keyEl.className = "key " + kbLayout[i][j] + " row-" + i + " " + usedStatus;
+            keyboardEl.appendChild(keyEl);
+        }
+    }
 
-  kbWrapper.appendChild(keyboardEl);
-  kbWrapper.appendChild(kbTextDescElement);
+    kbWrapper.appendChild(keyboardEl);
+    kbWrapper.appendChild(kbTextDescElement);
 
-  return kbWrapper;
+    return kbWrapper;
 }
 
 document.getElementById('select-iso').addEventListener('click', function () {
-  generateKeyboard('ISO', generatedISO);
-  document.getElementById('select-layout').style.display = 'none';
+    generateKeyboard('ISO', generatedISO, generatedISOmodes);
+    document.getElementById('select-layout').style.display = 'none';
 });
 
 document.getElementById('select-ansi').addEventListener('click', function () {
-  generateKeyboard('ANSI', generatedANSI);
-  document.getElementById('select-layout').style.display = 'none';
+    generateKeyboard('ANSI', generatedANSI, generatedANSImodes);
+    document.getElementById('select-layout').style.display = 'none';
 });
 `
