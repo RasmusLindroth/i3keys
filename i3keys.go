@@ -11,7 +11,7 @@ import (
 	"github.com/RasmusLindroth/i3keys/internal/web"
 )
 
-const version string = "0.0.6"
+const version string = "0.0.7"
 
 func helpText(exitCode int) {
 	fmt.Printf("Usage:\n\n\ti3keys <command> [arguments]\n\n")
