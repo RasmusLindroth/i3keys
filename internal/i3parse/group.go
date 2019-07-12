@@ -1,5 +1,7 @@
 package i3parse
 
+import "sort"
+
 func compareSlices(a []string, b []string) bool {
 	if len(a) != len(b) {
 		return false
@@ -12,6 +14,14 @@ func compareSlices(a []string, b []string) bool {
 	}
 
 	return true
+}
+
+type sortByNumBindings []ModifierGroup
+
+func (a sortByNumBindings) Len() int      { return len(a) }
+func (a sortByNumBindings) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a sortByNumBindings) Less(i, j int) bool {
+	return len(a[i].Bindings) > len(a[j].Bindings)
 }
 
 //GetModifierGroups groups bindings that have the same modifiers
@@ -33,6 +43,7 @@ func GetModifierGroups(bindings []Binding) []ModifierGroup {
 			})
 		}
 	}
+	sort.Sort(sortByNumBindings(groups))
 
 	return groups
 }
