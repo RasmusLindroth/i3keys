@@ -229,13 +229,13 @@ function generateKeyboard(layout, generated, modes) {
     headingEl.innerHTML = "Mode: Default";
     keyboardHolder.appendChild(headingEl);
 
-    for (let i = 0; i < generated.length; i++) {
+    for (let i = 0; generated !== null && i < generated.length; i++) {
         let newKeyboardGroup = generateKeyboardGroup(kbLayout, generated[i]);
         keyboardHolder.appendChild(newKeyboardGroup);
     }
 
 
-    for (let i = 0; i < modes.length; i++) {
+    for (let i = 0; modes !== null && i < modes.length; i++) {
         let headingEl = document.createElement('h2');
         headingEl.innerHTML = "Mode: " + modes[i].Name;
         keyboardHolder.appendChild(headingEl);
