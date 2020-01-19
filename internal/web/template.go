@@ -176,6 +176,10 @@ var indexTmplCSS = `:root {
   .key-used {
 	background-color: #ff655c;
   }
+
+  a {
+  color: blue;
+  }
 `
 var indexTmplJS = `/*
 keyTypes = {
@@ -215,6 +219,16 @@ iso = [
 
 let keyboardHolder = document.querySelector('#keyboard-holder');
 
+function liLink(name, id) {
+    let li = document.createElement('li');
+    let a = document.createElement('a');
+    a.href = "#"+id;
+    a.title = name;
+    a.innerText = name;
+    li.appendChild(a);
+
+    return li;
+}
 
 function generateKeyboard(layout, generated, modes) {
     let kbLayout;
@@ -224,32 +238,63 @@ function generateKeyboard(layout, generated, modes) {
     } else {
         kbLayout = iso;
     }
+    
+    let tosHeading = document.createElement('h1');
+    tosHeading.innerHTML = "Table of contents";
+    keyboardHolder.appendChild(tosHeading);
+    let tosList = document.createElement('ul');
+    let tosDefaultLi = liLink('Mode: Default', 'mode_head_default');
+    tosDefaultUl = document.createElement('ul');
+    
+    for (let i = 0; generated !== null && i < generated.length; i++) {
+        liEl = liLink(generated[i].Name, "keyboard_"+i);
+        tosDefaultUl.appendChild(liEl);
+    }
+    tosList.appendChild(tosDefaultLi);
+    tosList.appendChild(tosDefaultUl);
+    keyboardHolder.appendChild(tosList);
 
+    for (let i = 0; modes !== null && i < modes.length; i++) {
+        let liEl = liLink("Mode: "+modes[i].Name, "mode_head_"+i);
+        let ulEl = document.createElement('ul');
+
+        for (let j = 0; j < modes[i].Keyboards.length; j++) {
+            let liC = liLink(modes[i].Keyboards[j].Name, "mode_"+i+"_"+j);
+            ulEl.appendChild(liC);
+        }
+
+        tosList.appendChild(liEl);
+        tosList.appendChild(ulEl);
+    }
+    
     let headingEl = document.createElement('h2');
     headingEl.innerHTML = "Mode: Default";
+    headingEl.id = "mode_head_default";
     keyboardHolder.appendChild(headingEl);
 
     for (let i = 0; generated !== null && i < generated.length; i++) {
-        let newKeyboardGroup = generateKeyboardGroup(kbLayout, generated[i]);
+        let newKeyboardGroup = generateKeyboardGroup(kbLayout, generated[i], "keyboard_"+i);
         keyboardHolder.appendChild(newKeyboardGroup);
     }
 
 
     for (let i = 0; modes !== null && i < modes.length; i++) {
         let headingEl = document.createElement('h2');
+        headingEl.id = "mode_head_"+i;
         headingEl.innerHTML = "Mode: " + modes[i].Name;
         keyboardHolder.appendChild(headingEl);
         for (let j = 0; j < modes[i].Keyboards.length; j++) {
-            let newKeyboardGroup = generateKeyboardGroup(kbLayout, modes[i].Keyboards[j]);
+            let newKeyboardGroup = generateKeyboardGroup(kbLayout, modes[i].Keyboards[j], "mode_"+i+"_"+j);
             keyboardHolder.appendChild(newKeyboardGroup);
         }
     }
 }
 
-function generateKeyboardGroup(kbLayout, generated) {
+function generateKeyboardGroup(kbLayout, generated, headingID) {
     let kbWrapper = document.createElement('div');
 
     let headingEl = document.createElement('h3');
+    headingEl.id = headingID;
     let headingContent = generated.Name;
 
 

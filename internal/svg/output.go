@@ -8,6 +8,7 @@ import (
 	"strings"
 	"unicode"
 
+	"github.com/RasmusLindroth/i3keys/internal/helpers"
 	"github.com/RasmusLindroth/i3keys/internal/i3parse"
 	"github.com/RasmusLindroth/i3keys/internal/keyboard"
 	"github.com/RasmusLindroth/i3keys/internal/xlib"
@@ -57,14 +58,15 @@ func createGroup(layout string, dest string, group i3parse.ModifierGroup, modifi
 }
 
 //Output generates svg-files of the keyboards at the desired location
-func Output(layout string, dest string) {
+func Output(layout string, dest string, filter string) {
 	modes, keys, err := i3parse.ParseFromRunning()
 
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	keys = i3parse.KeysToSymbol(keys)
+	toFilter := filter != ""
+	filterMods := helpers.HandleFilterArgs(filter)
 
 	layout = strings.ToUpper(layout)
 	if dest == "" {
@@ -80,12 +82,18 @@ func Output(layout string, dest string) {
 	}
 
 	for _, group := range groups {
+		if toFilter {
+			if helpers.CompareSlices(group.Modifiers, filterMods) == false {
+				continue
+			}
+			createGroup(layout, dest, group, modifiers)
+			return
+		}
 		createGroup(layout, dest, group, modifiers)
 	}
 
 	for i, mode := range modes {
-		keys := i3parse.KeysToSymbol(mode.Bindings)
-		groups := i3parse.GetModifierGroups(keys)
+		groups := i3parse.GetModifierGroups(mode.Bindings)
 
 		modeDir := fmt.Sprintf("mode%d-", i)
 		modeDir += sanitizeDirName(mode.Name)

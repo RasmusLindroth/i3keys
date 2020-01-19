@@ -15,22 +15,12 @@ const (
 	modeContext
 )
 
-//BindingType holds a binding type
-type BindingType int
-
-const (
-	//SymbolBinding = bindsym
-	SymbolBinding BindingType = iota
-	//CodeBinding = bindcode
-	CodeBinding
-)
-
-//Binding holds one key binding. Can be keycode or keysymbol
+//Binding holds one key binding. Can only be a keysymbol
 type Binding struct {
-	Key       string      `json:"key"`
-	Modifiers []string    `json:"modifiers"`
-	Command   string      `json:"command"`
-	Type      BindingType `json:"type"`
+	Key       string   `json:"key"`
+	Modifiers []string `json:"modifiers"`
+	Command   string   `json:"command"`
+	bindType  string
 }
 
 //Mode holds i3 bind modes

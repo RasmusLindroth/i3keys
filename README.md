@@ -39,14 +39,7 @@ git clone https://github.com/RasmusLindroth/i3keys.git
 //Install
 go install
 
-//Run web interface on port 8080
-i3keys web 8080
-
-//or output text to the terminal
-i3keys text ISO
-
-//or output SVG to the current directory
-i3keys svg ISO ./
+/
 
 //If starting doesn't work try running it from $HOME/go/bin
 ```
@@ -62,16 +55,25 @@ cd $HOME/go/src/github.com/RasmusLindroth/i3keys
 //Install
 go install
 
+//If starting doesn't work try running it from $HOME/go/bin
+```
+
+Example usage
+```
 //Run web interface on port 8080
 i3keys web 8080
 
 //or output text to the terminal
 i3keys text ISO
 
+//or filter text output
+i3keys text ISO Mod4+Ctrl
+
 //or output SVG to the current directory
 i3keys svg ISO ./
 
-//If starting doesn't work try running it from $HOME/go/bin
+//or filter SVG
+i3keys svg ISO ./ Mod4+Ctrl
 ```
 
 If you still having problems see the 
@@ -130,10 +132,29 @@ Usage:
 
 The commands are:
 
-	web <port>            start the web ui and listen on <port>
-	text <layout>         output available keybindings in the terminal. <layout> can be ISO or ANSI
-	svg <layout> [dest]   outputs one SVG file for each modifier group. <layout> can be ISO or ANSI, [dest] defaults to current directory
-	version               print i3keys version
+	web <port>
+		start the web ui and listen on <port>
+
+	text <layout> [mods]
+		output available keybindings in the terminal
+
+	svg <layout> [dest] [mods]
+		outputs one SVG file for each modifier group
+
+	version
+		print i3keys version
+
+Arguments:
+
+	<layout>
+		is required. Can be ISO or ANSI
+
+	[mods]
+		is optional. Can be a single modifier or a group of modifiers. Group them with a plus sign, e.g. Mod4+Ctrl
+
+	[dest]
+		is optional. Where to output files, defaults to the current directory
+
 ```
 
 ### Disclaimer
