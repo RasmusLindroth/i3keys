@@ -21,7 +21,7 @@ output the keyboards as text in the terminal or generate SVG files.
 
 
 ## How to
-Currently there is no released binary. You'll have to build the program.
+Currently there is one binary for Linux amd64. You can find it under [releases](https://github.com/RasmusLindroth/i3keys/releases).
 
 ### Using Arch?
 
