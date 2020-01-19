@@ -2,26 +2,14 @@ package i3parse
 
 import "sort"
 
-func compareSlices(a []string, b []string) bool {
-	if len(a) != len(b) {
-		return false
-	}
+import "github.com/RasmusLindroth/i3keys/internal/helpers"
 
-	for i, val := range a {
-		if val != b[i] {
-			return false
-		}
-	}
+type sortByNumModifiers []ModifierGroup
 
-	return true
-}
-
-type sortByNumBindings []ModifierGroup
-
-func (a sortByNumBindings) Len() int      { return len(a) }
-func (a sortByNumBindings) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
-func (a sortByNumBindings) Less(i, j int) bool {
-	return len(a[i].Bindings) > len(a[j].Bindings)
+func (a sortByNumModifiers) Len() int      { return len(a) }
+func (a sortByNumModifiers) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a sortByNumModifiers) Less(i, j int) bool {
+	return len(a[i].Modifiers) < len(a[j].Modifiers)
 }
 
 //GetModifierGroups groups bindings that have the same modifiers
@@ -30,7 +18,7 @@ func GetModifierGroups(bindings []Binding) []ModifierGroup {
 	for _, binding := range bindings {
 		match := false
 		for gKey, group := range groups {
-			if compareSlices(binding.Modifiers, group.Modifiers) {
+			if helpers.CompareSlices(binding.Modifiers, group.Modifiers) {
 				groups[gKey].Bindings = append(groups[gKey].Bindings, binding)
 				match = true
 			}
@@ -43,7 +31,7 @@ func GetModifierGroups(bindings []Binding) []ModifierGroup {
 			})
 		}
 	}
-	sort.Sort(sortByNumBindings(groups))
+	sort.Sort(sortByNumModifiers(groups))
 
 	return groups
 }

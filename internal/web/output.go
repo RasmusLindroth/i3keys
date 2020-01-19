@@ -23,8 +23,6 @@ func Output(port string) {
 		log.Fatalln(err)
 	}
 
-	keys = i3parse.KeysToSymbol(keys)
-
 	modifiers := xlib.GetModifiers()
 	groups := i3parse.GetModifierGroups(keys)
 
@@ -48,8 +46,7 @@ func Output(port string) {
 	var ansiModes []modeKeyboards
 
 	for _, mode := range modes {
-		keys := i3parse.KeysToSymbol(mode.Bindings)
-		groups := i3parse.GetModifierGroups(keys)
+		groups := i3parse.GetModifierGroups(mode.Bindings)
 
 		isoMode := modeKeyboards{Name: mode.Name}
 		ansiMode := modeKeyboards{Name: mode.Name}

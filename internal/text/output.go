@@ -5,6 +5,7 @@ import (
 	"log"
 	"strings"
 
+	"github.com/RasmusLindroth/i3keys/internal/helpers"
 	"github.com/RasmusLindroth/i3keys/internal/i3parse"
 	"github.com/RasmusLindroth/i3keys/internal/keyboard"
 	"github.com/RasmusLindroth/i3keys/internal/xlib"
@@ -36,16 +37,17 @@ func printKeyboards(keyboards []keyboard.Keyboard, groups []i3parse.ModifierGrou
 }
 
 //Output prints the keyboards to os.Stdout
-func Output(layout string) {
+func Output(layout string, filter string) {
 	modes, keys, err := i3parse.ParseFromRunning()
 
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	layout = strings.ToUpper(layout)
+	toFilter := filter != ""
+	filterMods := helpers.HandleFilterArgs(filter)
 
-	keys = i3parse.KeysToSymbol(keys)
+	layout = strings.ToUpper(layout)
 
 	groups := i3parse.GetModifierGroups(keys)
 	modifiers := xlib.GetModifiers()
@@ -58,12 +60,20 @@ func Output(layout string) {
 		}
 	}
 
+	if toFilter {
+		for i, g := range groups {
+			if helpers.CompareSlices(g.Modifiers, filterMods) == false {
+				continue
+			}
+			printKeyboards([]keyboard.Keyboard{keyboards[i]}, []i3parse.ModifierGroup{g}, "")
+			return
+		}
+	}
 	fmt.Printf("Available keybindings per modifier group\n\n")
 	printKeyboards(keyboards, groups, "")
 
 	for _, mode := range modes {
-		keys := i3parse.KeysToSymbol(mode.Bindings)
-		groups := i3parse.GetModifierGroups(keys)
+		groups := i3parse.GetModifierGroups(mode.Bindings)
 		var mKeyboards []keyboard.Keyboard
 
 		for _, group := range groups {
