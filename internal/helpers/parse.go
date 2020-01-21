@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"sort"
 	"strings"
 	"unicode"
 )
@@ -39,4 +40,38 @@ func SplitBySpace(s string) []string {
 	}
 
 	return parts
+}
+
+//HandleFilterArgs sorts and splits strings like Mod4+Shift
+func HandleFilterArgs(s string) []string {
+	var a []string
+	var b []string
+
+	parts := strings.Split(s, "+")
+	for _, item := range parts {
+		p := strings.Title(item)
+		if len(p) > 2 && p[:3] == "Mod" {
+			a = append(a, p)
+			continue
+		}
+		b = append(b, p)
+	}
+	sort.Strings(a)
+	sort.Strings(b)
+	return append(a, b...)
+}
+
+//CompareSlices compares if two slices are equal
+func CompareSlices(a []string, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+
+	for i, val := range a {
+		if val != b[i] {
+			return false
+		}
+	}
+
+	return true
 }

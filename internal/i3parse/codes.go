@@ -1,27 +1,25 @@
 package i3parse
 
 import (
-	"errors"
+	"fmt"
 	"strconv"
 
 	"github.com/RasmusLindroth/i3keys/internal/xlib"
 )
 
 //CodeToSymbol returns a code binding with the symbol equivalent
-func CodeToSymbol(code Binding) (Binding, error) {
-	i, err := strconv.Atoi(code.Key)
+func CodeToSymbol(key string) (string, error) {
+	i, err := strconv.Atoi(key)
 
 	if err != nil {
-		return Binding{}, errors.New("Couldn't parse string to int")
+		return "", fmt.Errorf("Couldn't parse string %s to int", key)
 	}
 
 	hex := xlib.KeyCodeToHex(i)
-	if name, ok := xlib.KeySyms[hex]; ok {
-		code.Key = name
-		code.Type = SymbolBinding
-
-		return code, nil
+	name, ok := xlib.KeySyms[hex]
+	if !ok {
+		return "", fmt.Errorf("Keycode %s not in keysymdef.h", key)
 	}
 
-	return Binding{}, errors.New("Keycode not in keysymdef.h")
+	return name, nil
 }

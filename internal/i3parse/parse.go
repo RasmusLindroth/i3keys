@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"io"
+	"log"
 	"sort"
 	"strings"
 
@@ -107,13 +108,19 @@ func parse(confReader io.Reader, err error) ([]Mode, []Binding, error) {
 
 		bindingLine := lineType == bindSymLine || lineType == bindCodeLine
 
+		binding, err := parseBinding(lineParts)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
 		if context == mainContext && bindingLine {
-			bindings = append(bindings, parseBinding(lineParts))
+			bindings = append(bindings, binding)
 		}
 
 		if context == modeContext && bindingLine {
 			modes[len(modes)-1].Bindings = append(modes[len(modes)-1].Bindings,
-				parseBinding(lineParts),
+				binding,
 			)
 		}
 	}
@@ -154,6 +161,12 @@ func parseBindingParts(parts []string) ([]string, string, string) {
 
 	key := keys[len(keys)-1]
 	modifiers = append(modifiers, keys[:len(keys)-1]...)
+	for i, mod := range modifiers {
+		if mod[0] == '$' {
+			continue
+		}
+		modifiers[i] = strings.Title(mod)
+	}
 
 	var cmdParts []string
 	for i := index + 1; i < len(parts) && parts[i][0] != '#'; i++ {
@@ -164,18 +177,26 @@ func parseBindingParts(parts []string) ([]string, string, string) {
 	return modifiers, key, cmd
 }
 
-func parseBinding(parts []string) Binding {
-	var bindType BindingType
+func parseBinding(parts []string) (Binding, error) {
+	var bindType string
 	switch parts[0] {
 	case "bindsym":
-		bindType = SymbolBinding
+		bindType = "symbol"
 	case "bindcode":
-		bindType = CodeBinding
+		bindType = "code"
 	}
 
 	modifiers, key, cmd := parseBindingParts(parts)
 
-	return Binding{Modifiers: modifiers, Key: key, Command: cmd, Type: bindType}
+	variable := key[0] == '$'
+
+	var err error
+	if bindType == "code" && variable == false {
+		key, err = CodeToSymbol(key)
+	}
+
+	binding := Binding{Modifiers: modifiers, Key: key, Command: cmd, bindType: bindType}
+	return binding, err
 }
 
 func parseVariable(parts []string) Variable {
@@ -200,12 +221,25 @@ func replaceVariables(variables []Variable, bindings []Binding, modes []Mode) ([
 }
 
 func replaceVariablesInBindings(variables []Variable, bindings []Binding) []Binding {
+	var nb []Binding
 	for key := range bindings {
+		prev := bindings[key].Key
 		bindings[key].Key = variableNameToValue(variables, bindings[key].Key)
+
+		if bindings[key].Key != prev && bindings[key].bindType == "code" {
+			k, err := CodeToSymbol(bindings[key].Key)
+			if err != nil {
+				log.Println(err)
+				continue
+			}
+			bindings[key].Key = k
+		}
 
 		for mkey := range bindings[key].Modifiers {
 			bindings[key].Modifiers[mkey] = variableNameToValue(variables, bindings[key].Modifiers[mkey])
 		}
+
+		nb = append(nb, bindings[key])
 	}
 
 	return bindings
@@ -221,8 +255,20 @@ func replaceVariablesInModes(variables []Variable, modes []Mode) []Mode {
 }
 
 func sortModifiers(bindings []Binding) []Binding {
+
 	for key := range bindings {
-		sort.Strings(bindings[key].Modifiers)
+		var a []string
+		var b []string
+		for _, m := range bindings[key].Modifiers {
+			if len(m) > 2 && m[:3] == "Mod" {
+				a = append(a, m)
+				continue
+			}
+			b = append(b, m)
+		}
+		sort.Strings(a)
+		sort.Strings(b)
+		bindings[key].Modifiers = append(a, b...)
 	}
 
 	return bindings
