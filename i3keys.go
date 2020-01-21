@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"strings"
@@ -24,9 +23,6 @@ func helpText(exitCode int) {
 }
 
 func main() {
-	webCmd := flag.NewFlagSet("web", flag.ExitOnError)
-	webCmd.String("port", "", "port to listen on")
-
 	if len(os.Args) == 1 {
 		helpText(2)
 	}
