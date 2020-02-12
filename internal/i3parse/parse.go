@@ -11,14 +11,25 @@ import (
 	"github.com/RasmusLindroth/i3keys/internal/helpers"
 )
 
-func getLineType(parts []string) lineType {
+func getLineType(parts []string, c context) lineType {
 	if len(parts) == 0 {
 		return skipLine
 	}
 
 	switch parts[0] {
 	case "}":
-		return unmodeLine
+		switch c {
+		case modeContext:
+			return unmodeLine
+		case bindCodeMainContext:
+			fallthrough
+		case bindCodeModeContext:
+			return unBindCodeLine
+		case bindSymMainContext:
+			fallthrough
+		case bindSymModeContext:
+			return unBindSymLine
+		}
 	case "mode":
 		if validateMode(parts) {
 			return modeLine
@@ -28,12 +39,18 @@ func getLineType(parts []string) lineType {
 			return variableLine
 		}
 	case "bindsym":
-		if validateBinding(parts) {
+		if validateBinding(parts) && parts[len(parts)-1] != "{" {
 			return bindSymLine
 		}
+		if parts[len(parts)-1] == "{" {
+			return bindSymBracket
+		}
 	case "bindcode":
-		if validateBinding(parts) {
+		if validateBinding(parts) && parts[len(parts)-1] != "{" {
 			return bindCodeLine
+		}
+		if parts[len(parts)-1] == "{" {
+			return bindCodeBracket
 		}
 	}
 
@@ -46,8 +63,11 @@ type Group string
 */
 
 //ParseFromRunning loads config from the running i3 instance
-func ParseFromRunning() ([]Mode, []Binding, error) {
-	return parse(getConfigFromRunning())
+func ParseFromRunning(sway bool) ([]Mode, []Binding, error) {
+	if sway {
+		return parse(getConfigFromRunningSway())
+	}
+	return parse(getConfigFromRunningi3())
 }
 
 //ParseFromFile loads config from path
@@ -55,7 +75,7 @@ func ParseFromFile(path string) ([]Mode, []Binding, error) {
 	return parse(getConfigFromFile(path))
 }
 
-func readLine(reader *bufio.Reader) (string, []string, lineType, error) {
+func readLine(reader *bufio.Reader, c context) (string, []string, lineType, error) {
 	line, err := reader.ReadString('\n')
 
 	if err != nil && err != io.EOF {
@@ -63,7 +83,22 @@ func readLine(reader *bufio.Reader) (string, []string, lineType, error) {
 	}
 
 	var lineParts = helpers.SplitBySpace(line)
-	lineType := getLineType(lineParts)
+	if c == bindCodeMainContext || c == bindSymMainContext ||
+		c == bindCodeModeContext || c == bindSymModeContext {
+		if len(lineParts) > 0 && lineParts[0] != "}" {
+			switch c {
+			case bindCodeMainContext:
+				fallthrough
+			case bindCodeModeContext:
+				lineParts = append([]string{"bindcode"}, lineParts...)
+			case bindSymMainContext:
+				fallthrough
+			case bindSymModeContext:
+				lineParts = append([]string{"bindsym"}, lineParts...)
+			}
+		}
+	}
+	lineType := getLineType(lineParts, c)
 
 	return line, lineParts, lineType, err
 }
@@ -86,7 +121,7 @@ func parse(confReader io.Reader, err error) ([]Mode, []Binding, error) {
 	var lineType lineType
 
 	for readErr != io.EOF {
-		line, lineParts, lineType, readErr = readLine(reader)
+		line, lineParts, lineType, readErr = readLine(reader, context)
 
 		if readErr != nil && readErr != io.EOF {
 			return []Mode{}, []Binding{}, readErr
@@ -101,8 +136,31 @@ func parse(confReader io.Reader, err error) ([]Mode, []Binding, error) {
 			context = modeContext
 			name := parseMode(line)
 			modes = append(modes, Mode{Name: name})
+		case bindCodeBracket:
+			if context == mainContext {
+				context = bindCodeMainContext
+			} else {
+				context = bindCodeModeContext
+			}
+			continue
+		case bindSymBracket:
+			if context == mainContext {
+				context = bindSymMainContext
+			} else {
+				context = bindSymModeContext
+			}
+			continue
 		case unmodeLine:
-			context = mainContext
+			fallthrough
+		case unBindCodeLine:
+			fallthrough
+		case unBindSymLine:
+			if context == bindSymMainContext || context == bindCodeMainContext ||
+				context == modeContext {
+				context = mainContext
+			} else {
+				context = modeContext
+			}
 			continue
 		}
 
@@ -114,11 +172,13 @@ func parse(confReader io.Reader, err error) ([]Mode, []Binding, error) {
 			continue
 		}
 
-		if context == mainContext && bindingLine {
+		isMainContext := context == mainContext || context == bindCodeMainContext || context == bindSymMainContext
+		if isMainContext && bindingLine {
 			bindings = append(bindings, binding)
 		}
 
-		if context == modeContext && bindingLine {
+		isModeContext := context == modeContext || context == bindCodeModeContext || context == bindSymModeContext
+		if isModeContext && bindingLine {
 			modes[len(modes)-1].Bindings = append(modes[len(modes)-1].Bindings,
 				binding,
 			)
@@ -153,8 +213,11 @@ func parseBindingParts(parts []string) ([]string, string, string) {
 	var modifiers []string
 
 	index := 1
-	if parts[1] == "--release" {
-		index = 2
+	for i := 1; i < len(parts); i++ {
+		if !strings.HasPrefix(parts[i], "--") {
+			break
+		}
+		index++
 	}
 
 	keys := strings.Split(parts[index], "+")

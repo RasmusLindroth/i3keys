@@ -58,8 +58,8 @@ func createGroup(layout string, dest string, group i3parse.ModifierGroup, modifi
 }
 
 //Output generates svg-files of the keyboards at the desired location
-func Output(layout string, dest string, filter string) {
-	modes, keys, err := i3parse.ParseFromRunning()
+func Output(sway bool, layout string, dest string, filter string) {
+	modes, keys, err := i3parse.ParseFromRunning(sway)
 
 	if err != nil {
 		log.Fatalln(err)

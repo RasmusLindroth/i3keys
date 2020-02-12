@@ -7,12 +7,20 @@ const (
 	skipLine lineType = iota
 	variableLine
 	bindCodeLine
+	bindCodeBracket
+	unBindCodeLine
 	bindSymLine
+	bindSymBracket
+	unBindSymLine
 	modeLine
 	unmodeLine
 
 	mainContext context = iota
 	modeContext
+	bindCodeMainContext
+	bindSymMainContext
+	bindCodeModeContext
+	bindSymModeContext
 )
 
 //Binding holds one key binding. Can only be a keysymbol
