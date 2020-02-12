@@ -1,7 +1,8 @@
 # i3keys
 A program for the tiling window manager [i3](https://i3wm.org/).
+It also supports [Sway](https://swaywm.org/) but then you need to use the flag `-s`. 
 
-This is program lists all the keys that are bound to some action in i3wm, and 
+This is program lists all the keys that are bound to some action in i3 or sway, and 
 all keys that are not bound to any actions. Now you don't have to search 
 through your configuration file or going down the track of trial and error 
 anymore.
@@ -39,8 +40,6 @@ git clone https://github.com/RasmusLindroth/i3keys.git
 //Install
 go install
 
-/
-
 //If starting doesn't work try running it from $HOME/go/bin
 ```
 
@@ -62,6 +61,9 @@ Example usage
 ```
 //Run web interface on port 8080
 i3keys web 8080
+
+//sway usage
+i3keys -s web 8080
 
 //or output text to the terminal
 i3keys text ISO
@@ -128,7 +130,8 @@ Control_L, Super_L, Alt_L, ISO_Level3_Shift, Super_R, Menu, Control_R, KP_Insert
 ```
 Usage:
 
-	i3keys <command> [arguments]
+	i3keys [-s] <command> [arguments]
+	Add the flag -s for sway
 
 The commands are:
 
