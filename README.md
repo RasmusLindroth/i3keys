@@ -59,10 +59,14 @@ go install
 
 Example usage
 ```
+//Run web interface with a random port
+i3keys web 
+
 //Run web interface on port 8080
 i3keys web 8080
 
 //sway usage
+i3keys -s web
 i3keys -s web 8080
 
 //or output text to the terminal
@@ -135,8 +139,8 @@ Usage:
 
 The commands are:
 
-	web <port>
-		start the web ui and listen on <port>
+	web [port]
+		start the web ui and listen on random port or [port]
 
 	text <layout> [mods]
 		output available keybindings in the terminal
@@ -157,7 +161,6 @@ Arguments:
 
 	[dest]
 		is optional. Where to output files, defaults to the current directory
-
 ```
 
 ### Disclaimer
