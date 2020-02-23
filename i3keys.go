@@ -16,7 +16,7 @@ func helpText(exitCode int) {
 	fmt.Print("Usage:\n\n\ti3keys [-s] <command> [arguments]\n")
 	fmt.Print("\tAdd the flag -s for sway\n\n")
 	fmt.Print("The commands are:\n\n")
-	fmt.Print("\tweb <port>\n\t\tstart the web ui and listen on <port>\n\n")
+	fmt.Print("\tweb [port]\n\t\tstart the web ui and listen on random port or [port]\n\n")
 	fmt.Print("\ttext <layout> [mods]\n\t\toutput available keybindings in the terminal\n\n")
 	fmt.Print("\tsvg <layout> [dest] [mods]\n\t\toutputs one SVG file for each modifier group\n\n")
 	fmt.Print("\tversion\n\t\tprint i3keys version\n\n")
@@ -40,9 +40,9 @@ func main() {
 	}
 	cmd := os.Args[sIndex]
 
-	if cmd == "web" && len(os.Args) < 2+sIndex {
-		fmt.Println("You need to set the <port>")
-		os.Exit(2)
+	port := "-1"
+	if cmd == "web" && len(os.Args) >= 2+sIndex {
+		port = os.Args[1+sIndex]
 	}
 
 	layoutCheck := len(os.Args) > 1+sIndex && (strings.ToUpper(os.Args[1+sIndex]) != "ISO" && strings.ToUpper(os.Args[1+sIndex]) != "ANSI")
@@ -60,7 +60,7 @@ func main() {
 
 	switch cmd {
 	case "web":
-		web.Output(sway, os.Args[1+sIndex])
+		web.Output(sway, port)
 	case "text":
 		if len(os.Args) < 3+sIndex {
 			text.Output(sway, os.Args[1+sIndex], "")
