@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net"
+	"strconv"
 
 	"github.com/RasmusLindroth/i3keys/internal/i3parse"
 	"github.com/RasmusLindroth/i3keys/internal/keyboard"
@@ -82,6 +84,21 @@ func Output(sway bool, port string) {
 	)
 
 	handler := New(js)
+
+	if port == "-1" {
+		//get the kernel to give us a free TCP port
+		addr, err := net.ResolveTCPAddr("tcp", "localhost:0")
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		l, err := net.ListenTCP("tcp", addr)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		port = strconv.Itoa(l.Addr().(*net.TCPAddr).Port)
+		l.Close()
+	}
 
 	fmt.Printf("Starting server at http://localhost:%s\nGo there "+
 		"to see all of your available keys.\n\n", port)

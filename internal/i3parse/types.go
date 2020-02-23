@@ -6,6 +6,7 @@ type context uint
 const (
 	skipLine lineType = iota
 	variableLine
+	includeLine
 	bindCodeLine
 	bindCodeBracket
 	unBindCodeLine
