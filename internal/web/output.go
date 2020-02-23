@@ -86,7 +86,7 @@ func Output(sway bool, port string) {
 	handler := New(js)
 
 	if port == "-1" {
-		# get the kernel to give us a free TCP port
+		//get the kernel to give us a free TCP port
 		addr, err := net.ResolveTCPAddr("tcp", "localhost:0")
 		if err != nil {
 			log.Fatalln(err)
