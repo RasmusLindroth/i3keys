@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"log"
+	"os"
 	"sort"
 	"strings"
 
@@ -37,6 +38,10 @@ func getLineType(parts []string, c context) lineType {
 	case "set":
 		if validateVariable(parts) {
 			return variableLine
+		}
+	case "include":
+		if validateInclude(parts) {
+			return includeLine
 		}
 	case "bindsym":
 		if validateBinding(parts) && parts[len(parts)-1] != "{" {
@@ -103,9 +108,9 @@ func readLine(reader *bufio.Reader, c context) (string, []string, lineType, erro
 	return line, lineParts, lineType, err
 }
 
-func parse(confReader io.Reader, err error) ([]Mode, []Binding, error) {
+func parseConfig(confReader io.Reader, err error) ([]Mode, []Binding, []Variable, []string, error) {
 	if err != nil {
-		return []Mode{}, []Binding{}, errors.New("Couldn't get the config file")
+		return []Mode{}, []Binding{}, []Variable{}, []string{}, errors.New("Couldn't get the config file")
 	}
 
 	reader := bufio.NewReader(confReader)
@@ -113,6 +118,7 @@ func parse(confReader io.Reader, err error) ([]Mode, []Binding, error) {
 	var modes []Mode
 	var bindings []Binding
 	var variables []Variable
+	var includes []string
 
 	context := mainContext
 	var readErr error
@@ -124,7 +130,7 @@ func parse(confReader io.Reader, err error) ([]Mode, []Binding, error) {
 		line, lineParts, lineType, readErr = readLine(reader, context)
 
 		if readErr != nil && readErr != io.EOF {
-			return []Mode{}, []Binding{}, readErr
+			return []Mode{}, []Binding{}, []Variable{}, []string{}, readErr
 		}
 
 		switch lineType {
@@ -132,10 +138,15 @@ func parse(confReader io.Reader, err error) ([]Mode, []Binding, error) {
 			continue
 		case variableLine:
 			variables = append(variables, parseVariable(lineParts))
+			continue
 		case modeLine:
 			context = modeContext
 			name := parseMode(line)
 			modes = append(modes, Mode{Name: name})
+			continue
+		case includeLine:
+			includes = append(includes, strings.Join(lineParts[1:], " "))
+			continue
 		case bindCodeBracket:
 			if context == mainContext {
 				context = bindCodeMainContext
@@ -183,6 +194,50 @@ func parse(confReader io.Reader, err error) ([]Mode, []Binding, error) {
 				binding,
 			)
 		}
+	}
+
+	var includePaths []string
+	for _, incl := range includes {
+		matches, err := helpers.GetPaths(incl)
+		if err != nil {
+			log.Printf("couldn't parse the following include \"%s\" got error %v", incl, err)
+			continue
+		}
+		includePaths = append(includePaths, matches...)
+	}
+
+	return modes, bindings, variables, includePaths, nil
+}
+
+func parse(confReader io.Reader, err error) ([]Mode, []Binding, error) {
+	modes, bindings, variables, includes, err := parseConfig(confReader, err)
+	if err != nil {
+		return []Mode{}, []Binding{}, errors.New("Couldn't get the config file")
+	}
+	var parsedIncludes []string
+	for _, incl := range includes {
+		done := false
+		for _, ap := range parsedIncludes {
+			if ap == incl {
+				done = true
+			}
+		}
+		if done {
+			continue
+		}
+		f, ferr := os.Open(incl)
+		if err != nil {
+			log.Printf("couldn't open the included file %s, got err: %v\n", incl, ferr)
+		}
+		m, b, v, i, perr := parseConfig(f, err)
+		if err != nil {
+			log.Printf("couldn't parse the included file %s, got err: %v\n", incl, perr)
+		}
+		modes = append(modes, m...)
+		bindings = append(bindings, b...)
+		variables = append(variables, v...)
+		includes = append(includes, i...)
+		parsedIncludes = append(parsedIncludes, incl)
 	}
 
 	bindings, modes = replaceVariables(variables, bindings, modes)
