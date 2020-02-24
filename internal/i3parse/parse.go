@@ -108,7 +108,7 @@ func readLine(reader *bufio.Reader, c context) (string, []string, lineType, erro
 	return line, lineParts, lineType, err
 }
 
-func parseConfig(confReader io.Reader, err error) ([]Mode, []Binding, []Variable, []string, error) {
+func parseConfig(confReader io.Reader, confPath string, err error) ([]Mode, []Binding, []Variable, []string, error) {
 	if err != nil {
 		return []Mode{}, []Binding{}, []Variable{}, []string{}, errors.New("Couldn't get the config file")
 	}
@@ -118,7 +118,7 @@ func parseConfig(confReader io.Reader, err error) ([]Mode, []Binding, []Variable
 	var modes []Mode
 	var bindings []Binding
 	var variables []Variable
-	var includes []string
+	var includes []helpers.Include
 
 	context := mainContext
 	var readErr error
@@ -145,7 +145,11 @@ func parseConfig(confReader io.Reader, err error) ([]Mode, []Binding, []Variable
 			modes = append(modes, Mode{Name: name})
 			continue
 		case includeLine:
-			includes = append(includes, strings.Join(lineParts[1:], " "))
+			inc := helpers.Include{
+				ParentPath: confPath,
+				Path:       strings.Join(lineParts[1:], " "),
+			}
+			includes = append(includes, inc)
 			continue
 		case bindCodeBracket:
 			if context == mainContext {
@@ -210,12 +214,14 @@ func parseConfig(confReader io.Reader, err error) ([]Mode, []Binding, []Variable
 }
 
 func parse(confReader io.Reader, err error) ([]Mode, []Binding, error) {
-	modes, bindings, variables, includes, err := parseConfig(confReader, err)
+	configPath, _ := helpers.GetSwayDefaultConfig()
+	modes, bindings, variables, includes, err := parseConfig(confReader, configPath, err)
 	if err != nil {
 		return []Mode{}, []Binding{}, errors.New("Couldn't get the config file")
 	}
 	var parsedIncludes []string
-	for _, incl := range includes {
+	for j := 0; j < len(includes); j++ {
+		incl := includes[j]
 		done := false
 		for _, ap := range parsedIncludes {
 			if ap == incl {
@@ -229,7 +235,7 @@ func parse(confReader io.Reader, err error) ([]Mode, []Binding, error) {
 		if err != nil {
 			log.Printf("couldn't open the included file %s, got err: %v\n", incl, ferr)
 		}
-		m, b, v, i, perr := parseConfig(f, err)
+		m, b, v, i, perr := parseConfig(f, incl, err)
 		if err != nil {
 			log.Printf("couldn't parse the included file %s, got err: %v\n", incl, perr)
 		}
@@ -356,10 +362,8 @@ func replaceVariablesInBindings(variables []Variable, bindings []Binding) []Bind
 		for mkey := range bindings[key].Modifiers {
 			bindings[key].Modifiers[mkey] = variableNameToValue(variables, bindings[key].Modifiers[mkey])
 		}
-
 		nb = append(nb, bindings[key])
 	}
-
 	return bindings
 }
 
@@ -368,12 +372,10 @@ func replaceVariablesInModes(variables []Variable, modes []Mode) []Mode {
 		modes[mkey].Name = variableNameToValue(variables, modes[mkey].Name)
 		modes[mkey].Bindings = replaceVariablesInBindings(variables, mode.Bindings)
 	}
-
 	return modes
 }
 
 func sortModifiers(bindings []Binding) []Binding {
-
 	for key := range bindings {
 		var a []string
 		var b []string
@@ -388,6 +390,5 @@ func sortModifiers(bindings []Binding) []Binding {
 		sort.Strings(b)
 		bindings[key].Modifiers = append(a, b...)
 	}
-
 	return bindings
 }
