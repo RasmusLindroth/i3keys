@@ -18,8 +18,8 @@ type modeKeyboards struct {
 }
 
 //Output starts the server at desired port
-func Output(sway bool, port string) {
-	modes, keys, err := i3parse.ParseFromRunning(sway)
+func Output(wm string, port string) {
+	modes, keys, err := i3parse.ParseFromRunning(wm)
 
 	if err != nil {
 		log.Fatalln(err)
