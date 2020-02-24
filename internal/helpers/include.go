@@ -1,12 +1,18 @@
 package helpers
 
 import (
+	"errors"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 )
+
+type Include struct {
+	ParentPath string
+	Path       string
+}
 
 //Equal to os/exec Expand but changed ${} to $()
 func replaceDollar(s string, mapping func(string) string) string {
@@ -138,8 +144,13 @@ func checkPath(s string) []string {
 	return r
 }
 
-func GetPaths(s string) ([]string, error) {
-	s = ExpandCommand(s)
+func GetPaths(i Include) ([]string, error) {
+	s := ExpandCommand(i.Path)
+	s = os.ExpandEnv(s)
+	if !filepath.IsAbs(s) {
+		dir := filepath.Dir(i.ParentPath)
+		s = filepath.Join(dir, s)
+	}
 	matches, err := filepath.Glob(s)
 	if err != nil {
 		return nil, err
@@ -149,4 +160,34 @@ func GetPaths(s string) ([]string, error) {
 		paths = append(paths, checkPath(m)...)
 	}
 	return paths, nil
+}
+
+func GetSwayDefaultConfig() (string, error) {
+	home, _ := os.LookupEnv("HOME")
+	xdgConfig, exists := os.LookupEnv("XDG_CONFIG_HOME")
+	if !exists {
+		xdgConfig = home + "/.config"
+	}
+	configs := []string{
+		home + "/.sway/config",
+		xdgConfig + "/sway/config",
+		home + "/.i3/config",
+		xdgConfig + "/i3/config",
+		"/etc/sway/config",
+		"/etc/i3/config",
+	}
+	configPath := ""
+	for _, c := range configs {
+		_, err := os.Stat(c)
+		if os.IsNotExist(err) {
+			continue
+		}
+		configPath = c
+		break
+	}
+	var e error
+	if configPath == "" {
+		e = errors.New("couldn't find a config file")
+	}
+	return configPath, e
 }
