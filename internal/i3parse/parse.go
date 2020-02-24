@@ -68,11 +68,15 @@ type Group string
 */
 
 //ParseFromRunning loads config from the running i3 instance
-func ParseFromRunning(sway bool) ([]Mode, []Binding, error) {
-	if sway {
+func ParseFromRunning(wm string) ([]Mode, []Binding, error) {
+	switch wm {
+	case "i3":
+		return parse(getConfigFromRunningi3())
+	case "sway":
 		return parse(getConfigFromRunningSway())
+	default:
+		return parse(getAutoWM())
 	}
-	return parse(getConfigFromRunningi3())
 }
 
 //ParseFromFile loads config from path

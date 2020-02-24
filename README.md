@@ -1,6 +1,6 @@
 # i3keys
 A program for the tiling window manager [i3](https://i3wm.org/).
-It also supports [Sway](https://swaywm.org/) but then you need to use the flag `-s`. 
+It also supports [Sway](https://swaywm.org/).
 
 This is program lists all the keys that are bound to some action in i3 or sway, and 
 all keys that are not bound to any actions. Now you don't have to search 
@@ -65,10 +65,6 @@ i3keys web
 //Run web interface on port 8080
 i3keys web 8080
 
-//sway usage
-i3keys -s web
-i3keys -s web 8080
-
 //or output text to the terminal
 i3keys text ISO
 
@@ -85,6 +81,12 @@ i3keys svg ISO ./ Mod4+Ctrl
 If you still having problems see the 
 [installation guide for Go](https://golang.org/doc/install#install) or open 
 up an issue.
+
+### You don't want autodetection of WM
+
+You can use the following flags to disable autodetection, `-i` for i3 and `-s` for Sway.
+This can be useful if you're running both at the same time, or if the
+autodetection doesn't work. But then you should file an issue.
 
 #### You have started i3keys
 
@@ -134,8 +136,8 @@ Control_L, Super_L, Alt_L, ISO_Level3_Shift, Super_R, Menu, Control_R, KP_Insert
 ```
 Usage:
 
-	i3keys [-s] <command> [arguments]
-	Add the flag -s for sway
+	i3keys [-i|-s] <command> [arguments]
+	Add the flag -i for i3 and -s for Sway if you don't want autodetection
 
 The commands are:
 

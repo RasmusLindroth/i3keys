@@ -37,8 +37,8 @@ func printKeyboards(keyboards []keyboard.Keyboard, groups []i3parse.ModifierGrou
 }
 
 //Output prints the keyboards to os.Stdout
-func Output(sway bool, layout string, filter string) {
-	modes, keys, err := i3parse.ParseFromRunning(sway)
+func Output(wm string, layout string, filter string) {
+	modes, keys, err := i3parse.ParseFromRunning(wm)
 
 	if err != nil {
 		log.Fatalln(err)

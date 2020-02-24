@@ -10,11 +10,11 @@ import (
 	"github.com/RasmusLindroth/i3keys/internal/web"
 )
 
-const version string = "0.0.11"
+const version string = "0.0.12"
 
 func helpText(exitCode int) {
-	fmt.Print("Usage:\n\n\ti3keys [-s] <command> [arguments]\n")
-	fmt.Print("\tAdd the flag -s for sway\n\n")
+	fmt.Print("Usage:\n\n\ti3keys [-i|-s] <command> [arguments]\n")
+	fmt.Print("\tAdd the flag -i for i3 and -s for Sway if you don't want autodetection\n\n")
 	fmt.Print("The commands are:\n\n")
 	fmt.Print("\tweb [port]\n\t\tstart the web ui and listen on random port or [port]\n\n")
 	fmt.Print("\ttext <layout> [mods]\n\t\toutput available keybindings in the terminal\n\n")
@@ -33,9 +33,13 @@ func main() {
 	}
 
 	sIndex := 1
-	sway := false
-	if os.Args[1] == "-s" {
-		sway = true
+	wm := ""
+	switch os.Args[1] {
+	case "-i":
+		wm = "i3"
+		sIndex = 2
+	case "-s":
+		wm = "sway"
 		sIndex = 2
 	}
 	cmd := os.Args[sIndex]
@@ -60,20 +64,20 @@ func main() {
 
 	switch cmd {
 	case "web":
-		web.Output(sway, port)
+		web.Output(wm, port)
 	case "text":
 		if len(os.Args) < 3+sIndex {
-			text.Output(sway, os.Args[1+sIndex], "")
+			text.Output(wm, os.Args[1+sIndex], "")
 		} else {
-			text.Output(sway, os.Args[1+sIndex], os.Args[2+sIndex])
+			text.Output(wm, os.Args[1+sIndex], os.Args[2+sIndex])
 		}
 	case "svg":
 		if len(os.Args) < 3+sIndex {
-			svg.Output(sway, os.Args[1+sIndex], "", "")
+			svg.Output(wm, os.Args[1+sIndex], "", "")
 		} else if len(os.Args) < 4+sIndex {
-			svg.Output(sway, os.Args[1+sIndex], os.Args[2+sIndex], "")
+			svg.Output(wm, os.Args[1+sIndex], os.Args[2+sIndex], "")
 		} else {
-			svg.Output(sway, os.Args[1+sIndex], os.Args[2+sIndex], os.Args[3+sIndex])
+			svg.Output(wm, os.Args[1+sIndex], os.Args[2+sIndex], os.Args[3+sIndex])
 		}
 	case "version":
 		fmt.Printf("i3keys version %s by Rasmus Lindroth\n", version)
