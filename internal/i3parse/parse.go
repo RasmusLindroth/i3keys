@@ -84,14 +84,25 @@ func ParseFromFile(path string) ([]Mode, []Binding, error) {
 	return parse(getConfigFromFile(path))
 }
 
-func readLine(reader *bufio.Reader, c context) (string, []string, lineType, error) {
+func readLine(reader *bufio.Reader, c context, variables []Variable) (string, []string, lineType, error) {
 	line, err := reader.ReadString('\n')
 
 	if err != nil && err != io.EOF {
 		return "", []string{}, skipLine, err
 	}
-
+	line = strings.TrimSpace(line)
 	var lineParts = helpers.SplitBySpace(line)
+
+	for len(lineParts) > 0 && lineParts[len(lineParts)-1] == "\\" {
+		nl, err := reader.ReadString('\n')
+		if err != nil && err != io.EOF {
+			return "", []string{}, skipLine, err
+		}
+		nl = strings.TrimSpace(nl)
+		line = line[:len(line)-1] + nl
+		lineParts = helpers.SplitBySpace(line)
+	}
+
 	if c == bindCodeMainContext || c == bindSymMainContext ||
 		c == bindCodeModeContext || c == bindSymModeContext {
 		if len(lineParts) > 0 && lineParts[0] != "}" {
@@ -107,12 +118,25 @@ func readLine(reader *bufio.Reader, c context) (string, []string, lineType, erro
 			}
 		}
 	}
+
+	sort.Sort(SortByVarbyLen(variables))
+	if len(lineParts) > 0 && lineParts[0] != "set" {
+		for i := range lineParts {
+			for _, v := range variables {
+				if strings.Contains(lineParts[i], v.Name) {
+					lineParts[i] = strings.ReplaceAll(lineParts[i], v.Name, v.Value)
+				}
+			}
+		}
+		lineParts = helpers.SplitBySpace(strings.Join(lineParts, " "))
+	}
+
 	lineType := getLineType(lineParts, c)
 
 	return line, lineParts, lineType, err
 }
 
-func parseConfig(confReader io.Reader, confPath string, err error) ([]Mode, []Binding, []Variable, []string, error) {
+func parseConfig(confReader io.Reader, confPath string, variables []Variable, err error) ([]Mode, []Binding, []Variable, []string, error) {
 	if err != nil {
 		return []Mode{}, []Binding{}, []Variable{}, []string{}, errors.New("Couldn't get the config file")
 	}
@@ -121,17 +145,15 @@ func parseConfig(confReader io.Reader, confPath string, err error) ([]Mode, []Bi
 
 	var modes []Mode
 	var bindings []Binding
-	var variables []Variable
 	var includes []helpers.Include
 
 	context := mainContext
 	var readErr error
-	var line string
 	var lineParts []string
 	var lineType lineType
 
 	for readErr != io.EOF {
-		line, lineParts, lineType, readErr = readLine(reader, context)
+		_, lineParts, lineType, readErr = readLine(reader, context, variables)
 
 		if readErr != nil && readErr != io.EOF {
 			return []Mode{}, []Binding{}, []Variable{}, []string{}, readErr
@@ -145,7 +167,7 @@ func parseConfig(confReader io.Reader, confPath string, err error) ([]Mode, []Bi
 			continue
 		case modeLine:
 			context = modeContext
-			name := parseMode(line)
+			name := parseMode(strings.Join(lineParts, " "))
 			modes = append(modes, Mode{Name: name})
 			continue
 		case includeLine:
@@ -219,7 +241,7 @@ func parseConfig(confReader io.Reader, confPath string, err error) ([]Mode, []Bi
 
 func parse(confReader io.Reader, err error) ([]Mode, []Binding, error) {
 	configPath, _ := helpers.GetSwayDefaultConfig()
-	modes, bindings, variables, includes, err := parseConfig(confReader, configPath, err)
+	modes, bindings, variables, includes, err := parseConfig(confReader, configPath, []Variable{}, err)
 	if err != nil {
 		return []Mode{}, []Binding{}, errors.New("Couldn't get the config file")
 	}
@@ -239,18 +261,16 @@ func parse(confReader io.Reader, err error) ([]Mode, []Binding, error) {
 		if err != nil {
 			log.Printf("couldn't open the included file %s, got err: %v\n", incl, ferr)
 		}
-		m, b, v, i, perr := parseConfig(f, incl, err)
+		m, b, v, i, perr := parseConfig(f, incl, variables, err)
 		if err != nil {
 			log.Printf("couldn't parse the included file %s, got err: %v\n", incl, perr)
 		}
 		modes = append(modes, m...)
 		bindings = append(bindings, b...)
-		variables = append(variables, v...)
+		variables = v
 		includes = append(includes, i...)
 		parsedIncludes = append(parsedIncludes, incl)
 	}
-
-	bindings, modes = replaceVariables(variables, bindings, modes)
 
 	for key := range modes {
 		modes[key].Bindings = sortModifiers(modes[key].Bindings)
