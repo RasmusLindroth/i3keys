@@ -272,8 +272,6 @@ func parse(confReader io.Reader, err error) ([]Mode, []Binding, error) {
 		parsedIncludes = append(parsedIncludes, incl)
 	}
 
-	//bindings, modes = replaceVariables(variables, bindings, modes)
-
 	for key := range modes {
 		modes[key].Bindings = sortModifiers(modes[key].Bindings)
 	}
