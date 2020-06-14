@@ -44,6 +44,12 @@ type Variable struct {
 	Value string `json:"value"`
 }
 
+type SortByVarbyLen []Variable
+
+func (a SortByVarbyLen) Len() int           { return len(a) }
+func (a SortByVarbyLen) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a SortByVarbyLen) Less(i, j int) bool { return len(a[i].Name) > len(a[j].Name) }
+
 //ModifierGroup holds bindings with the same modifiers
 type ModifierGroup struct {
 	Modifiers []string  `json:"modifiers"`
