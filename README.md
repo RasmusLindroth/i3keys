@@ -57,6 +57,25 @@ go install
 //If starting doesn't work try running it from $HOME/go/bin
 ```
 
+Alternate install instructions on Ubuntu 21
+```
+$: git clone https://github.com/RasmusLindroth/i3keys.git
+$: cp -r i3keys/ ~/go/src/.
+
+$: cd ~/go/src/i3keys
+$: go install
+
+# Check if success
+$: ls ~/go/bin/
+
+i3keys
+
+# Add to PATH if you haven't already
+# Add this into .bashrc
+PATH="${HOME}/go/bin:$PATH"
+export PATH
+```
+
 Example usage
 ```
 //Run web interface with a random port
