@@ -169,3 +169,22 @@ Arguments:
 * It's only tested with evdev handling input. So maybe you get the wrong 
  mappings. Open an issue in that case and I will look in to it.
 * There are no tests right now. So you might run into some issues.
+
+
+### Troubleshooting
+If you face this issue 
+```
+sam@***:[~/Downloads/i3keys] (master)
+$ go install
+go: downloading github.com/gorilla/handlers v1.4.0
+go: downloading github.com/gorilla/mux v1.7.1
+go: downloading go.i3wm.org/i3/v4 v4.17.0
+go: downloading github.com/BurntSushi/xgbutil v0.0.0-20160919175755-f7c97cef3b4e
+go: downloading github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802
+# github.com/RasmusLindroth/i3keys/internal/xlib
+internal/xlib/xlib.go:8:11: fatal error: X11/extensions/XTest.h: No such file or directory
+    8 | // #include <X11/extensions/XTest.h>
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~
+compilation terminated.
+```
+You can resolve it by installing this package libxtst-dev
