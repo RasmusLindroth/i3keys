@@ -3,7 +3,7 @@ package i3parse
 import (
 	"sort"
 
-	"github.com/RasmusLindroth/i3keys/internal/helpers"
+	"github.com/RasmusLindroth/i3keys/helpers"
 )
 
 type sortByNumModifiers []ModifierGroup

@@ -9,7 +9,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/RasmusLindroth/i3keys/internal/helpers"
+	"github.com/RasmusLindroth/i3keys/helpers"
 )
 
 func getLineType(parts []string, c context) lineType {
@@ -138,7 +138,7 @@ func readLine(reader *bufio.Reader, c context, variables []Variable) (string, []
 
 func parseConfig(confReader io.Reader, confPath string, variables []Variable, err error) ([]Mode, []Binding, []Variable, []string, error) {
 	if err != nil {
-		return []Mode{}, []Binding{}, []Variable{}, []string{}, errors.New("Couldn't get the config file")
+		return []Mode{}, []Binding{}, []Variable{}, []string{}, errors.New("couldn't get the config file")
 	}
 
 	reader := bufio.NewReader(confReader)
@@ -243,7 +243,7 @@ func parse(confReader io.Reader, err error) ([]Mode, []Binding, error) {
 	configPath, _ := helpers.GetSwayDefaultConfig()
 	modes, bindings, variables, includes, err := parseConfig(confReader, configPath, []Variable{}, err)
 	if err != nil {
-		return []Mode{}, []Binding{}, errors.New("Couldn't get the config file")
+		return []Mode{}, []Binding{}, errors.New("couldn't get the config file")
 	}
 	var parsedIncludes []string
 	for j := 0; j < len(includes); j++ {
@@ -336,10 +336,13 @@ func parseBinding(parts []string) (Binding, error) {
 
 	modifiers, key, cmd := parseBindingParts(parts)
 
-	variable := key[0] == '$'
+	variable := false
+	if len(key) > 0 {
+		variable = key[0] == '$'
+	}
 
 	var err error
-	if bindType == "code" && variable == false {
+	if bindType == "code" && !variable {
 		key, err = CodeToSymbol(key)
 	}
 
@@ -349,54 +352,6 @@ func parseBinding(parts []string) (Binding, error) {
 
 func parseVariable(parts []string) Variable {
 	return Variable{Name: parts[1], Value: strings.Join(parts[2:], " ")}
-}
-
-func variableNameToValue(variables []Variable, value string) string {
-	for _, variable := range variables {
-		if variable.Name == value {
-			return variable.Value
-		}
-	}
-
-	return value
-}
-
-func replaceVariables(variables []Variable, bindings []Binding, modes []Mode) ([]Binding, []Mode) {
-	bindings = replaceVariablesInBindings(variables, bindings)
-	modes = replaceVariablesInModes(variables, modes)
-
-	return bindings, modes
-}
-
-func replaceVariablesInBindings(variables []Variable, bindings []Binding) []Binding {
-	var nb []Binding
-	for key := range bindings {
-		prev := bindings[key].Key
-		bindings[key].Key = variableNameToValue(variables, bindings[key].Key)
-
-		if bindings[key].Key != prev && bindings[key].bindType == "code" {
-			k, err := CodeToSymbol(bindings[key].Key)
-			if err != nil {
-				log.Println(err)
-				continue
-			}
-			bindings[key].Key = k
-		}
-
-		for mkey := range bindings[key].Modifiers {
-			bindings[key].Modifiers[mkey] = variableNameToValue(variables, bindings[key].Modifiers[mkey])
-		}
-		nb = append(nb, bindings[key])
-	}
-	return bindings
-}
-
-func replaceVariablesInModes(variables []Variable, modes []Mode) []Mode {
-	for mkey, mode := range modes {
-		modes[mkey].Name = variableNameToValue(variables, modes[mkey].Name)
-		modes[mkey].Bindings = replaceVariablesInBindings(variables, mode.Bindings)
-	}
-	return modes
 }
 
 func sortModifiers(bindings []Binding) []Binding {

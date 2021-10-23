@@ -10,7 +10,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/RasmusLindroth/i3keys/internal/helpers"
+	"github.com/RasmusLindroth/i3keys/helpers"
 )
 
 var tmplstr = `package xlib

@@ -5,12 +5,12 @@ import (
 	"os"
 	"strings"
 
-	"github.com/RasmusLindroth/i3keys/internal/svg"
-	"github.com/RasmusLindroth/i3keys/internal/text"
-	"github.com/RasmusLindroth/i3keys/internal/web"
+	"github.com/RasmusLindroth/i3keys/svg"
+	"github.com/RasmusLindroth/i3keys/text"
+	"github.com/RasmusLindroth/i3keys/web"
 )
 
-const version string = "0.0.13"
+const version string = "0.0.14"
 
 func helpText(exitCode int) {
 	fmt.Print("Usage:\n\n\ti3keys [-i|-s] <command> [arguments]\n")

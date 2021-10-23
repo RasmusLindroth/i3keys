@@ -8,10 +8,7 @@ func validateVariable(parts []string) bool {
 }
 
 func validateBinding(parts []string) bool {
-	if len(parts) < 3 {
-		return false
-	}
-	return true
+	return len(parts) >= 3
 }
 
 func validateMode(parts []string) bool {
@@ -23,8 +20,5 @@ func validateMode(parts []string) bool {
 }
 
 func validateInclude(parts []string) bool {
-	if len(parts) < 2 {
-		return false
-	}
-	return true
+	return len(parts) >= 2
 }

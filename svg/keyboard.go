@@ -7,7 +7,7 @@ import (
 	"math"
 	"text/template"
 
-	"github.com/RasmusLindroth/i3keys/internal/keyboard"
+	"github.com/RasmusLindroth/i3keys/keyboard"
 )
 
 var tmpl = `<svg width="1500" height="450" xmlns="http://www.w3.org/2000/svg">
@@ -64,21 +64,21 @@ var (
 )
 
 var ansi = [][]keyType{
-	[]keyType{single, emptySingle, single, single, single, single, emptySmall, single, single, single, single, emptySmall, single, single, single, single, emptySmall, single, single, single},
-	[]keyType{single, single, single, single, single, single, single, single, single, single, single, single, single, double, emptySmall, single, single, single, emptySmall, single, single, single, single},
-	[]keyType{onehalf, single, single, single, single, single, single, single, single, single, single, single, single, onehalf, emptySmall, single, single, single, emptySmall, single, single, single, doubleY},
-	[]keyType{semidouble, single, single, single, single, single, single, single, single, single, single, single, semilarge, emptySmall, emptySingle, emptySingle, emptySingle, emptySmall, single, single, single},
-	[]keyType{semilarge, single, single, single, single, single, single, single, single, single, single, large, emptySmall, emptySingle, single, emptySingle, emptySmall, single, single, single, doubleY},
-	[]keyType{modifier, modifier, modifier, space, modifier, modifier, modifier, modifier, emptySmall, single, single, single, emptySmall, double, single},
+	{single, emptySingle, single, single, single, single, emptySmall, single, single, single, single, emptySmall, single, single, single, single, emptySmall, single, single, single},
+	{single, single, single, single, single, single, single, single, single, single, single, single, single, double, emptySmall, single, single, single, emptySmall, single, single, single, single},
+	{onehalf, single, single, single, single, single, single, single, single, single, single, single, single, onehalf, emptySmall, single, single, single, emptySmall, single, single, single, doubleY},
+	{semidouble, single, single, single, single, single, single, single, single, single, single, single, semilarge, emptySmall, emptySingle, emptySingle, emptySingle, emptySmall, single, single, single},
+	{semilarge, single, single, single, single, single, single, single, single, single, single, large, emptySmall, emptySingle, single, emptySingle, emptySmall, single, single, single, doubleY},
+	{modifier, modifier, modifier, space, modifier, modifier, modifier, modifier, emptySmall, single, single, single, emptySmall, double, single},
 }
 
 var iso = [][]keyType{
-	[]keyType{single, emptySingle, single, single, single, single, emptySmall, single, single, single, single, emptySmall, single, single, single, single, emptySmall, single, single, single},
-	[]keyType{single, single, single, single, single, single, single, single, single, single, single, single, single, double, emptySmall, single, single, single, emptySmall, single, single, single, single},
-	[]keyType{onehalf, single, single, single, single, single, single, single, single, single, single, single, single, enterISO, emptySmall, single, single, single, emptySmall, single, single, single, doubleY},
-	[]keyType{semidouble, single, single, single, single, single, single, single, single, single, single, single, single, enterDown, emptySmall, emptySingle, emptySingle, emptySingle, emptySmall, single, single, single},
-	[]keyType{modifier, single, single, single, single, single, single, single, single, single, single, single, large, emptySmall, emptySingle, single, emptySingle, emptySmall, single, single, single, doubleY},
-	[]keyType{modifier, modifier, modifier, space, modifier, modifier, modifier, modifier, emptySmall, single, single, single, emptySmall, double, single},
+	{single, emptySingle, single, single, single, single, emptySmall, single, single, single, single, emptySmall, single, single, single, single, emptySmall, single, single, single},
+	{single, single, single, single, single, single, single, single, single, single, single, single, single, double, emptySmall, single, single, single, emptySmall, single, single, single, single},
+	{onehalf, single, single, single, single, single, single, single, single, single, single, single, single, enterISO, emptySmall, single, single, single, emptySmall, single, single, single, doubleY},
+	{semidouble, single, single, single, single, single, single, single, single, single, single, single, single, enterDown, emptySmall, emptySingle, emptySingle, emptySingle, emptySmall, single, single, single},
+	{modifier, single, single, single, single, single, single, single, single, single, single, single, large, emptySmall, emptySingle, single, emptySingle, emptySmall, single, single, single, doubleY},
+	{modifier, modifier, modifier, space, modifier, modifier, modifier, modifier, emptySmall, single, single, single, emptySmall, double, single},
 }
 
 //Generate creates an SVG image of the keyboard
@@ -168,7 +168,7 @@ func Generate(layout string, kb keyboard.Keyboard) []byte {
 	for i := 0; i < len(usedKb); i++ {
 		k := 0
 		for j := 0; j < len(usedKb[i]); j++ {
-			if usedKb[i][j].Visible == false {
+			if !usedKb[i][j].Visible {
 				continue
 			}
 

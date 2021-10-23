@@ -8,10 +8,10 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/RasmusLindroth/i3keys/internal/helpers"
-	"github.com/RasmusLindroth/i3keys/internal/i3parse"
-	"github.com/RasmusLindroth/i3keys/internal/keyboard"
-	"github.com/RasmusLindroth/i3keys/internal/xlib"
+	"github.com/RasmusLindroth/i3keys/helpers"
+	"github.com/RasmusLindroth/i3keys/i3parse"
+	"github.com/RasmusLindroth/i3keys/keyboard"
+	"github.com/RasmusLindroth/i3keys/xlib"
 )
 
 func sanitizeDirName(s string) string {
@@ -48,11 +48,10 @@ func createGroup(layout string, dest string, group i3parse.ModifierGroup, modifi
 	fname = fname + "-" + layout + ".svg"
 
 	file, err := os.Create(filepath.Join(dest, fname))
-	defer file.Close()
-
 	if err != nil {
 		log.Fatalln(err)
 	}
+	defer file.Close()
 
 	file.Write(data)
 }
@@ -83,7 +82,7 @@ func Output(wm string, layout string, dest string, filter string) {
 
 	for _, group := range groups {
 		if toFilter {
-			if helpers.CompareSlices(group.Modifiers, filterMods) == false {
+			if !helpers.CompareSlices(group.Modifiers, filterMods) {
 				continue
 			}
 			createGroup(layout, dest, group, modifiers)
