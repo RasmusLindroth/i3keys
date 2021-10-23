@@ -12,3 +12,6 @@
 *.out
 
 .vscode
+
+Makefile
+bin/
