@@ -66,6 +66,7 @@ var indexTmplCSS = `:root {
   
   .key {
 	border: 1px solid #000000;
+	border-radius: 5px;
 	background-color: #ffffff;
 	font-size: 0.7vw;
 	word-break: break-all;
@@ -130,6 +131,7 @@ var indexTmplCSS = `:root {
   
   .enterDown {
 	border-top: none;
+	border-radius: 0px;
 	grid-column: auto / span 5;
 	height: calc(var(--key-size) + (var(--key-size) / 4));
 	margin-top: calc(-1 * (var(--key-size) / 4) - 1px);
