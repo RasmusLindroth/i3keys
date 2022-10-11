@@ -127,11 +127,12 @@ var indexTmplCSS = `:root {
   
   .enterUp {
 	grid-column: auto / span 6;
+	border-radius: 5px 5px 0px 5px;
   }
   
   .enterDown {
 	border-top: none;
-	border-radius: 0px;
+	border-radius: 0px 0px 5px 5px;
 	grid-column: auto / span 5;
 	height: calc(var(--key-size) + (var(--key-size) / 4));
 	margin-top: calc(-1 * (var(--key-size) / 4) - 1px);
