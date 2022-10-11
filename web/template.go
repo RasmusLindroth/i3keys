@@ -217,6 +217,85 @@ iso = [
     ["modifier", "modifier", "modifier", "space", "modifier", "modifier", "modifier", "modifier", "emptySmall", "single", "single", "single", "emptySmall", "double", "single"]
 ];
 
+keyCaptions = {
+"space":        "Space",
+"exclam":       "!",
+"quotedbl":     "\"",
+"numbersign":   "#",
+"dollar":       "$",
+"percent":      "%",
+"ampersand":    "&amp;",
+"quoteright":   "'",
+"parenleft":    "(",
+"parenright":   ")",
+"asterisk":     "*",
+"plus":         "+",
+"comma":        ",",
+"minus":        "-",
+"period":       ".",
+"slash":        "/",
+"colon":        ":",
+"semicolon":    ";",
+"less":         "<",
+"equal":        "=",
+"greater":      ">",
+"question":     "?",
+"at":           "@",
+"bracketleft":  "[",
+"backslash":    "\\",
+"bracketright": "]",
+"asciicircum":  "^",
+"underscore":   "_",
+"quoteleft":    "&#96;",
+"braceleft":    "{",
+"bar":          "|",
+"braceright":   "}",
+"asciitilde":   "~",
+"agrave":       "à",
+"aacute":       "á",
+"acircumflex":  "â",
+"atilde":       "ã",
+"adiaeresis":   "ä",
+"aring":        "å",
+"ae":           "æ",
+"ccedilla":     "ç",
+"egrave":       "è",
+"eacute":       "é",
+"ecircumflex":  "ê",
+"ediaeresis":   "ë",
+"igrave":       "ì",
+"iacute":       "í",
+"icircumflex":  "î",
+"idiaeresis":   "ï",
+"eth":          "ð",
+"ntilde":       "ñ",
+"ograve":       "ò",
+"oacute":       "ó",
+"ocircumflex":  "ô",
+"otilde":       "õ",
+"odiaeresis":   "ö",
+"division":     "÷",
+"ooblique":     "ø",
+"ugrave":       "ù",
+"uacute":       "ú",
+"ucircumflex":  "û",
+"udiaeresis":   "ü",
+"yacute":       "ý",
+"thorn":        "þ",
+"ydiaeresis":   "ÿ",
+"KP_Multiply":  "KP *",
+"KP_Add":       "KP +",
+"KP_Subtract":  "KP -",
+"KP_Decimal":   "KP .",
+"KP_Divide":    "KP /",
+"KP_Equal":     "KP ="
+}
+
+function keyCaption(s) {
+  let c = keyCaptions[s];
+  return c ? c.replaceAll(" ","<br/>") : s.replaceAll("_","<br/>");
+}
+
 let keyboardHolder = document.querySelector('#keyboard-holder');
 
 function liLink(name, id) {
@@ -338,7 +417,7 @@ function generateKeyboardGroup(kbLayout, generated, headingID) {
                     enterHit = gHit
                 }
 
-                keyEl.innerHTML = '<span class="txt">' + generated.Keys[i][k].Symbol + '</span>';
+                keyEl.innerHTML = '<span class="txt">' + keyCaption(generated.Keys[i][k].Symbol) + '</span>';
 
                 k++;
             }
