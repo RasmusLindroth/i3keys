@@ -23,7 +23,7 @@ func printKeyboards(keyboards []keyboard.Keyboard, groups []i3parse.ModifierGrou
 		for _, keyRow := range kb.Keys {
 			var unused []string
 			for _, key := range keyRow {
-				if key.InUse == false {
+				if !key.InUse {
 					unused = append(unused, key.Symbol)
 				}
 			}
@@ -36,9 +36,9 @@ func printKeyboards(keyboards []keyboard.Keyboard, groups []i3parse.ModifierGrou
 	}
 }
 
-//Output prints the keyboards to os.Stdout
+// Output prints the keyboards to os.Stdout
 func Output(wm string, layout string, filter string) {
-	modes, keys, err := i3parse.ParseFromRunning(wm)
+	modes, keys, err := i3parse.ParseFromRunning(wm, true)
 
 	if err != nil {
 		log.Fatalln(err)
@@ -62,7 +62,7 @@ func Output(wm string, layout string, filter string) {
 
 	if toFilter {
 		for i, g := range groups {
-			if helpers.CompareSlices(g.Modifiers, filterMods) == false {
+			if !helpers.CompareSlices(g.Modifiers, filterMods) {
 				continue
 			}
 			printKeyboards([]keyboard.Keyboard{keyboards[i]}, []i3parse.ModifierGroup{g}, "")

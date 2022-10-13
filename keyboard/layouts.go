@@ -8,7 +8,7 @@ import (
 	"github.com/RasmusLindroth/i3keys/xlib"
 )
 
-//ANSI holds evdev keys for an ANSI layout
+// ANSI holds evdev keys for an ANSI layout
 var ANSI = [][]string{
 	{"ESC", "FK01", "FK02", "FK03", "FK04", "FK05", "FK06", "FK07", "FK08", "FK09", "FK10", "FK11", "FK12", "PRSC", "SCLK", "PAUS"},
 	{"TLDE", "AE01", "AE02", "AE03", "AE04", "AE05", "AE06", "AE07", "AE08", "AE09", "AE10", "AE11", "AE12", "BKSP", "INS", "HOME", "PGUP", "NMLK", "KPDV", "KPMU", "KPSU"},
@@ -18,7 +18,7 @@ var ANSI = [][]string{
 	{"LCTL", "LWIN", "LALT", "SPCE", "RALT", "RWIN", "MENU", "RCTL", "LEFT", "DOWN", "RGHT", "KP0", "KPDL"},
 }
 
-//ISO holds evdev keys for an ANSI layout
+// ISO holds evdev keys for an ANSI layout
 var ISO = [][]string{
 	{"ESC", "FK01", "FK02", "FK03", "FK04", "FK05", "FK06", "FK07", "FK08", "FK09", "FK10", "FK11", "FK12", "PRSC", "SCLK", "PAUS"},
 	{"TLDE", "AE01", "AE02", "AE03", "AE04", "AE05", "AE06", "AE07", "AE08", "AE09", "AE10", "AE11", "AE12", "BKSP", "INS", "HOME", "PGUP", "NMLK", "KPDV", "KPMU", "KPSU"},
@@ -28,13 +28,14 @@ var ISO = [][]string{
 	{"LCTL", "LWIN", "LALT", "SPCE", "RALT", "RWIN", "MENU", "RCTL", "LEFT", "DOWN", "RGHT", "KP0", "KPDL"},
 }
 
-//Keyboard holds one keyboard for one modifier group
+// Keyboard holds one keyboard for one modifier group
 type Keyboard struct {
-	Name string
-	Keys [][]Key
+	Name      string
+	Modifiers []string
+	Keys      [][]Key
 }
 
-//Key holds one key. Used for rendering
+// Key holds one key. Used for rendering
 type Key struct {
 	Binding    i3parse.Binding
 	Modifier   bool
@@ -76,7 +77,7 @@ func bindingMatch(symbol string, symbolCode int, identifier string, group i3pars
 	return rKey
 }
 
-//MapKeyboard returns a Keyboard matching desired layout
+// MapKeyboard returns a Keyboard matching desired layout
 func MapKeyboard(layout string, group i3parse.ModifierGroup, modifiers map[string][]string) (Keyboard, error) {
 	var kb [][]Key
 	var kbMap [][]string
@@ -115,5 +116,5 @@ func MapKeyboard(layout string, group i3parse.ModifierGroup, modifiers map[strin
 	if name == "" {
 		name = "No modifiers"
 	}
-	return Keyboard{Name: name, Keys: kb}, nil
+	return Keyboard{Name: name, Keys: kb, Modifiers: group.Modifiers}, nil
 }

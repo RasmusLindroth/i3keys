@@ -10,14 +10,27 @@ import (
 	"github.com/RasmusLindroth/i3keys/xlib"
 )
 
-type modeKeyboards struct {
-	Name      string
-	Keyboards []keyboard.Keyboard
+type KeyboardModesJSON struct {
+	Name           string
+	ModifierGroups []KeyboardModifierJSON
+}
+
+type KeyboardModifierJSON struct {
+	Modifiers []string
+	Keys      []KeyJSON
+}
+
+type KeyJSON struct {
+	Row      int
+	Modifier bool
+	InUse    bool
+	Symbol   string
+	Command  string
 }
 
 // Output full json for the requested layout
 func Output(wm string, layout string) {
-	modes, keys, err := i3parse.ParseFromRunning(wm)
+	modes, keys, err := i3parse.ParseFromRunning(wm, false)
 
 	if err != nil {
 		log.Fatalln(err)
@@ -26,34 +39,70 @@ func Output(wm string, layout string) {
 	modifiers := xlib.GetModifiers()
 	groups := i3parse.GetModifierGroups(keys)
 
-	layoutModeDefault := modeKeyboards{Name: "(default)"}
+	var keyboards []keyboard.Keyboard
 	for _, group := range groups {
 		kb, err := keyboard.MapKeyboard(layout, group, modifiers)
-		if err != nil {
-			log.Fatalln(err)
+		if err == nil {
+			keyboards = append(keyboards, kb)
 		}
-		layoutModeDefault.Keyboards = append(layoutModeDefault.Keyboards, kb)
-
 	}
-
-	var layoutModes []modeKeyboards
-	layoutModes = append(layoutModes, layoutModeDefault)
-
+	var jsonBoards []KeyboardModesJSON
+	defaultBoard := KeyboardModesJSON{
+		Name: "Default",
+	}
+	for _, kb := range keyboards {
+		b := KeyboardModifierJSON{
+			Modifiers: kb.Modifiers,
+		}
+		for i, keyRow := range kb.Keys {
+			for _, key := range keyRow {
+				binding := KeyJSON{
+					Row:      i,
+					Modifier: key.Modifier,
+					InUse:    key.InUse,
+					Symbol:   key.Symbol,
+					Command:  key.Binding.Command,
+				}
+				b.Keys = append(b.Keys, binding)
+			}
+		}
+		defaultBoard.ModifierGroups = append(defaultBoard.ModifierGroups, b)
+	}
+	jsonBoards = append(jsonBoards, defaultBoard)
 	for _, mode := range modes {
 		groups := i3parse.GetModifierGroups(mode.Bindings)
 
-		layoutMode := modeKeyboards{Name: mode.Name}
+		modeBoard := KeyboardModesJSON{
+			Name: mode.Name,
+		}
 
 		for _, group := range groups {
 			kb, err := keyboard.MapKeyboard(layout, group, modifiers)
 			if err != nil {
 				log.Fatalln(err)
 			}
-			layoutMode.Keyboards = append(layoutMode.Keyboards, kb)
+			b := KeyboardModifierJSON{
+				Modifiers: kb.Modifiers,
+			}
+			for i, keyRow := range kb.Keys {
+				for _, key := range keyRow {
+					binding := KeyJSON{
+						Row:      i,
+						Modifier: key.Modifier,
+						InUse:    key.InUse,
+						Symbol:   key.Symbol,
+						Command:  key.Binding.Command,
+					}
+					b.Keys = append(b.Keys, binding)
+				}
+			}
+			modeBoard.ModifierGroups = append(modeBoard.ModifierGroups, b)
 		}
-		layoutModes = append(layoutModes, layoutMode)
+		jsonBoards = append(jsonBoards, modeBoard)
 	}
-
-	layoutJSON, _ := json.Marshal(layoutModes)
-	fmt.Printf("%s\n", layoutJSON)
+	jb, err := json.Marshal(jsonBoards)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	fmt.Printf("%s\n", jb)
 }

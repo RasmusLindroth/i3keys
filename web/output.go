@@ -17,9 +17,9 @@ type modeKeyboards struct {
 	Keyboards []keyboard.Keyboard
 }
 
-//Output starts the server at desired port
+// Output starts the server at desired port
 func Output(wm string, port string) {
-	modes, keys, err := i3parse.ParseFromRunning(wm)
+	modes, keys, err := i3parse.ParseFromRunning(wm, true)
 
 	if err != nil {
 		log.Fatalln(err)
