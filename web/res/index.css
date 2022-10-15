@@ -1,70 +1,129 @@
 :root {
+    --original-red-1:       #ff655c;
+    --original-red-2:       #e0453c;
+    --original-green:       #5cff87;
+
+    --main-bg:              #ffffff;
+    --main-fg-max:          #000000;
+    --main-fg-dim:          #202020;
+    --header-bg:            #fefefe;
+    --header-border:        #e0e0e0;
+    --header-mode-bg:       #f0f0f0;
+    --header-mode-border:   #e0e0e0;
+    --key-bg:               #f0f0f0;
+    --key-bg-hover:         #e7e7e7;
+    --key-bg-inuse:         hsl(10, 70%, 80%);
+    --key-bg-modifier:      hsl(100, 70%, 75%);
+
     --key-size: calc(100vw / 24);
+
+    --grid-gap-h: 0.4vw;
+    --grid-gap-v: calc(var(--key-size) / 6);
+
 }
 
 html,
 body {
     font-family: helveticaneue-light, helvetica neue light, helvetica neue, Helvetica, Arial, lucida grande, sans-serif;
     font-weight: 300;
+    background-color: var(--main-bg);
 }
 
 #select-layout {
     text-align: center;
 }
 
-#sticky-header {
-    position: sticky;
-    top: 0;
-}
-
-#sticky-header li {
-    display: inline;
-    padding: 1ch 1ch 0 0;
-}
-
 .layoutbtn {
     width: 45vw;
     height: 5em;
 
-    background-color: #ff655c;
-    border: 1px solid #ff655c;
+    background-color: var(--original-red-1);
+    border: 1px solid var(--original-red-1);
     color: #fff;
     font-size: 1.2em;
     cursor: pointer;
 }
 
 .layoutbtn:hover {
-    background-color: #e0453c;
-    border-color: #e0453c;
+    background-color: var(--original-red-2);
+    border-color: var(--original-red-2);
+}
+
+#sticky-header {
+    position: sticky;
+    top: 0;
+    background: var(--header-bg);
+    border-bottom: 1px dotted var(--header-border);
+    padding: 0;
+    margin: 0;
+}
+
+/* these should really be classes */
+
+#sticky-header > ul {
+    top: 0.5em;
+    bottom: 100%;
+    padding: 1px;
+    margin: 0;
+}
+
+#sticky-header > ul > li {
+    display: inline-block;
+    background-color: var(--header-mode-bg);
+    border: 1px dotted var(--header-mode-border);
+    border-radius: 3px;
+    padding: 0.5ch; /* probably not the right unit */
+    margin-right: 1ch; /* distance between modes */
+}
+
+#sticky-header > ul > li > a {
+    font-weight: bold;
+    color: var(--main-fg-max);
+}
+
+#sticky-header > ul > li > ul {
+    display: inline;
+    padding: 0;
+    margin: 0;
+}
+
+#sticky-header > ul > li > ul > li {
+    display: inline;
+    margin-left: 1ch; /* distance between modifiers */
+}
+
+#sticky-header > ul > li > ul > li > a {
+    color: var(--main-fg-dim);
+    text-decoration: dotted underline;
 }
 
 .keyboard {
     display: grid;
     grid-template-columns: repeat(1000, calc(var(--key-size) / 4 - 0.4vw));
     grid-template-rows: repeat(6, var(--key-size));
-    grid-column-gap: 0.4vw;
-    grid-row-gap: calc(var(--key-size) / 4);
-    padding-bottom: 2em;
+    grid-column-gap: var(--grid-gap-h);
+    grid-row-gap: var(--grid-gap-v);
 }
 
 .key {
     font-family: monospace;
-    border: 1px solid #000000;
+    border: 1px solid var(--main-fg-max);
     border-radius: 5px;
-    background-color: #ffffff;
+    background-color: var(--key-bg);
     font-size: 0.7vw;
     word-break: break-all;
     text-align: center;
     line-height: var(--key-size);
 }
 
-.key>.txt {
+.key > .txt {
     pointer-events: none;
 }
 
 .emptySmall {
     grid-column: auto / span 2;
-    border: 1px solid #ffffff;
+    border: 1px solid transparent;
+    background-color: var(--main-bg);
 }
 
 .single {
@@ -73,7 +132,8 @@ body {
 
 .emptySingle {
     grid-column: auto / span 4;
-    border: 1px solid #ffffff;
+    border: 1px solid transparent;
+    background-color: var(--main-bg);
 }
 
 .modifier {
@@ -118,8 +178,8 @@ body {
     border-top: none;
     border-radius: 0px 0px 5px 5px;
     grid-column: auto / span 5;
-    height: calc(var(--key-size) + (var(--key-size) / 4));
-    margin-top: calc(-1 * (var(--key-size) / 4) - 1px);
+    height: calc(var(--key-size) + var(--grid-gap-v));
+    margin-top: calc(-1 * var(--grid-gap-v) - 1.25px); /* still needs the .25 ? */
 }
 
 .row-0 {
@@ -154,16 +214,40 @@ body {
 
 .key-desc {
     font-weight: bold;
+    font-family: monospace;
+    font-size: larger;
 }
 
 .key-modifier {
-    background-color: #5cff87;
+    background-color: var(--key-bg-modifier);
 }
 
 .key-used {
-    background-color: #ff655c;
+    background-color: var(--key-bg-inuse);
 }
 
-a {
-    color: blue;
+#sticky-header h1 {
+    display: none; /* "Table of contents" */
+}
+
+#keyboard-holder {
+    margin-left: var(--grid-gap-h);
+}
+
+#keyboard-holder h2 {
+    /*
+    display: inline;
+    */
+    color: var(--main-fg-max);
+}
+
+#keyboard-holder h3 {
+    /*
+    display: inline;
+    */
+    color: var(--main-fg-dim);
+}
+
+#keyboard-holder > div {
+    padding-bottom: 2em;
 }
