@@ -35,6 +35,7 @@ iso = [
 ];
 
 let keyboardHolder = document.querySelector('#keyboard-holder');
+let stickyHeader = document.querySelector('#sticky-header');
 
 function liLink(name, id) {
     let li = document.createElement('li');
@@ -55,21 +56,25 @@ function generateKeyboard(layout, generated, modes) {
     } else {
         kbLayout = iso;
     }
-    
+
+    // #sticky-header begin ---
+
+    /*
     let tosHeading = document.createElement('h1');
     tosHeading.innerHTML = "Table of contents";
-    keyboardHolder.appendChild(tosHeading);
+    divSticky.appendChild(tosHeading);
+    */
     let tosList = document.createElement('ul');
     let tosDefaultLi = liLink('Mode: Default', 'mode_head_default');
     tosDefaultUl = document.createElement('ul');
-    
+
     for (let i = 0; generated !== null && i < generated.length; i++) {
         liEl = liLink(generated[i].Name, "keyboard_"+i);
         tosDefaultUl.appendChild(liEl);
     }
     tosList.appendChild(tosDefaultLi);
-    tosList.appendChild(tosDefaultUl);
-    keyboardHolder.appendChild(tosList);
+    tosDefaultLi.appendChild(tosDefaultUl);
+    stickyHeader.appendChild(tosList);
 
     for (let i = 0; modes !== null && i < modes.length; i++) {
         let liEl = liLink("Mode: "+modes[i].Name, "mode_head_"+i);
@@ -81,9 +86,11 @@ function generateKeyboard(layout, generated, modes) {
         }
 
         tosList.appendChild(liEl);
-        tosList.appendChild(ulEl);
+        liEl.appendChild(ulEl);
     }
     
+    // #sticky-header end ---
+
     let headingEl = document.createElement('h2');
     headingEl.innerHTML = "Mode: Default";
     headingEl.id = "mode_head_default";

@@ -12,6 +12,16 @@ body {
     text-align: center;
 }
 
+#sticky-header {
+    position: sticky;
+    top: 0;
+}
+
+#sticky-header li {
+    display: inline;
+    padding: 1ch 1ch 0 0;
+}
+
 .layoutbtn {
     width: 45vw;
     height: 5em;
@@ -38,6 +48,7 @@ body {
 }
 
 .key {
+    font-family: monospace;
     border: 1px solid #000000;
     border-radius: 5px;
     background-color: #ffffff;
