@@ -1,6 +1,6 @@
 module github.com/RasmusLindroth/i3keys
 
-go 1.12
+go 1.16
 
 require (
 	github.com/BurntSushi/xgb v0.0.0-20210121224620-deaf085860bc // indirect

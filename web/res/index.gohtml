@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>i3keys</title>
+	<style>
+	{{.CSS}}
+	</style>
+</head>
+<body>
+	<div id="select-layout">
+		<h2>Which layout do you use?</h2>
+		<button class="layoutbtn" id="select-iso">ISO</button>
+		<button class="layoutbtn" id="select-ansi">ANSI</button>
+	</div>
+	<div id="keyboard-holder">
+	</div>
+	<script>
+	{{.JSData}}
+	</script>
+	<script>{{.JS}}</script>
+</body>
+</html>
