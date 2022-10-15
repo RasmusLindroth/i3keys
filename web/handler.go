@@ -3,6 +3,7 @@ package web
 import (
 	"html/template"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -25,6 +26,16 @@ type Handler struct {
 func New(js string) Handler {
 	handler := Handler{}
 	handler.Template = template.Must(template.New("index").Parse(indexTmplStr))
+
+	i3keys_config := os.Getenv("HOME") + "/.config/i3keys/" // TODO: check XDG_CONFIG & Co.
+	index_css := i3keys_config + "index.css"
+	index_css, _ = os.Readlink(index_css) // is the blind readlink ok? i think not...
+	if buf, err := os.ReadFile(index_css); err == nil {
+		indexTmplCSS = string(buf) // assigning to indexTmplCSS is also not good, will do for now...
+	} else {
+		println("could not read ", index_css, err)
+	}
+
 	handler.Data.CSS = template.CSS(indexTmplCSS)
 	handler.Data.JS = template.JS(indexTmplJS)
 	handler.Data.JSData = template.JS(js)
