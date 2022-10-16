@@ -37,6 +37,10 @@ iso = [
 let keyboardHolder = document.querySelector('#keyboard-holder');
 let stickyHeader = document.querySelector('#sticky-header');
 
+function a_name() {
+    return [...arguments].join("_")
+}
+
 function liLink(name, id) {
     let li = document.createElement('li');
     let a = document.createElement('a');
@@ -59,17 +63,16 @@ function generateKeyboard(layout, generated, modes) {
 
     // #sticky-header begin ---
 
-    /*
     let tosHeading = document.createElement('h1');
     tosHeading.innerHTML = "Table of contents";
-    divSticky.appendChild(tosHeading);
-    */
+    stickyHeader.appendChild(tosHeading);
+
     let tosList = document.createElement('ul');
-    let tosDefaultLi = liLink('Mode: Default', 'mode_head_default');
+    let tosDefaultLi = liLink("Mode: "+"Default", a_name("keyboard",0));
     tosDefaultUl = document.createElement('ul');
 
     for (let i = 0; generated !== null && i < generated.length; i++) {
-        liEl = liLink(generated[i].Name, "keyboard_"+i);
+        liEl = liLink(generated[i].Name, a_name("keyboard",i));
         tosDefaultUl.appendChild(liEl);
     }
     tosList.appendChild(tosDefaultLi);
@@ -77,11 +80,11 @@ function generateKeyboard(layout, generated, modes) {
     stickyHeader.appendChild(tosList);
 
     for (let i = 0; modes !== null && i < modes.length; i++) {
-        let liEl = liLink("Mode: "+modes[i].Name, "mode_head_"+i);
+        let liEl = liLink("Mode: "+modes[i].Name, a_name("mode",i,0));
         let ulEl = document.createElement('ul');
 
         for (let j = 0; j < modes[i].Keyboards.length; j++) {
-            let liC = liLink(modes[i].Keyboards[j].Name, "mode_"+i+"_"+j);
+            let liC = liLink(modes[i].Keyboards[j].Name, a_name("mode",i,j));
             ulEl.appendChild(liC);
         }
 
@@ -91,39 +94,39 @@ function generateKeyboard(layout, generated, modes) {
     
     // #sticky-header end ---
 
+    /*
     let headingEl = document.createElement('h2');
-    headingEl.innerHTML = "Mode: Default";
-    headingEl.id = "mode_head_default";
+    headingEl.innerHTML = /*"Mode: Default";
+    headingEl.id = a_name("mode","default");
     keyboardHolder.appendChild(headingEl);
+    */
 
     for (let i = 0; generated !== null && i < generated.length; i++) {
-        let newKeyboardGroup = generateKeyboardGroup(kbLayout, generated[i], "keyboard_"+i);
+        let newKeyboardGroup = generateKeyboardGroup(kbLayout, generated[i], "Default", a_name("keyboard",i));
         keyboardHolder.appendChild(newKeyboardGroup);
     }
 
-
     for (let i = 0; modes !== null && i < modes.length; i++) {
-        let headingEl = document.createElement('h2');
-        headingEl.id = "mode_head_"+i;
-        headingEl.innerHTML = "Mode: " + modes[i].Name;
-        keyboardHolder.appendChild(headingEl);
         for (let j = 0; j < modes[i].Keyboards.length; j++) {
-            let newKeyboardGroup = generateKeyboardGroup(kbLayout, modes[i].Keyboards[j], "mode_"+i+"_"+j);
+            let newKeyboardGroup = generateKeyboardGroup(kbLayout, modes[i].Keyboards[j], modes[i].Name, a_name("mode",i,j));
             keyboardHolder.appendChild(newKeyboardGroup);
         }
     }
 }
 
-function generateKeyboardGroup(kbLayout, generated, headingID) {
+function generateKeyboardGroup(kbLayout, generated, modeName, headingID) {
     let kbWrapper = document.createElement('div');
 
-    let headingEl = document.createElement('h3');
-    headingEl.id = headingID;
+    let headingEl2 = document.createElement('h2');
+    /*headingEl2.id = "mode_head_"+i;*/
+    headingEl2.innerHTML = "Mode: " + modeName;
+    kbWrapper.appendChild(headingEl2);
+
+    let headingEl3 = document.createElement('h3');
+    headingEl3.id = headingID;
     let headingContent = generated.Name;
-
-
-    headingEl.innerHTML = headingContent;
-    kbWrapper.appendChild(headingEl);
+    headingEl3.innerHTML = headingContent;
+    kbWrapper.appendChild(headingEl3);
 
     let keyboardEl = document.createElement('div');
     keyboardEl.className = 'keyboard';
