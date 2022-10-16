@@ -235,17 +235,15 @@ body {
 }
 
 #keyboard-holder h2 {
-    /*
     display: inline;
-    */
     color: var(--main-fg-max);
+    padding-right: 2ch;
 }
 
 #keyboard-holder h3 {
-    /*
     display: inline;
-    */
     color: var(--main-fg-dim);
+    font-weight: normal;
 }
 
 #keyboard-holder > div {
