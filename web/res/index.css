@@ -56,6 +56,7 @@ body {
     border-bottom: 1px dotted var(--header-border);
     padding: 0;
     margin: 0;
+    height: 2em;
 }
 
 /* most of these should really be classes */
@@ -69,6 +70,7 @@ body {
     bottom: 100%;
     padding: 1px;
     margin: 0;
+    display: inline-block;
 }
 
 #sticky-header > ul > li {
@@ -105,6 +107,7 @@ body {
     display: inline;
     position: absolute;
     right: 1ch;
+    padding: 0.5ch; /* probably not the right unit */
 }
 
 .keyboard {
@@ -113,6 +116,7 @@ body {
     grid-template-rows: repeat(6, var(--key-size));
     grid-column-gap: var(--grid-gap-h);
     grid-row-gap: var(--grid-gap-v);
+    margin-top: 4em;
 }
 
 .key {
@@ -220,6 +224,7 @@ body {
     display: inline-block;
     vertical-align: middle;
     line-height: normal;
+    font-size: larger;
 }
 
 .key-desc {
@@ -240,23 +245,29 @@ body {
     margin-left: var(--grid-gap-h);
 }
 
+#keyboard-holder > div {
+    margin-bottom: 2em;
+    height: 100vh;
+}
+
+#keyboard-holder .keyboard-heading {
+    margin-top: 2em;
+    margin-bottom: 1em;
+    position: sticky;
+    background-color: var(--main-bg);
+    height: 2em;
+    top: 4em; 
+}
+
 #keyboard-holder .keyboard-heading > h2 {
     display: inline;
     color: var(--main-fg-max);
-    margin-right: 2em;
+    margin-right: 2ch;
 }
 
 #keyboard-holder .keyboard-heading > h3 {
     display: inline;
     color: var(--main-fg-dim);
     font-weight: normal;
-}
-
-#keyboard-holder .keyboard-heading {
-    margin-top: 12em;
-    margin-bottom: 1em;
-}
-
-#keyboard-holder > div {
-    margin-bottom: 2em;
+    font-size: larger;
 }

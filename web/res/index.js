@@ -96,6 +96,7 @@ function generateKeyboard(layout, generated, modes) {
 
     let optSplitLabel = document.createElement('label');
         optSplitLabel.for = "opt-split";
+        optSplitLabel.innerText = "Split"
 
     let optSplitInput = document.createElement('input');
         optSplitInput.type = "checkbox";
@@ -194,7 +195,11 @@ function generateKeyboardGroup(kbLayout, generated, modeName, headingID) {
                     enterHit = gHit
                 }
 
-                keyEl.innerHTML = '<span class="txt">' + generated.Keys[i][k].Symbol + '</span>';
+                keyEl.innerHTML = '<span class="txt">' + generated.Keys[i][k].Symbol
+                    .replaceAll(/grave|acute|left|right|slash/g," $&") // TODO: smarter, more complete regex
+                    .replaceAll("_"," ")
+                    .replaceAll(" ","<br>")
+                + '</span>';
 
                 k++;
             }
@@ -229,3 +234,5 @@ document.getElementById('select-ansi').addEventListener('click', function () {
     generateKeyboard('ANSI', generatedANSI, generatedANSImodes);
     document.getElementById('select-layout').style.display = 'none';
 });
+
+// TODO: events for options (split) here
