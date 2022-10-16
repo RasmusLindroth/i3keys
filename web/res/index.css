@@ -58,7 +58,11 @@ body {
     margin: 0;
 }
 
-/* these should really be classes */
+/* most of these should really be classes */
+
+#sticky-header > h1 {
+    display: none; /* "Table of contents" */
+}
 
 #sticky-header > ul {
     top: 0.5em;
@@ -95,6 +99,12 @@ body {
 #sticky-header > ul > li > ul > li > a {
     color: var(--main-fg-dim);
     text-decoration: dotted underline;
+}
+
+#sticky-header #options-panel {
+    display: inline;
+    position: absolute;
+    right: 1ch;
 }
 
 .keyboard {
@@ -226,26 +236,27 @@ body {
     background-color: var(--key-bg-inuse);
 }
 
-#sticky-header h1 {
-    display: none; /* "Table of contents" */
-}
-
 #keyboard-holder {
     margin-left: var(--grid-gap-h);
 }
 
-#keyboard-holder h2 {
+#keyboard-holder .keyboard-heading > h2 {
     display: inline;
     color: var(--main-fg-max);
-    padding-right: 2ch;
+    margin-right: 2em;
 }
 
-#keyboard-holder h3 {
+#keyboard-holder .keyboard-heading > h3 {
     display: inline;
     color: var(--main-fg-dim);
     font-weight: normal;
 }
 
+#keyboard-holder .keyboard-heading {
+    margin-top: 12em;
+    margin-bottom: 1em;
+}
+
 #keyboard-holder > div {
-    padding-bottom: 2em;
+    margin-bottom: 2em;
 }

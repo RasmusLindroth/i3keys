@@ -91,7 +91,31 @@ function generateKeyboard(layout, generated, modes) {
         tosList.appendChild(liEl);
         liEl.appendChild(ulEl);
     }
+
+    // options panel
+
+    let optSplitLabel = document.createElement('label');
+        optSplitLabel.for = "opt-split";
+
+    let optSplitInput = document.createElement('input');
+        optSplitInput.type = "checkbox";
+        optSplitInput.name = "opt-split";
+        optSplitInput.id = "opt-split";
+
+    let optPanel = document.createElement('div');
+        optPanel.id = "options-panel";
+
+    optPanel.appendChild(optSplitLabel);
+    optPanel.appendChild(optSplitInput);
+    stickyHeader.appendChild(optPanel);
     
+    /*
+    <div id="options-panel">
+    <label for="opt-split">Split</label><br></br>
+    <input type="checkbox" id="opt-split" name="opt-split" value="1"></input>
+    </div>
+    */
+
     // #sticky-header end ---
 
     /*
@@ -117,16 +141,21 @@ function generateKeyboard(layout, generated, modes) {
 function generateKeyboardGroup(kbLayout, generated, modeName, headingID) {
     let kbWrapper = document.createElement('div');
 
+    let headingWrapper = document.createElement('div');
+    headingWrapper.className = "keyboard-heading";
+
     let headingEl2 = document.createElement('h2');
     /*headingEl2.id = "mode_head_"+i;*/
     headingEl2.innerHTML = "Mode: " + modeName;
-    kbWrapper.appendChild(headingEl2);
+    headingWrapper.appendChild(headingEl2);
 
     let headingEl3 = document.createElement('h3');
     headingEl3.id = headingID;
     let headingContent = generated.Name;
     headingEl3.innerHTML = headingContent;
-    kbWrapper.appendChild(headingEl3);
+    headingWrapper.appendChild(headingEl3);
+
+    kbWrapper.appendChild(headingWrapper);
 
     let keyboardEl = document.createElement('div');
     keyboardEl.className = 'keyboard';
