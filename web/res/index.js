@@ -52,7 +52,7 @@ function liLink(name, id) {
     return li;
 }
 
-function generateKeyboard(layout, generated, modes) {
+function generateKeyboard(layout, modes) {
     let kbLayout;
 
     if (layout == "ANSI") {
@@ -63,34 +63,25 @@ function generateKeyboard(layout, generated, modes) {
 
     // #sticky-header begin ---
 
-    let tosHeading = document.createElement('h1');
-    tosHeading.innerHTML = "Table of contents";
-    stickyHeader.appendChild(tosHeading);
-
     let tosList = document.createElement('ul');
-    let tosDefaultLi = liLink("Mode: "+"Default", a_name("keyboard",0));
-    tosDefaultUl = document.createElement('ul');
-
-    for (let i = 0; generated !== null && i < generated.length; i++) {
-        liEl = liLink(generated[i].Name, a_name("keyboard",i));
-        tosDefaultUl.appendChild(liEl);
-    }
-    tosList.appendChild(tosDefaultLi);
-    tosDefaultLi.appendChild(tosDefaultUl);
-    stickyHeader.appendChild(tosList);
 
     for (let i = 0; modes !== null && i < modes.length; i++) {
-        let liEl = liLink("Mode: "+modes[i].Name, a_name("mode",i,0));
+        let mode = modes[i]
+        let liEl = liLink("Mode: "+(mode.Name||"default"), a_name("mode",i,0));
         let ulEl = document.createElement('ul');
 
-        for (let j = 0; j < modes[i].Keyboards.length; j++) {
-            let liC = liLink(modes[i].Keyboards[j].Name, a_name("mode",i,j));
-            ulEl.appendChild(liC);
+        if (keyboards = mode.Keyboards) {
+            for (let j = 0; j < keyboards.length; j++) {
+                let liC = liLink(keyboards[j].Name, a_name("mode",i,j));
+                ulEl.appendChild(liC);
+            }
         }
 
         tosList.appendChild(liEl);
         liEl.appendChild(ulEl);
     }
+
+    stickyHeader.appendChild(tosList);
 
     // options panel
     /*
@@ -119,10 +110,10 @@ function generateKeyboard(layout, generated, modes) {
             let l = event.currentTarget.value;
             switch (l) {
                 case 'ISO':
-                    generateKeyboard('ISO', generatedISO, generatedISOmodes);
+                    generateKeyboard('ISO', generatedISOmodes);
                     break;
                 case 'ANSI':
-                    generateKeyboard('ANSI', generatedANSI, generatedANSImodes);
+                    generateKeyboard('ANSI', generatedANSImodes);
                     break;
                 default:
                     document.getElementById('keyboard-holder').innerHTML = "Unknown layout: " + l;
@@ -161,15 +152,13 @@ function generateKeyboard(layout, generated, modes) {
     
     // #sticky-header end ---
 
-    for (let i = 0; generated !== null && i < generated.length; i++) {
-        let newKeyboardGroup = generateKeyboardGroup(kbLayout, generated[i], "Default", a_name("keyboard",i));
-        keyboardHolder.appendChild(newKeyboardGroup);
-    }
-
     for (let i = 0; modes !== null && i < modes.length; i++) {
-        for (let j = 0; j < modes[i].Keyboards.length; j++) {
-            let newKeyboardGroup = generateKeyboardGroup(kbLayout, modes[i].Keyboards[j], modes[i].Name, a_name("mode",i,j));
-            keyboardHolder.appendChild(newKeyboardGroup);
+        let mode = modes[i]
+        if (keyboards = mode.Keyboards) {
+            for (let j = 0; j < keyboards.length; j++) {
+                let newKeyboardGroup = generateKeyboardGroup(kbLayout, keyboards[j], mode.Name, a_name("mode",i,j));
+                keyboardHolder.appendChild(newKeyboardGroup);
+            }
         }
     }
 }
@@ -182,7 +171,7 @@ function generateKeyboardGroup(kbLayout, generated, modeName, headingID) {
 
     let headingEl2 = document.createElement('h2');
     /*headingEl2.id = "mode_head_"+i;*/
-    headingEl2.innerHTML = "Mode: " + modeName;
+    headingEl2.innerHTML = "Mode: "+(modeName||"default");
     headingWrapper.appendChild(headingEl2);
 
     let headingEl3 = document.createElement('h3');
@@ -261,12 +250,12 @@ function generateKeyboardGroup(kbLayout, generated, modeName, headingID) {
 }
 
 document.getElementById('select-iso').addEventListener('click', function () {
-    generateKeyboard('ISO', generatedISO, generatedISOmodes);
+    generateKeyboard('ISO', generatedISOmodes);
     document.getElementById('select-layout').style.display = 'none';
 });
 
 document.getElementById('select-ansi').addEventListener('click', function () {
-    generateKeyboard('ANSI', generatedANSI, generatedANSImodes);
+    generateKeyboard('ANSI', generatedANSImodes);
     document.getElementById('select-layout').style.display = 'none';
 });
 

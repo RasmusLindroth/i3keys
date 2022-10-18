@@ -38,7 +38,7 @@ func printKeyboards(keyboards []keyboard.Keyboard, groups []i3parse.ModifierGrou
 
 // Output prints the keyboards to os.Stdout
 func Output(wm string, layout string, filter string) {
-	modes, keys, err := i3parse.ParseFromRunning(wm, true)
+	modes, _, err := i3parse.ParseFromRunning(wm, true)
 
 	if err != nil {
 		log.Fatalln(err)
@@ -49,8 +49,9 @@ func Output(wm string, layout string, filter string) {
 
 	layout = strings.ToUpper(layout)
 
-	groups := i3parse.GetModifierGroups(keys)
 	modifiers := xlib.GetModifiers()
+
+	groups := i3parse.GetModifierGroups(modes[0].Bindings)
 
 	var keyboards []keyboard.Keyboard
 	for _, group := range groups {

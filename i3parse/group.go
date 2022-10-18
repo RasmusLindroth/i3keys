@@ -14,7 +14,7 @@ func (a sortByNumModifiers) Less(i, j int) bool {
 	return len(a[i].Modifiers) < len(a[j].Modifiers)
 }
 
-//GetModifierGroups groups bindings that have the same modifiers
+// GetModifierGroups groups bindings that have the same modifiers
 func GetModifierGroups(bindings []Binding) []ModifierGroup {
 	var groups []ModifierGroup
 	for _, binding := range bindings {

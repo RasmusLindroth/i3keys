@@ -36,7 +36,7 @@ func readResource(filename string) (string, error) {
 // New inits the handler for the web service
 func New(js string) Handler {
 	handler := Handler{}
-	handler.Template = template.Must(template.New("index").Parse(indexTmplStr))
+	handler.Template = template.Must(template.New("index").Parse(indexTmplHTML))
 
 	if res, err := readResource("index.css"); err == nil {
 		indexTmplCSS = res

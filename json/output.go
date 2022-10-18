@@ -30,45 +30,49 @@ type KeyJSON struct {
 
 // Output full json for the requested layout
 func Output(wm string, layout string) {
-	modes, keys, err := i3parse.ParseFromRunning(wm, false)
+	modes, _, err := i3parse.ParseFromRunning(wm, false)
 
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	modifiers := xlib.GetModifiers()
-	groups := i3parse.GetModifierGroups(keys)
+	/*
+		groups := i3parse.GetModifierGroups(keys)
 
-	var keyboards []keyboard.Keyboard
-	for _, group := range groups {
-		kb, err := keyboard.MapKeyboard(layout, group, modifiers)
-		if err == nil {
-			keyboards = append(keyboards, kb)
-		}
-	}
-	var jsonBoards []KeyboardModesJSON
-	defaultBoard := KeyboardModesJSON{
-		Name: "Default",
-	}
-	for _, kb := range keyboards {
-		b := KeyboardModifierJSON{
-			Modifiers: kb.Modifiers,
-		}
-		for i, keyRow := range kb.Keys {
-			for _, key := range keyRow {
-				binding := KeyJSON{
-					Row:      i,
-					Modifier: key.Modifier,
-					InUse:    key.InUse,
-					Symbol:   key.Symbol,
-					Command:  key.Binding.Command,
-				}
-				b.Keys = append(b.Keys, binding)
+		var keyboards []keyboard.Keyboard
+		for _, group := range groups {
+			kb, err := keyboard.MapKeyboard(layout, group, modifiers)
+			if err == nil {
+				keyboards = append(keyboards, kb)
 			}
 		}
-		defaultBoard.ModifierGroups = append(defaultBoard.ModifierGroups, b)
-	}
-	jsonBoards = append(jsonBoards, defaultBoard)
+	*/
+	var jsonBoards []KeyboardModesJSON
+	/*
+		defaultBoard := KeyboardModesJSON{
+			Name: "Default",
+		}
+		for _, kb := range keyboards {
+			b := KeyboardModifierJSON{
+				Modifiers: kb.Modifiers,
+			}
+			for i, keyRow := range kb.Keys {
+				for _, key := range keyRow {
+					binding := KeyJSON{
+						Row:      i,
+						Modifier: key.Modifier,
+						InUse:    key.InUse,
+						Symbol:   key.Symbol,
+						Command:  key.Binding.Command,
+					}
+					b.Keys = append(b.Keys, binding)
+				}
+			}
+			defaultBoard.ModifierGroups = append(defaultBoard.ModifierGroups, b)
+		}
+		jsonBoards = append(jsonBoards, defaultBoard)
+	*/
 	for _, mode := range modes {
 		groups := i3parse.GetModifierGroups(mode.Bindings)
 

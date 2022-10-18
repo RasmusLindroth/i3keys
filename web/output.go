@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"strconv"
+	"strings"
 
 	"github.com/RasmusLindroth/i3keys/i3parse"
 	"github.com/RasmusLindroth/i3keys/keyboard"
@@ -19,41 +20,25 @@ type modeKeyboards struct {
 
 // Output starts the server at desired port
 func Output(wm string, port string) {
-	modes, keys, err := i3parse.ParseFromRunning(wm, true)
+	modes, _, err := i3parse.ParseFromRunning(wm, true)
 
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	modifiers := xlib.GetModifiers()
-	groups := i3parse.GetModifierGroups(keys)
-
-	var isoKeyboards []keyboard.Keyboard
-	var ansiKeyboards []keyboard.Keyboard
-	for _, group := range groups {
-		kbISO, err := keyboard.MapKeyboard("ISO", group, modifiers)
-		if err != nil {
-			log.Fatalln(err)
-		}
-		isoKeyboards = append(isoKeyboards, kbISO)
-
-		kbANSI, err := keyboard.MapKeyboard("ANSI", group, modifiers)
-		if err != nil {
-			log.Fatalln(err)
-		}
-		ansiKeyboards = append(ansiKeyboards, kbANSI)
-	}
 
 	var isoModes []modeKeyboards
 	var ansiModes []modeKeyboards
 
 	for _, mode := range modes {
+		println("mode:", mode.Name, len(mode.Bindings), ".")
 		groups := i3parse.GetModifierGroups(mode.Bindings)
-
 		isoMode := modeKeyboards{Name: mode.Name}
 		ansiMode := modeKeyboards{Name: mode.Name}
 
 		for _, group := range groups {
+			println("group:", strings.Join(group.Modifiers, " "), ".")
 			kbISO, err := keyboard.MapKeyboard("ISO", group, modifiers)
 			if err != nil {
 				log.Fatalln(err)
@@ -70,17 +55,13 @@ func Output(wm string, port string) {
 		ansiModes = append(ansiModes, ansiMode)
 	}
 
-	ISOkeyboardJSON, _ := json.Marshal(isoKeyboards)
-	ANSIkeyboardJSON, _ := json.Marshal(ansiKeyboards)
 	ISOmodesJSON, _ := json.Marshal(isoModes)
 	ANSImodesJSON, _ := json.Marshal(ansiModes)
 
 	js := fmt.Sprintf(
-		"let generatedISO = %s;\n"+
-			"let generatedANSI = %s;\n"+
-			"let generatedISOmodes = %s;\n"+
+		"let generatedISOmodes = %s;\n"+
 			"let generatedANSImodes = %s;\n",
-		ISOkeyboardJSON, ANSIkeyboardJSON, ISOmodesJSON, ANSImodesJSON,
+		ISOmodesJSON, ANSImodesJSON,
 	)
 
 	handler := New(js)
