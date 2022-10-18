@@ -53,7 +53,7 @@ body {
     position: sticky;
     top: 0;
     background: var(--header-bg);
-    border-bottom: 1px dotted var(--header-border);
+    /*border-bottom: 1px solid var(--header-border);*/
     padding: 0;
     margin: 0;
     height: 2em;
@@ -103,11 +103,48 @@ body {
     text-decoration: dotted underline;
 }
 
-#sticky-header #options-panel {
+#options-panel {
     display: inline;
     position: absolute;
     right: 1ch;
     padding: 0.5ch; /* probably not the right unit */
+}
+
+#options-panel * {
+    display: inline;
+    padding-left: 1ch; 
+    padding-right: 1ch; 
+}
+
+#keyboard-holder {
+    margin-left: var(--grid-gap-h);
+}
+
+#keyboard-holder > div {
+    margin-bottom: 2em;
+    height: 100vh;
+}
+
+#keyboard-holder .keyboard-heading {
+    margin-top: 2em;
+    margin-bottom: 1em;
+    position: sticky;
+    background-color: var(--main-bg);
+    height: 2em;
+    top: 2em; 
+}
+
+#keyboard-holder .keyboard-heading > h2 {
+    display: inline;
+    color: var(--main-fg-max);
+    margin-right: 2ch;
+}
+
+#keyboard-holder .keyboard-heading > h3 {
+    display: inline;
+    color: var(--main-fg-dim);
+    font-weight: normal;
+    font-size: larger;
 }
 
 .keyboard {
@@ -239,35 +276,4 @@ body {
 
 .key-used {
     background-color: var(--key-bg-inuse);
-}
-
-#keyboard-holder {
-    margin-left: var(--grid-gap-h);
-}
-
-#keyboard-holder > div {
-    margin-bottom: 2em;
-    height: 100vh;
-}
-
-#keyboard-holder .keyboard-heading {
-    margin-top: 2em;
-    margin-bottom: 1em;
-    position: sticky;
-    background-color: var(--main-bg);
-    height: 2em;
-    top: 4em; 
-}
-
-#keyboard-holder .keyboard-heading > h2 {
-    display: inline;
-    color: var(--main-fg-max);
-    margin-right: 2ch;
-}
-
-#keyboard-holder .keyboard-heading > h3 {
-    display: inline;
-    color: var(--main-fg-dim);
-    font-weight: normal;
-    font-size: larger;
 }
