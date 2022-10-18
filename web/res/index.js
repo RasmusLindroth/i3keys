@@ -102,8 +102,22 @@ function generateKeyboard(layout, generated, modes) {
         optSplitInput.type = "checkbox";
         optSplitInput.name = "opt-split";
         optSplitInput.id = "opt-split";
+        optSplitInput.checked = true;
 
-    let optPanel = document.createElement('div');
+        optSplitInput.addEventListener('change', (event) => {
+            let split = event.currentTarget.checked;
+            let kc = document.getElementsByClassName("txt");
+            console.log('opt-split','change',event,split,kc.length);
+            for (let i = 0; i < kc.length; i++) {
+                if (split) {
+                    kc[i].innerHTML = kc[i].innerHTML.replaceAll("_","<br>");
+                } else {
+                    kc[i].innerHTML = kc[i].innerHTML.replaceAll("<br>","_");
+                }
+            }
+        });
+
+    let optPanel = document.createElement('div');    
         optPanel.id = "options-panel";
 
     optPanel.appendChild(optSplitLabel);
@@ -234,5 +248,3 @@ document.getElementById('select-ansi').addEventListener('click', function () {
     generateKeyboard('ANSI', generatedANSI, generatedANSImodes);
     document.getElementById('select-layout').style.display = 'none';
 });
-
-// TODO: events for options (split) here
