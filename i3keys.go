@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/RasmusLindroth/i3keys/json"
 	"github.com/RasmusLindroth/i3keys/svg"
 	"github.com/RasmusLindroth/i3keys/text"
 	"github.com/RasmusLindroth/i3keys/web"
@@ -17,8 +18,9 @@ func helpText(exitCode int) {
 	fmt.Print("\tAdd the flag -i for i3 and -s for Sway if you don't want autodetection\n\n")
 	fmt.Print("The commands are:\n\n")
 	fmt.Print("\tweb [port]\n\t\tstart the web ui and listen on random port or [port]\n\n")
-	fmt.Print("\ttext <layout> [mods]\n\t\toutput available keybindings in the terminal\n\n")
 	fmt.Print("\tsvg <layout> [dest] [mods]\n\t\toutputs one SVG file for each modifier group\n\n")
+	fmt.Print("\tjson <layout>\n\t\toutput all keybindings as json\n\n")
+	fmt.Print("\ttext <layout> [mods]\n\t\toutput available keybindings in the terminal\n\n")
 	fmt.Print("\tversion\n\t\tprint i3keys version\n\n")
 	fmt.Print("Arguments:\n\n")
 	fmt.Print("\t<layout>\n\t\tis required. Can be ISO or ANSI\n\n")
@@ -49,17 +51,17 @@ func main() {
 		port = os.Args[1+sIndex]
 	}
 
-	layoutCheck := len(os.Args) > 1+sIndex && (strings.ToUpper(os.Args[1+sIndex]) != "ISO" && strings.ToUpper(os.Args[1+sIndex]) != "ANSI")
-
-	if cmd == "text" && len(os.Args) < 2+sIndex || (cmd == "text" && layoutCheck) {
-		fmt.Println("You need to set the <layout> to ISO or ANSI")
-		os.Exit(2)
-	}
-
-	if (cmd == "svg" && len(os.Args) < 2+sIndex) ||
-		(cmd == "svg" && layoutCheck) {
-		fmt.Println("You need to set the <layout> to ISO or ANSI")
-		os.Exit(2)
+	layout := ""
+	if cmd == "text" || cmd == "json" || cmd == "svg" {
+		if len(os.Args) <= 1+sIndex {
+			fmt.Println("You need to set the <layout> to ISO or ANSI")
+			os.Exit(2)
+		}
+		layout = strings.ToUpper(os.Args[1+sIndex])
+		if layout != "ISO" && layout != "ANSI" {
+			fmt.Println("You need to set the <layout> to ISO or ANSI")
+			os.Exit(2)
+		}
 	}
 
 	switch cmd {
@@ -71,6 +73,8 @@ func main() {
 		} else {
 			text.Output(wm, os.Args[1+sIndex], os.Args[2+sIndex])
 		}
+	case "json":
+		json.Output(wm, layout)
 	case "svg":
 		if len(os.Args) < 3+sIndex {
 			svg.Output(wm, os.Args[1+sIndex], "", "")
