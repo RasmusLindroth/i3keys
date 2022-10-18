@@ -93,6 +93,43 @@ function generateKeyboard(layout, generated, modes) {
     }
 
     // options panel
+    /*
+    <div id="options-panel">
+    <label for="opt-split">Split</label><br></br>
+    <input type="checkbox" id="opt-split" name="opt-split" value="1"></input>
+    </div>
+    */
+
+    let optPanel = document.createElement('div');
+        optPanel.id = "options-panel";
+
+    let optLayout = document.createElement('select');
+        optLayout.name = "opt-layout";
+        optLayout.id = "opt-layout";
+        for (const l of ['ISO','ANSI']) {
+            let optLayoutItem = document.createElement('option');
+                optLayoutItem.value = l;
+                optLayoutItem.innerHTML = l;
+                optLayoutItem.selected = l == layout;
+            optLayout.appendChild(optLayoutItem);
+        }
+        optLayout.addEventListener('change', (event) => {
+            document.getElementById('sticky-header').innerHTML = '';
+            document.getElementById('keyboard-holder').innerHTML = '';
+            let l = event.currentTarget.value;
+            switch (l) {
+                case 'ISO':
+                    generateKeyboard('ISO', generatedISO, generatedISOmodes);
+                    break;
+                case 'ANSI':
+                    generateKeyboard('ANSI', generatedANSI, generatedANSImodes);
+                    break;
+                default:
+                    document.getElementById('keyboard-holder').innerHTML = "Unknown layout: " + l;
+                    // this should not happen
+            }
+        });
+    optPanel.appendChild(optLayout);
 
     let optSplitLabel = document.createElement('label');
         optSplitLabel.for = "opt-split";
@@ -117,28 +154,12 @@ function generateKeyboard(layout, generated, modes) {
             }
         });
 
-    let optPanel = document.createElement('div');    
-        optPanel.id = "options-panel";
-
     optPanel.appendChild(optSplitLabel);
     optPanel.appendChild(optSplitInput);
+
     stickyHeader.appendChild(optPanel);
     
-    /*
-    <div id="options-panel">
-    <label for="opt-split">Split</label><br></br>
-    <input type="checkbox" id="opt-split" name="opt-split" value="1"></input>
-    </div>
-    */
-
     // #sticky-header end ---
-
-    /*
-    let headingEl = document.createElement('h2');
-    headingEl.innerHTML = /*"Mode: Default";
-    headingEl.id = a_name("mode","default");
-    keyboardHolder.appendChild(headingEl);
-    */
 
     for (let i = 0; generated !== null && i < generated.length; i++) {
         let newKeyboardGroup = generateKeyboardGroup(kbLayout, generated[i], "Default", a_name("keyboard",i));
@@ -248,3 +269,5 @@ document.getElementById('select-ansi').addEventListener('click', function () {
     generateKeyboard('ANSI', generatedANSI, generatedANSImodes);
     document.getElementById('select-layout').style.display = 'none';
 });
+
+document.getElementById('select-iso').click();
