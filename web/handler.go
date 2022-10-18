@@ -22,22 +22,36 @@ type Handler struct {
 	Data     Data
 }
 
+func readResource(filename string) (string, error) {
+	i3keys_config := os.Getenv("HOME") + "/.config/i3keys/" // TODO: check XDG_CONFIG & Co., cache
+	pathname := i3keys_config + filename
+	pathname, _ = os.Readlink(pathname) // the blind readlink is *NOT* ok
+	if buf, err := os.ReadFile(pathname); err == nil {
+		return string(buf), nil
+	} else {
+		return pathname, err // horrible
+	}
+}
+
 // New inits the handler for the web service
 func New(js string) Handler {
 	handler := Handler{}
 	handler.Template = template.Must(template.New("index").Parse(indexTmplStr))
 
-	i3keys_config := os.Getenv("HOME") + "/.config/i3keys/" // TODO: check XDG_CONFIG & Co.
-	index_css := i3keys_config + "index.css"
-	index_css, _ = os.Readlink(index_css) // is the blind readlink ok? i think not...
-	if buf, err := os.ReadFile(index_css); err == nil {
-		indexTmplCSS = string(buf) // assigning to indexTmplCSS is also not good, will do for now...
+	if res, err := readResource("index.css"); err == nil {
+		indexTmplCSS = res
 	} else {
-		println("could not read ", index_css, err)
+		println("could not read CSS from '" + res + "', using built-in")
 	}
-
 	handler.Data.CSS = template.CSS(indexTmplCSS)
-	handler.Data.JS = template.JS(indexTmplJS)
+
+	if res, err := readResource("index.js"); err == nil {
+		indexTmplCSS = res
+	} else {
+		println("could not read JS from '" + res + "', using built-in")
+	}
+	handler.Data.JS = template.JS(indexTmplCSS)
+
 	handler.Data.JSData = template.JS(js)
 
 	return handler
