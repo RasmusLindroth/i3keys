@@ -54,22 +54,20 @@ func readResource(filename string) (string, error) {
 	}
 }
 
-type statevar struct {
-	n int
-}
-
-func (s *statevar) Set(n int) int {
-	s.n = n
-	return s.n
-}
-func (s *statevar) Inc() int {
-	s.n++
-	return s.n
+func (h Handler) skipEmptyKeys(i, j int) int {
+	// ugly and slow
+	k := 0
+	for ik := 0; ik <= j; ik++ {
+		kmap := h.Data.LayoutMaps.ISO()[i][ik]
+		if kmap != "emptySingle" && kmap != "emptySmall" && kmap != "enterDown" {
+			k++
+		}
+	}
+	return k
 }
 
 // New inits the handler for the web service
 func New(layouts Layouts) Handler {
-	var k statevar
 	handler := Handler{}
 
 	if res, err := readResource("index.gohtml"); err == nil {
@@ -78,8 +76,7 @@ func New(layouts Layouts) Handler {
 		println("could not read HTML from '" + res + "', using built-in")
 	}
 	handler.Template = template.Must(template.New("index").Funcs(template.FuncMap{
-		"set": k.Set,
-		"inc": k.Inc,
+		"skip": handler.skipEmptyKeys,
 	}).Parse(indexTmplHTML))
 
 	if res, err := readResource("index.css"); err == nil {

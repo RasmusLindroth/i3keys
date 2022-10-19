@@ -5,7 +5,6 @@ import (
 	"log"
 	"net"
 	"strconv"
-	"strings"
 
 	"github.com/RasmusLindroth/i3keys/i3parse"
 	"github.com/RasmusLindroth/i3keys/keyboard"
@@ -30,18 +29,18 @@ func Output(wm string, port string) {
 	layouts := map[string][]modeKeyboards{"ISO": {}, "ANSI": {}}
 
 	for _, mode := range modes {
-		println("mode:", mode.Name, len(mode.Bindings), ".")
+		//println("mode:", mode.Name, len(mode.Bindings), ".")
 		groups := i3parse.GetModifierGroups(mode.Bindings)
 
 		tmpModes := map[string]modeKeyboards{}
-		// for lt := range layouts maybe?
-		for _, lt := range []string{"ISO", "ANSI"} {
+		for lt := range layouts {
+			//println("ISO/ANSI: ", lt)
 			tmpModes[lt] = modeKeyboards{Name: mode.Name}
 		}
 
 		for _, group := range groups {
-			println("group:", strings.Join(group.Modifiers, " "), ".")
-			for _, lt := range []string{"ISO", "ANSI"} {
+			//println("group:", strings.Join(group.Modifiers, " "), ".")
+			for lt := range layouts {
 				kb, err := keyboard.MapKeyboard(lt, group, modifiers)
 				if err != nil {
 					log.Fatalln(err)
@@ -51,7 +50,7 @@ func Output(wm string, port string) {
 				tmpModes[lt] = tmpMode
 			}
 		}
-		for _, lt := range []string{"ISO", "ANSI"} {
+		for lt := range layouts {
 			layouts[lt] = append(layouts[lt], tmpModes[lt])
 		}
 	}
