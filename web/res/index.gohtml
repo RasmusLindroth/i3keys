@@ -10,18 +10,79 @@
 	</style>
 </head>
 <body>
-	<div id="select-layout">
-		<h2>Which layout do you use?</h2>
-		<button class="layoutbtn" id="select-iso">ISO</button>
-		<button class="layoutbtn" id="select-ansi">ANSI</button>
-	</div>
 	<div id="sticky-header">
+		<ul>
+		{{- $kbLayout := .Layouts.ISO -}}
+		{{- $kbLayoutMap := .LayoutMaps.ISO -}}
+		{{- range $mode_i,$mode := $kbLayout -}}
+			<li>
+				<a href="#mode_{{$mode_i}}.0">{{if ne .Name ""}}{{.Name}}{{else}}default{{end}}</a>
+				<ul>
+				{{- range $keyb_i,$keyb := .Keyboards -}}
+					<li><a href="#mode_{{$mode_i}}.{{$keyb_i}}">{{.Name}}</a></li>
+				{{- end -}}
+				</ul>
+			</li>
+		{{- end -}}
+		</ul>
+		<div id="options-panel">
+			<select id="opt-layout" name="opt-layout">
+			{{- range $lmap_i,$lmap := .LayoutMaps -}}
+				<option value="{{$lmap_i}}" selected='{{if eq $lmap_i "ISO" }}true{{else}}false{{end}}'>{{$lmap_i}}</option>
+			{{- end -}}
+			</select>
+			<label for="opt-split">Split</label>
+			<input type="checkbox" id="opt-split" name="opt-split"></input>
+		</div>
 	</div>
 	<div id="keyboard-holder">
+		{{- range $mode_i,$mode := $kbLayout -}}
+			{{- range $keyb_i,$keyb := .Keyboards -}}
+			<div id="mode_{{$mode_i}}.{{$keyb_i}}">
+				<div class="keyboard-heading">
+					<h2>{{if ne $mode.Name ""}}{{$mode.Name}}{{else}}default{{end}}</h2><h3>{{$keyb.Name}}</h3>
+				</div>
+				<div class="keyboard">
+					{{- $enterHit := 0 -}}
+					{{- range $i,$rowMap := $kbLayoutMap -}}
+						{{- $k := set 0 -}}
+						{{- range $j,$keyMap := index $kbLayoutMap $i -}}
+							{{- $gHit := 0 -}}
+							{{- $key := index $keyb.Keys $i $k -}}
+							{{- if and (ne $keyMap "emptySingle") (ne $keyMap "emptySmall") (ne $keyMap "enterDown") -}}
+								{{- if $key.Modifier -}}
+									{{- $gHit := 1 -}}
+								{{- end -}}
+								{{- if $key.InUse -}}
+									{{- $gHit := 2 -}}
+								{{- end -}}
+								{{- if eq $keyMap "enterUp" -}}
+									{{- $enterHit := $gHit -}}
+								{{- end -}}
+								{{- $k := inc -}}
+							{{- end -}}
+							{{- if eq $keyMap "enterDown" -}}
+								{{- $gHit := $enterHit -}}
+							{{- end -}}
+							<div 
+								data-symbol="{{$key.Symbol}}" 
+								data-command="{{$key.Binding.Command}}" 
+								class="key {{$keyMap}} row-{{$i}} {{if eq $gHit 1}}key-modifier{{else if eq $gHit 2}}key-used{{end}}"
+								>
+								<span class="txt">{{$k}} {{$key.Symbol}}</span>
+							</div>
+							<!-- addEventListener("mouseover",...) -->
+						{{- end -}}
+					{{- end -}}
+				</div>
+			</div>
+			{{- end -}}
+		{{- end -}}
 	</div>
-	<script>
-	{{.JSData}}
-	</script>
-	<script>{{.JS}}</script>
+	<div class="key-info">
+		<p>Hover over a key to see the command bound to the key here:</p>
+		<span class="key-desc"></span>
+	</div>
+	<script>{{.JS}}</script> 
 </body>
 </html>

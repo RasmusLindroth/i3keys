@@ -1,7 +1,6 @@
 package web
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net"
@@ -28,43 +27,36 @@ func Output(wm string, port string) {
 
 	modifiers := xlib.GetModifiers()
 
-	var isoModes []modeKeyboards
-	var ansiModes []modeKeyboards
+	layouts := map[string][]modeKeyboards{"ISO": {}, "ANSI": {}}
 
 	for _, mode := range modes {
 		println("mode:", mode.Name, len(mode.Bindings), ".")
 		groups := i3parse.GetModifierGroups(mode.Bindings)
-		isoMode := modeKeyboards{Name: mode.Name}
-		ansiMode := modeKeyboards{Name: mode.Name}
+
+		tmpModes := map[string]modeKeyboards{}
+		// for lt := range layouts maybe?
+		for _, lt := range []string{"ISO", "ANSI"} {
+			tmpModes[lt] = modeKeyboards{Name: mode.Name}
+		}
 
 		for _, group := range groups {
 			println("group:", strings.Join(group.Modifiers, " "), ".")
-			kbISO, err := keyboard.MapKeyboard("ISO", group, modifiers)
-			if err != nil {
-				log.Fatalln(err)
+			for _, lt := range []string{"ISO", "ANSI"} {
+				kb, err := keyboard.MapKeyboard(lt, group, modifiers)
+				if err != nil {
+					log.Fatalln(err)
+				}
+				tmpMode := tmpModes[lt]
+				tmpMode.Keyboards = append(tmpMode.Keyboards, kb)
+				tmpModes[lt] = tmpMode
 			}
-			isoMode.Keyboards = append(isoMode.Keyboards, kbISO)
-
-			kbANSI, err := keyboard.MapKeyboard("ANSI", group, modifiers)
-			if err != nil {
-				log.Fatalln(err)
-			}
-			ansiMode.Keyboards = append(ansiMode.Keyboards, kbANSI)
 		}
-		isoModes = append(isoModes, isoMode)
-		ansiModes = append(ansiModes, ansiMode)
+		for _, lt := range []string{"ISO", "ANSI"} {
+			layouts[lt] = append(layouts[lt], tmpModes[lt])
+		}
 	}
 
-	ISOmodesJSON, _ := json.Marshal(isoModes)
-	ANSImodesJSON, _ := json.Marshal(ansiModes)
-
-	js := fmt.Sprintf(
-		"let generatedISOmodes = %s;\n"+
-			"let generatedANSImodes = %s;\n",
-		ISOmodesJSON, ANSImodesJSON,
-	)
-
-	handler := New(js)
+	handler := New(layouts)
 
 	if port == "-1" {
 		//get the kernel to give us a free TCP port

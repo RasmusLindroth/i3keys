@@ -9,11 +9,32 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// ...
+
+type Layouts map[string][]modeKeyboards
+type LayoutMap [][]string
+type LayoutMaps map[string]LayoutMap
+
+/* these should become unnecessary when everything is in place */
+func (this Layouts) ISO() []modeKeyboards {
+	return this["ISO"]
+}
+func (this Layouts) ANSI() []modeKeyboards {
+	return this["ANSI"]
+}
+func (this LayoutMaps) ISO() LayoutMap {
+	return this["ISO"]
+}
+func (this LayoutMaps) ANSI() LayoutMap {
+	return this["ANSI"]
+}
+
 // Data is sent to render the page
 type Data struct {
-	CSS    template.CSS
-	JS     template.JS
-	JSData template.JS
+	CSS        template.CSS
+	JS         template.JS
+	Layouts    Layouts
+	LayoutMaps LayoutMaps
 }
 
 // Handler holds data needed for the page
@@ -33,10 +54,33 @@ func readResource(filename string) (string, error) {
 	}
 }
 
+type statevar struct {
+	n int
+}
+
+func (s *statevar) Set(n int) int {
+	s.n = n
+	return s.n
+}
+func (s *statevar) Inc() int {
+	s.n++
+	return s.n
+}
+
 // New inits the handler for the web service
-func New(js string) Handler {
+func New(layouts Layouts) Handler {
+	var k statevar
 	handler := Handler{}
-	handler.Template = template.Must(template.New("index").Parse(indexTmplHTML))
+
+	if res, err := readResource("index.gohtml"); err == nil {
+		indexTmplHTML = res
+	} else {
+		println("could not read HTML from '" + res + "', using built-in")
+	}
+	handler.Template = template.Must(template.New("index").Funcs(template.FuncMap{
+		"set": k.Set,
+		"inc": k.Inc,
+	}).Parse(indexTmplHTML))
 
 	if res, err := readResource("index.css"); err == nil {
 		indexTmplCSS = res
@@ -46,19 +90,38 @@ func New(js string) Handler {
 	handler.Data.CSS = template.CSS(indexTmplCSS)
 
 	if res, err := readResource("index.js"); err == nil {
-		indexTmplCSS = res
+		indexTmplJS = res
 	} else {
 		println("could not read JS from '" + res + "', using built-in")
 	}
-	handler.Data.JS = template.JS(indexTmplCSS)
+	handler.Data.JS = template.JS(indexTmplJS)
 
-	handler.Data.JSData = template.JS(js)
+	handler.Data.Layouts = layouts
+	handler.Data.LayoutMaps = LayoutMaps{
+		"ISO": {
+			{"single", "emptySingle", "single", "single", "single", "single", "emptySmall", "single", "single", "single", "single", "emptySmall", "single", "single", "single", "single", "emptySmall", "single", "single", "single"},
+			{"single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "double", "emptySmall", "single", "single", "single", "emptySmall", "single", "single", "single", "single"},
+			{"onehalf", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "enterUp", "emptySmall", "single", "single", "single", "emptySmall", "single", "single", "single", "doubleY"},
+			{"semidouble", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "enterDown", "emptySmall", "emptySingle", "emptySingle", "emptySingle", "emptySmall", "single", "single", "single"},
+			{"modifier", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "large", "emptySmall", "emptySingle", "single", "emptySingle", "emptySmall", "single", "single", "single", "doubleY"},
+			{"modifier", "modifier", "modifier", "space", "modifier", "modifier", "modifier", "modifier", "emptySmall", "single", "single", "single", "emptySmall", "double", "single"},
+		},
+		"ANSI": {
+			{"single", "emptySingle", "single", "single", "single", "single", "emptySmall", "single", "single", "single", "single", "emptySmall", "single", "single", "single", "single", "emptySmall", "single", "single", "single"},
+			{"single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "double", "emptySmall", "single", "single", "single", "emptySmall", "single", "single", "single", "single"},
+			{"onehalf", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "onehalf", "emptySmall", "single", "single", "single", "emptySmall", "single", "single", "single", "doubleY"},
+			{"semidouble", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "semilarge", "emptySmall", "emptySingle", "emptySingle", "emptySingle", "emptySmall", "single", "single", "single"},
+			{"semilarge", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "large", "emptySmall", "emptySingle", "single", "emptySingle", "emptySmall", "single", "single", "single", "doubleY"},
+			{"modifier", "modifier", "modifier", "space", "modifier", "modifier", "modifier", "modifier", "emptySmall", "single", "single", "single", "emptySmall", "double", "single"},
+		},
+	}
 
 	return handler
 }
 
 // Start fires up the server
 func (handler Handler) Start(port string) error {
+	println("Handler.Start")
 	r := mux.NewRouter()
 	r.HandleFunc("/", handler.HomeHandler)
 
@@ -71,6 +134,9 @@ func (handler Handler) Start(port string) error {
 
 // HomeHandler serves root requests
 func (handler *Handler) HomeHandler(w http.ResponseWriter, r *http.Request) {
-	data := handler.Data
-	handler.Template.Execute(w, data)
+	println("Handler.HomeHandler")
+	err := handler.Template.Execute(w, handler.Data)
+	if err != nil {
+		println("Handler.HomeHandler: failed to execute template:\n", err.Error())
+	}
 }
