@@ -45,9 +45,10 @@
 				<div class="keyboard">
 					{{- $enterHit := 0 -}}
 					{{- range $i,$rowMap := $kbLayoutMap -}}
-						{{- $k := set 0 -}}
-						{{- range $j,$keyMap := index $kbLayoutMap $i -}}
+						<!-- { {- $k := set 0 -} } -->
+						{{- range $j,$keyMap := $rowMap -}}
 							{{- $gHit := 0 -}}
+							{{- $k := skip $i $j -}}
 							{{- $key := index $keyb.Keys $i $k -}}
 							{{- if and (ne $keyMap "emptySingle") (ne $keyMap "emptySmall") (ne $keyMap "enterDown") -}}
 								{{- if $key.Modifier -}}
@@ -59,7 +60,7 @@
 								{{- if eq $keyMap "enterUp" -}}
 									{{- $enterHit := $gHit -}}
 								{{- end -}}
-								{{- $k := inc -}}
+								<!-- { {- $k := inc -} } -->
 							{{- end -}}
 							{{- if eq $keyMap "enterDown" -}}
 								{{- $gHit := $enterHit -}}
