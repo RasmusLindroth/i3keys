@@ -60,15 +60,20 @@ func readResource(filename string) (string, error) {
 
 func (h Handler) skipEmptyKeys(i int, j int) int {
 	// ugly and slow but whatever. maybe try again using methods get/set/inc
-	k := 0
+	k := -1
 	rmap := h.Data.LayoutMaps.ISO()[i]
+	not_empty := true
 	for km, kmap := range rmap {
-		if km == j {
+		if km > j {
 			break
 		}
-		if kmap != "emptySingle" && kmap != "emptySmall" && kmap != "enterDown" {
+		not_empty = kmap != "emptySingle" && kmap != "emptySmall" && kmap != "enterDown"
+		if not_empty {
 			k++
 		}
+	}
+	if !not_empty {
+		k = -1
 	}
 	//println("skipEmptyKeys", i, j, k)
 	return k

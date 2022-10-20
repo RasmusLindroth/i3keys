@@ -249,6 +249,7 @@ function generateKeyboardGroup(kbLayout, generated, modeName, headingID) {
     return kbWrapper;
 }
 
+/*
 document.getElementById('select-iso').addEventListener('click', function () {
     generateKeyboard('ISO', generatedISOmodes);
     document.getElementById('select-layout').style.display = 'none';
@@ -258,5 +259,5 @@ document.getElementById('select-ansi').addEventListener('click', function () {
     generateKeyboard('ANSI', generatedANSImodes);
     document.getElementById('select-layout').style.display = 'none';
 });
-
 document.getElementById('select-iso').click();
+*/
