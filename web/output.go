@@ -11,11 +11,6 @@ import (
 	"github.com/RasmusLindroth/i3keys/xlib"
 )
 
-type modeKeyboards struct {
-	Name      string
-	Keyboards []keyboard.Keyboard
-}
-
 // Output starts the server at desired port
 func Output(wm string, port string) {
 	modes, _, err := i3parse.ParseFromRunning(wm, true)

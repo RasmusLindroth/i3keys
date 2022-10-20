@@ -5,12 +5,16 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/RasmusLindroth/i3keys/keyboard"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
 // ...
-
+type modeKeyboards struct {
+	Name      string
+	Keyboards []keyboard.Keyboard
+}
 type Layouts map[string][]modeKeyboards
 type LayoutMap [][]string
 type LayoutMaps map[string]LayoutMap
@@ -54,47 +58,35 @@ func readResource(filename string) (string, error) {
 	}
 }
 
-func (h Handler) skipEmptyKeys(i, j int) int {
-	// ugly and slow
+func (h Handler) skipEmptyKeys(i int, j int) int {
+	// ugly and slow but whatever. maybe try again using methods get/set/inc
 	k := 0
-	for ik := 0; ik <= j; ik++ {
-		kmap := h.Data.LayoutMaps.ISO()[i][ik]
+	rmap := h.Data.LayoutMaps.ISO()[i]
+	for km, kmap := range rmap {
+		if km == j {
+			break
+		}
 		if kmap != "emptySingle" && kmap != "emptySmall" && kmap != "enterDown" {
 			k++
 		}
 	}
+	//println("skipEmptyKeys", i, j, k)
 	return k
 }
 
+/*
+func tfDefault(v string, d string) string {
+	if len(v) > 0 {
+		return v
+	} else {
+		return d
+	}
+}
+*/
+
 // New inits the handler for the web service
 func New(layouts Layouts) Handler {
-	handler := Handler{}
-
-	if res, err := readResource("index.gohtml"); err == nil {
-		indexTmplHTML = res
-	} else {
-		println("could not read HTML from '" + res + "', using built-in")
-	}
-	handler.Template = template.Must(template.New("index").Funcs(template.FuncMap{
-		"skip": handler.skipEmptyKeys,
-	}).Parse(indexTmplHTML))
-
-	if res, err := readResource("index.css"); err == nil {
-		indexTmplCSS = res
-	} else {
-		println("could not read CSS from '" + res + "', using built-in")
-	}
-	handler.Data.CSS = template.CSS(indexTmplCSS)
-
-	if res, err := readResource("index.js"); err == nil {
-		indexTmplJS = res
-	} else {
-		println("could not read JS from '" + res + "', using built-in")
-	}
-	handler.Data.JS = template.JS(indexTmplJS)
-
-	handler.Data.Layouts = layouts
-	handler.Data.LayoutMaps = LayoutMaps{
+	layoutMaps := LayoutMaps{
 		"ISO": {
 			{"single", "emptySingle", "single", "single", "single", "single", "emptySmall", "single", "single", "single", "single", "emptySmall", "single", "single", "single", "single", "emptySmall", "single", "single", "single"},
 			{"single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "double", "emptySmall", "single", "single", "single", "emptySmall", "single", "single", "single", "single"},
@@ -112,6 +104,35 @@ func New(layouts Layouts) Handler {
 			{"modifier", "modifier", "modifier", "space", "modifier", "modifier", "modifier", "modifier", "emptySmall", "single", "single", "single", "emptySmall", "double", "single"},
 		},
 	}
+
+	handler := Handler{}
+
+	handler.Data.Layouts = layouts
+	handler.Data.LayoutMaps = layoutMaps
+
+	if res, err := readResource("index.gohtml"); err == nil {
+		indexTmplHTML = res
+	} else {
+		println("could not read HTML from '" + res + "', using built-in")
+	}
+	handler.Template = template.Must(template.New("index").Funcs(template.FuncMap{
+		"skip": handler.skipEmptyKeys,
+		//"default": tfDefault,
+	}).Parse(indexTmplHTML))
+
+	if res, err := readResource("index.css"); err == nil {
+		indexTmplCSS = res
+	} else {
+		println("could not read CSS from '" + res + "', using built-in")
+	}
+	handler.Data.CSS = template.CSS(indexTmplCSS)
+
+	if res, err := readResource("index.js"); err == nil {
+		indexTmplJS = res
+	} else {
+		println("could not read JS from '" + res + "', using built-in")
+	}
+	handler.Data.JS = template.JS(indexTmplJS)
 
 	return handler
 }

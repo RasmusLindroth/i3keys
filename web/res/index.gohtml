@@ -19,7 +19,7 @@
 				<a href="#mode_{{$mode_i}}.0">{{if ne .Name ""}}{{.Name}}{{else}}default{{end}}</a>
 				<ul>
 				{{- range $keyb_i,$keyb := .Keyboards -}}
-					<li><a href="#mode_{{$mode_i}}.{{$keyb_i}}">{{.Name}}</a></li>
+					<li><a href="#mode_{{$mode_i}}.{{$keyb_i}}">{{if ne .Name ""}}{{.Name}}{{else}}no modifiers{{end}}</a></li>
 				{{- end -}}
 				</ul>
 			</li>
@@ -40,17 +40,19 @@
 			{{- range $keyb_i,$keyb := .Keyboards -}}
 			<div id="mode_{{$mode_i}}.{{$keyb_i}}">
 				<div class="keyboard-heading">
-					<h2>{{if ne $mode.Name ""}}{{$mode.Name}}{{else}}default{{end}}</h2><h3>{{$keyb.Name}}</h3>
+					<h2>{{if ne $mode.Name ""}}{{$mode.Name}}{{else}}<i>default</i>{{end}}</h2>
+					<h3>{{if ne $keyb.Name ""}}{{$keyb.Name}}{{else}}<i>no modifiers</i>{{end}}</h3>
 				</div>
 				<div class="keyboard">
 					{{- $enterHit := 0 -}}
 					{{- range $i,$rowMap := $kbLayoutMap -}}
-						<!-- { {- $k := set 0 -} } -->
 						{{- range $j,$keyMap := $rowMap -}}
-							{{- $gHit := 0 -}}
 							{{- $k := skip $i $j -}}
 							{{- $key := index $keyb.Keys $i $k -}}
+							{{- $gHit := 0 -}}
+							{{- $kHit := 0 -}}
 							{{- if and (ne $keyMap "emptySingle") (ne $keyMap "emptySmall") (ne $keyMap "enterDown") -}}
+								{{- $kHit := 1 -}}
 								{{- if $key.Modifier -}}
 									{{- $gHit := 1 -}}
 								{{- end -}}
@@ -60,7 +62,6 @@
 								{{- if eq $keyMap "enterUp" -}}
 									{{- $enterHit := $gHit -}}
 								{{- end -}}
-								<!-- { {- $k := inc -} } -->
 							{{- end -}}
 							{{- if eq $keyMap "enterDown" -}}
 								{{- $gHit := $enterHit -}}
@@ -70,7 +71,7 @@
 								data-command="{{$key.Binding.Command}}" 
 								class="key {{$keyMap}} row-{{$i}} {{if eq $gHit 1}}key-modifier{{else if eq $gHit 2}}key-used{{end}}"
 								>
-								<span class="txt">{{$k}} {{$key.Symbol}}</span>
+								<span class="txt">{{$key.Symbol}}</span>
 							</div>
 							<!-- addEventListener("mouseover",...) -->
 						{{- end -}}
