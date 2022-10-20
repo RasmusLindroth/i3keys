@@ -58,36 +58,54 @@ func readResource(filename string) (string, error) {
 	}
 }
 
-func (h Handler) skipEmptyKeys(i int, j int) int {
-	// ugly and slow but whatever. maybe try again using methods get/set/inc
-	k := -1
-	rmap := h.Data.LayoutMaps.ISO()[i]
-	not_empty := true
-	for km, kmap := range rmap {
-		if km > j {
-			break
-		}
-		not_empty = kmap != "emptySingle" && kmap != "emptySmall" && kmap != "enterDown"
-		if not_empty {
-			k++
-		}
-	}
-	if !not_empty {
-		k = -1
-	}
-	//println("skipEmptyKeys", i, j, k)
-	return k
+type KeyInfo struct {
+	I, J, K   int
+	Key_size  string
+	Key_empty bool
+	Key_usage int
+	Key_enter int
+	Key       keyboard.Key
 }
 
-/*
-func tfDefault(v string, d string) string {
-	if len(v) > 0 {
-		return v
-	} else {
-		return d
-	}
+func (h Handler) keyInfo(kbd keyboard.Keyboard) /*(ki []KeyInfo)*/ <-chan KeyInfo {
+	//kbLayout := h.Data.Layouts.ISO()
+	kbLayoutMap := h.Data.LayoutMaps.ISO()
+
+	ki := make(chan KeyInfo)
+
+	go func() {
+		enterHit := 0
+		for i, rowMap := range kbLayoutMap {
+			k := 0
+			for j, key_size := range rowMap {
+				gHit := 0
+				key_empty := (key_size == "emptySingle") || (key_size == "emptySmall") || (key_size == "enterDown")
+				key := keyboard.Key{}
+				if !key_empty {
+					key = kbd.Keys[i][k]
+					if key.Modifier {
+						gHit = 1
+					}
+					if key.InUse {
+						gHit = 2
+					}
+					if key_size == "enterUp" {
+						enterHit = gHit
+					}
+					k++
+				}
+				if key_size == "enterDown" {
+					gHit = enterHit
+				}
+				//println("keyinfo: ", i, j, k, key_size, key_empty, gHit, enterHit, key.Symbol)
+				//ki = append(ki, KeyInfo{i, j, k, key_size, key_empty, gHit, enterHit, key})
+				ki <- KeyInfo{i, j, k, key_size, key_empty, gHit, enterHit, key}
+			}
+		}
+		close(ki)
+	}()
+	return ki
 }
-*/
 
 // New inits the handler for the web service
 func New(layouts Layouts) Handler {
@@ -121,8 +139,7 @@ func New(layouts Layouts) Handler {
 		println("could not read HTML from '" + res + "', using built-in")
 	}
 	handler.Template = template.Must(template.New("index").Funcs(template.FuncMap{
-		"skip": handler.skipEmptyKeys,
-		//"default": tfDefault,
+		"keyinfo": handler.keyInfo,
 	}).Parse(indexTmplHTML))
 
 	if res, err := readResource("index.css"); err == nil {

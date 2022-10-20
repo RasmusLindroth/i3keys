@@ -44,45 +44,21 @@
 					<h3>{{if ne $keyb.Name ""}}<span>{{$keyb.Name}}</span>{{else}}<span class="default">no modifiers</span>{{end}}</h3>
 				</div>
 				<div class="keyboard">
-					{{- $enterHit := 0 -}}
-					{{- range $i,$rowMap := $kbLayoutMap -}}
-						{{- range $j,$keyMap := $rowMap -}}
-							{{- $k := skip $i $j -}}
-							{{- $gHit := 0 -}}
-							{{- $kHit := 0 -}}
-							<!-- { {- if and (ne $keyMap "emptySingle") (ne $keyMap "emptySmall") (ne $keyMap "enterDown") -} } -->
-							{{- if ge $k 0 -}}{{- $key := index $keyb.Keys $i $k -}}
-								{{- $kHit := 1 -}}
-								{{- if $key.Modifier -}}
-									{{- $gHit := 1 -}}
-								{{- end -}}
-								{{- if $key.InUse -}}
-									{{- $gHit := 2 -}}
-								{{- end -}}
-								{{- if eq $keyMap "enterUp" -}}
-									{{- $enterHit := $gHit -}}
-								{{- end -}}
-							{{- end -}}
-
-							{{- if eq $keyMap "enterDown" -}}
-								{{- $gHit := $enterHit -}}
-							{{- end -}}
-
-							{{- if ge $k 0 -}}{{- $key := index $keyb.Keys $i $k -}}
-							<div
-								data-symbol="{{$key.Symbol}}" 
-								data-command="{{$key.Binding.Command}}" 
-								class="key {{$keyMap}} row-{{$i}} {{if eq $gHit 1}}key-modifier{{else if eq $gHit 2}}key-used{{end}}"
-								>
-								<span class="txt">{{$key.Symbol}}</span>
-							</div>
-							{{- else -}}
-							<div 
-								class="key {{$keyMap}} row-{{$i}} {{if eq $gHit 1}}key-modifier{{else if eq $gHit 2}}key-used{{end}}"
-								>
-							</div>
-							{{- end -}}
-							<!-- addEventListener("mouseover",...) -->
+					{{- range $k := keyinfo $keyb -}}
+						{{- if $k.Key_empty -}}
+						<div 
+							class="key {{$k.Key_size}} row-{{$k.I}} {{if eq $k.Key_usage 1}}key-modifier{{else if eq $k.Key_usage 2}}key-used{{end}}"
+							>
+						</div>
+						{{- else -}}
+						<div
+							class="key {{$k.Key_size}} row-{{$k.I}} {{if eq $k.Key_usage 1}}key-modifier{{else if eq $k.Key_usage 2}}key-used{{end}}"
+							data-symbol="{{$k.Key.Symbol}}" 
+							data-command="{{$k.Key.Binding.Command}}" 
+							>
+							<span class="txt">{{$k.Key.Symbol}}</span>
+						</div>
+						<!-- addEventListener("mouseover",...) -->
 						{{- end -}}
 					{{- end -}}
 				</div>
