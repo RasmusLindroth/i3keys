@@ -36,6 +36,23 @@ type KbMap struct {
 	Sizes   [][]string
 }
 
+/*
+	keyTypes = {
+	  'single': [1, 1], //one key
+	  'emptySingle': [1, 1], //empty one key
+	  'emptySmall': [0.5, 1], //gap between f-keys
+	  'double': [2, 1], //backspace
+	  'onehalf': [1.5, 1], //tab
+	  'doubleY': [1, 2], //numpad +, enter
+	  'semidouble': [1.75, 1], //caps
+	  'modifier': [1.25, 1], //ctrl
+	  'semilarge': [2.25, 1],
+	  'large': [2.75, 1], //right shift
+	  'space': [6.25, 1], //space
+	  'enterUp': [1.5, 1],  //enter
+	  'enterDown': [1.25, 1],  //enter
+	};
+*/
 var kbMaps = map[string]KbMap{
 	"ANSI": {
 		[][]string{
@@ -93,7 +110,7 @@ type Key struct {
 }
 
 func bindingMatch(symbol string, symbolCode int, identifier string, group i3parse.ModifierGroup, modifiers map[string][]string) Key {
-	println("bindingMatch: ", symbol, symbolCode, identifier, strings.Join(group.Modifiers, "+"), modifiers)
+	//println("bindingMatch: ", symbol, symbolCode, identifier, strings.Join(group.Modifiers, "+"), modifiers)
 	rKey := Key{
 		Binding:    i3parse.Binding{},
 		Modifier:   false,
