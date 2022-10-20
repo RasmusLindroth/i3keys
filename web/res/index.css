@@ -57,6 +57,7 @@ body {
     padding: 0;
     margin: 0;
     height: 2em;
+    z-index: 99999;
 }
 
 /* most of these should really be classes */
@@ -276,6 +277,12 @@ body {
 
 .key-used {
     background-color: var(--key-bg-inuse);
+}
+
+.key-info {
+    background-color: var(--main-bg);
+    position: sticky;
+    bottom: 0;
 }
 
 span.default {
