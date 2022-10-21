@@ -13,12 +13,16 @@ import (
 
 func printKeyboards(keyboards []keyboard.Keyboard, groups []i3parse.ModifierGroup, prefix string) {
 	for kbIndex, kb := range keyboards {
+		kbName := kb.Name
+		if kbName == "" {
+			kbName = "no modifiers"
+		}
 		dots := "-"
-		for i := 0; i < len(kb.Name); i++ {
+		for i := 0; i < len(kbName); i++ {
 			dots = dots + "-"
 		}
 
-		fmt.Printf("%s%s:\n%s%s\n", prefix, kb.Name, prefix, dots)
+		fmt.Printf("%s%s:\n%s%s\n", prefix, kbName, prefix, dots)
 
 		for _, keyRow := range kb.Keys {
 			var unused []string
@@ -51,40 +55,23 @@ func Output(wm string, layout string, filter string) {
 
 	modifiers := xlib.GetModifiers()
 
-	groups := i3parse.GetModifierGroups(modes[0].Bindings)
-
-	var keyboards []keyboard.Keyboard
-	for _, group := range groups {
-		kb, err := keyboard.MapKeyboard(layout, group, modifiers)
-		if err == nil {
-			keyboards = append(keyboards, kb)
-		}
-	}
-
-	if toFilter {
-		for i, g := range groups {
-			if !helpers.CompareSlices(g.Modifiers, filterMods) {
-				continue
-			}
-			printKeyboards([]keyboard.Keyboard{keyboards[i]}, []i3parse.ModifierGroup{g}, "")
-			return
-		}
-	}
-	fmt.Printf("Available keybindings per modifier group\n\n")
-	printKeyboards(keyboards, groups, "")
-
 	for _, mode := range modes {
 		groups := i3parse.GetModifierGroups(mode.Bindings)
 		var mKeyboards []keyboard.Keyboard
 
 		for _, group := range groups {
-			kb, err := keyboard.MapKeyboard(layout, group, modifiers)
-			if err == nil {
-				mKeyboards = append(mKeyboards, kb)
+			if kb, err := keyboard.MapKeyboard(layout, group, modifiers); err == nil {
+				if !toFilter || helpers.CompareSlices(group.Modifiers, filterMods) {
+					mKeyboards = append(mKeyboards, kb)
+				}
 			}
 		}
 
-		fmt.Printf("\n\nMode: %s\n", mode.Name)
+		modeName := mode.Name
+		if modeName == "" {
+			modeName = "default"
+		}
+		fmt.Printf("\n\nMode: %s\n", modeName)
 		printKeyboards(mKeyboards, groups, "\t")
 	}
 }
