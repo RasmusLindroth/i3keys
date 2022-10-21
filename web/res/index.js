@@ -259,3 +259,9 @@ document.getElementById('select-ansi').addEventListener('click', function () {
 });
 document.getElementById('select-iso').click();
 */
+document.getElementById('opt-layout').addEventListener('change', (event) => {
+    let l = event.currentTarget.value;
+    var url = new URL(window.location.href);
+    url.searchParams.set('layout', l);
+    window.location.replace(url.toString());
+});

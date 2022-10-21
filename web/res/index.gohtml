@@ -11,10 +11,9 @@
 </head>
 <body>
 	<div id="sticky-header">
-		<ul>
-		{{- $kbLayout := .Layouts.ISO -}}
-		{{- $kbLayoutMap := .LayoutMaps.ISO -}}
-		{{- range $mode_i,$mode := $kbLayout -}}
+		<ul id="toc-panel">
+		{{- $layoutData := index .Layouts .LayoutName -}}
+		{{- range $mode_i,$mode := $layoutData -}}
 			<li>
 				<a href="#mode_{{$mode_i}}.0">{{if ne .Name ""}}<span>{{.Name}}</span>{{else}}<span class="default">default</span>{{end}}</a>
 				<ul>
@@ -25,18 +24,28 @@
 			</li>
 		{{- end -}}
 		</ul>
-		<div id="options-panel">
-			<select id="opt-layout" name="opt-layout">
-			{{- range $lmap_i,$lmap := .LayoutMaps -}}
-				<option value="{{$lmap_i}}" selected='{{if eq $lmap_i "ISO" }}true{{else}}false{{end}}'>{{$lmap_i}}</option>
-			{{- end -}}
-			</select>
-			<label for="opt-split">Split</label>
-			<input type="checkbox" id="opt-split" name="opt-split"></input>
-		</div>
+		<ul id="options-panel">
+			<li>
+				<label for="opt-layout">layout:</label>
+				<select id="opt-layout" name="opt-layout" value={{$.LayoutName}}>
+				{{- range $lmap_i,$lmap := .LayoutMaps -}}
+					{{- $selected := eq $lmap_i $.LayoutName -}}
+					<option value="{{$lmap_i}}" {{if $selected}}selected="true"{{end}}>{{$lmap_i}}</option>
+				{{- end -}}
+				</select>
+			</li>
+			<li>
+				<label for="opt-captions">captions:</label>
+				<select id="opt-captions" name="opt-captions">
+					<option value="symbol">Symbol</option>
+					<option value="symbol_split">Symbol (split)</option>
+					<option value="character">Character</option>
+				</select>
+			</li>
+		</ul>
 	</div>
 	<div id="keyboard-holder">
-		{{- range $mode_i,$mode := $kbLayout -}}
+		{{- range $mode_i,$mode := $layoutData -}}
 			{{- range $keyb_i,$keyb := .Keyboards -}}
 			<div id="mode_{{$mode_i}}.{{$keyb_i}}">
 				<div class="keyboard-heading">
