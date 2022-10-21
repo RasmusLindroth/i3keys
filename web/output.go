@@ -21,7 +21,11 @@ func Output(wm string, port string) {
 
 	modifiers := xlib.GetModifiers()
 
-	layouts := map[string][]modeKeyboards{"ISO": {}, "ANSI": {}}
+	layouts := make(map[string][]modeKeyboards)
+	for lt := range keyboard.KbMaps {
+		println(lt)
+		layouts[lt] = []modeKeyboards{}
+	}
 
 	for _, mode := range modes {
 		groups := i3parse.GetModifierGroups(mode.Bindings)

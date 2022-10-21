@@ -31,7 +31,7 @@ type KbMap struct {
 	Sizes   [][]string
 }
 
-var kbMaps = map[string]KbMap{
+var KbMaps = map[string]KbMap{
 	"ANSI": {
 		[][]string{
 			{"ESC", "FK01", "FK02", "FK03", "FK04", "FK05", "FK06", "FK07", "FK08", "FK09", "FK10", "FK11", "FK12", "PRSC", "SCLK", "PAUS"},
@@ -122,7 +122,7 @@ func bindingMatch(symbol string, symbolCode int, identifier string, group i3pars
 // MapKeyboard returns a Keyboard matching desired layout
 func MapKeyboard(layout string, group i3parse.ModifierGroup, modifiers map[string][]string) (Keyboard, error) {
 	var kb [][]Key
-	var kbMap, ok = kbMaps[layout]
+	var kbMap, ok = KbMaps[layout]
 	if !ok {
 		return Keyboard{}, errors.New("no keyboard with that layout")
 	}
