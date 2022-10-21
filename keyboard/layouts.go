@@ -9,34 +9,6 @@ import (
 )
 
 /*
-// ANSI holds evdev keys for an ANSI layout
-
-	var ANSI = [][]string{
-		{"ESC", "FK01", "FK02", "FK03", "FK04", "FK05", "FK06", "FK07", "FK08", "FK09", "FK10", "FK11", "FK12", "PRSC", "SCLK", "PAUS"},
-		{"TLDE", "AE01", "AE02", "AE03", "AE04", "AE05", "AE06", "AE07", "AE08", "AE09", "AE10", "AE11", "AE12", "BKSP", "INS", "HOME", "PGUP", "NMLK", "KPDV", "KPMU", "KPSU"},
-		{"TAB", "AD01", "AD02", "AD03", "AD04", "AD05", "AD06", "AD07", "AD08", "AD09", "AD10", "AD11", "AD12", "BKSL", "DELE", "END", "PGDN", "KP7", "KP8", "KP9", "KPAD"},
-		{"CAPS", "AC01", "AC02", "AC03", "AC04", "AC05", "AC06", "AC07", "AC08", "AC09", "AC10", "AC11", "RTRN", "KP4", "KP5", "KP6"},
-		{"LFSH", "AB01", "AB02", "AB03", "AB04", "AB05", "AB06", "AB07", "AB08", "AB09", "AB10", "RTSH", "UP", "KP1", "KP2", "KP3", "KPEN"},
-		{"LCTL", "LWIN", "LALT", "SPCE", "RALT", "RWIN", "MENU", "RCTL", "LEFT", "DOWN", "RGHT", "KP0", "KPDL"},
-	}
-
-// ISO holds evdev keys for an ANSI layout
-
-	var ISO = [][]string{
-		{"ESC", "FK01", "FK02", "FK03", "FK04", "FK05", "FK06", "FK07", "FK08", "FK09", "FK10", "FK11", "FK12", "PRSC", "SCLK", "PAUS"},
-		{"TLDE", "AE01", "AE02", "AE03", "AE04", "AE05", "AE06", "AE07", "AE08", "AE09", "AE10", "AE11", "AE12", "BKSP", "INS", "HOME", "PGUP", "NMLK", "KPDV", "KPMU", "KPSU"},
-		{"TAB", "AD01", "AD02", "AD03", "AD04", "AD05", "AD06", "AD07", "AD08", "AD09", "AD10", "AD11", "AD12", "RTRN", "DELE", "END", "PGDN", "KP7", "KP8", "KP9", "KPAD"},
-		{"CAPS", "AC01", "AC02", "AC03", "AC04", "AC05", "AC06", "AC07", "AC08", "AC09", "AC10", "AC11", "AC12", "KP4", "KP5", "KP6"},
-		{"LFSH", "LSGT", "AB01", "AB02", "AB03", "AB04", "AB05", "AB06", "AB07", "AB08", "AB09", "AB10", "RTSH", "UP", "KP1", "KP2", "KP3", "KPEN"},
-		{"LCTL", "LWIN", "LALT", "SPCE", "RALT", "RWIN", "MENU", "RCTL", "LEFT", "DOWN", "RGHT", "KP0", "KPDL"},
-	}
-*/
-type KbMap struct {
-	Symbols [][]string
-	Sizes   [][]string
-}
-
-/*
 	keyTypes = {
 	  'single': [1, 1], //one key
 	  'emptySingle': [1, 1], //empty one key
@@ -53,6 +25,12 @@ type KbMap struct {
 	  'enterDown': [1.25, 1],  //enter
 	};
 */
+
+type KbMap struct {
+	Symbols [][]string
+	Sizes   [][]string
+}
+
 var kbMaps = map[string]KbMap{
 	"ANSI": {
 		[][]string{
@@ -110,7 +88,6 @@ type Key struct {
 }
 
 func bindingMatch(symbol string, symbolCode int, identifier string, group i3parse.ModifierGroup, modifiers map[string][]string) Key {
-	//println("bindingMatch: ", symbol, symbolCode, identifier, strings.Join(group.Modifiers, "+"), modifiers)
 	rKey := Key{
 		Binding:    i3parse.Binding{},
 		Modifier:   false,
@@ -172,11 +149,7 @@ func MapKeyboard(layout string, group i3parse.ModifierGroup, modifiers map[strin
 		}
 		kb = append(kb, row)
 	}
+
 	name := strings.Join(group.Modifiers, "+")
-	/*
-		if name == "" {
-			name = "No modifiers"
-		}
-	*/
 	return Keyboard{Name: name, Keys: kb, Modifiers: group.Modifiers}, nil
 }

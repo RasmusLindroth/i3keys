@@ -92,7 +92,6 @@ func (h Handler) keyInfo(kbd keyboard.Keyboard) <-chan KeyInfo {
 				if key_size == "enterDown" {
 					gHit = enterHit
 				}
-				//println("keyinfo: ", i, j, k, key_size, key_empty, gHit, enterHit, key.Symbol)
 				ki <- KeyInfo{i, j, k, key_size, key_empty, gHit, enterHit, key}
 			}
 		}
@@ -104,20 +103,20 @@ func mkSlice(args ...interface{}) []interface{} {
 	return args
 }
 
-func readResource(filename string) (string, error) {
-	i3keys_config := os.Getenv("HOME") + "/.config/i3keys/" // TODO: check XDG_CONFIG & Co., cache
+func readResource(filename string) (string, bool) {
+	i3keys_config := os.Getenv("HOME") + "/.config/i3keys/" // TODO: check XDG_CONFIG & Co. (and cache?)
 	pathname := i3keys_config + filename
-	pathname, _ = os.Readlink(pathname) // the blind readlink is *NOT* ok
+	pathname, _ = os.Readlink(pathname) // TODO: FIXME: the blind readlink is *NOT* ok
 	if buf, err := os.ReadFile(pathname); err == nil {
-		return string(buf), nil
+		return string(buf), true
 	} else {
-		return pathname, err // horrible
+		println("could not read resource from '" + pathname + "', using built-in")
+		return pathname, false // horrible, and not needed anymore
 	}
 }
 
 // New inits the handler for the web service
 func New(layouts Layouts) Handler {
-	println("Handler.New")
 	handler := Handler{}
 
 	handler.Data.Layouts = layouts
@@ -128,7 +127,6 @@ func New(layouts Layouts) Handler {
 
 // Start fires up the server
 func (handler Handler) Start(port string) error {
-	println("Handler.Start")
 	r := mux.NewRouter()
 	r.HandleFunc("/", handler.HomeHandler)
 
@@ -141,38 +139,28 @@ func (handler Handler) Start(port string) error {
 
 // HomeHandler serves root requests
 func (handler *Handler) HomeHandler(w http.ResponseWriter, r *http.Request) {
-	//println("Handler.HomeHandler")
 
+	// LayoutName must be set first or the html template fails subtly
 	handler.Data.LayoutName = strings.ToUpper(r.URL.Query().Get("layout"))
 	if handler.Data.LayoutName == "" {
-		handler.Data.LayoutName = "ISO"
+		handler.Data.LayoutName = "ISO" // because i'm selfish
 	}
-	//println("Handler.HomeHandler: layout: ", handler.Data.LayoutName)
 
-	if res, err := readResource("index.gohtml"); err == nil {
+	if res, ok := readResource("index.gohtml"); ok {
 		indexTmplHTML = res
-		//println("read HTML template from file")
-	} else {
-		println("could not read HTML from '" + res + "', using built-in")
 	}
 	handler.Template = template.Must(template.New("index").Funcs(template.FuncMap{
 		"keyinfo": handler.keyInfo,
 		"mkslice": mkSlice,
 	}).Parse(indexTmplHTML))
 
-	if res, err := readResource("index.css"); err == nil {
+	if res, ok := readResource("index.css"); ok {
 		indexTmplCSS = res
-		//println("read CSS template from file")
-	} else {
-		println("could not read CSS from '" + res + "', using built-in")
 	}
 	handler.Data.CSS = template.CSS(indexTmplCSS)
 
-	if res, err := readResource("index.js"); err == nil {
+	if res, ok := readResource("index.js"); ok {
 		indexTmplJS = res
-		//println("read JS template from file")
-	} else {
-		println("could not read JS from '" + res + "', using built-in")
 	}
 	handler.Data.JS = template.JS(indexTmplJS)
 

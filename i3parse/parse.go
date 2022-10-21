@@ -219,22 +219,15 @@ func parseConfig(confReader io.Reader, confPath string, variables []Variable, lo
 
 		isMainContext := context == mainContext || context == bindCodeMainContext || context == bindSymMainContext
 		if isMainContext && bindingLine {
-			//println("parseConfig:", "mode:", 0, "'"+modes[0].Name+"'", "append binding ", strings.Join(binding.Modifiers, "+"), binding.Key, binding.Command)
 			modes[0].Bindings = append(modes[0].Bindings, binding)
 		}
 
 		isModeContext := context == modeContext || context == bindCodeModeContext || context == bindSymModeContext
 		if isModeContext && bindingLine {
 			l := len(modes) - 1
-			//println("parseConfig:", "mode:", l, "'"+modes[l].Name+"'", "append binding ", strings.Join(binding.Modifiers, "+"), binding.Key, binding.Command)
 			modes[l].Bindings = append(modes[l].Bindings, binding)
 		}
 	}
-	/*
-		for i, mode := range modes {
-			println("parseConfig:", "mode: ", i, "'"+mode.Name+"'", "bindings: ", len(mode.Bindings))
-		}
-	*/
 
 	var includePaths []string
 	for _, incl := range includes {
@@ -275,30 +268,25 @@ func parse(confReader io.Reader, logError bool, err error) ([]Mode, []Variable, 
 		if err != nil && logError {
 			log.Printf("couldn't parse the included file %s, got err: %v\n", incl, perr)
 		}
-		// add modes merging existing bindings (i hope)
-		//println("parse:", "merging", len(m), "into", len(modes), "bindings")
+		// add modes merging existing bindings
 		for iNew := range m {
 			found := false
 			for iOld := range modes {
 				if m[iNew].Name == modes[iOld].Name {
 					found = true
-					//lOld := len(modes[iOld].Bindings)
 					modes[iOld].Bindings = append(modes[iOld].Bindings, m[iNew].Bindings...) // duplicates?
-					//println("parse:", "merge  ", "'"+m[iNew].Name+"'", "was", lOld, "now is", len(modes[iOld].Bindings), "bindings")
 					break
 				}
 			}
 			if !found {
 				modes = append(modes, m[iNew])
-				//println("parse:", "append ", "'"+m[iNew].Name+"'", "now is", len(m[iNew].Bindings), "bindings")
 			}
 		}
-		variables = v // NOTE: looks like variables are updated in parseConfig
+		variables = v // NOTE: variables are updated in parseConfig
 		includes = append(includes, i...)
 		parsedIncludes = append(parsedIncludes, incl)
 	}
 
-	// ???
 	for key := range modes {
 		modes[key].Bindings = sortModifiers(modes[key].Bindings)
 	}

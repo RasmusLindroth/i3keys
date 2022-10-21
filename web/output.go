@@ -24,17 +24,14 @@ func Output(wm string, port string) {
 	layouts := map[string][]modeKeyboards{"ISO": {}, "ANSI": {}}
 
 	for _, mode := range modes {
-		//println("mode:", mode.Name, len(mode.Bindings), ".")
 		groups := i3parse.GetModifierGroups(mode.Bindings)
 
 		tmpModes := map[string]modeKeyboards{}
 		for lt := range layouts {
-			//println("ISO/ANSI: ", lt)
 			tmpModes[lt] = modeKeyboards{Name: mode.Name}
 		}
 
 		for _, group := range groups {
-			//println("group:", strings.Join(group.Modifiers, " "), ".")
 			for lt := range layouts {
 				kb, err := keyboard.MapKeyboard(lt, group, modifiers)
 				if err != nil {
