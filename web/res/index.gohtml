@@ -44,19 +44,16 @@
 					<h3>{{if ne $keyb.Name ""}}<span>{{$keyb.Name}}</span>{{else}}<span class="default">no modifiers</span>{{end}}</h3>
 				</div>
 				<div class="keyboard">
-					{{- range $k := keyinfo $keyb -}}
-						{{- if $k.Key_empty -}}
-						<div 
-							class="key {{$k.Key_size}} row-{{$k.I}} {{if eq $k.Key_usage 1}}key-modifier{{else if eq $k.Key_usage 2}}key-used{{end}}"
-							>
-						</div>
+					{{- range keyinfo $keyb -}}
+						{{- $class := "key {{.Key_size}} row-{{.I}} {{if eq .Key_usage 1}}key-modifier{{else if eq .Key_usage 2}}key-used{{end}}" -}}
+						{{- if .Key_empty -}}
+						<div class="{{$class}}"></div>
 						{{- else -}}
-						<div
-							class="key {{$k.Key_size}} row-{{$k.I}} {{if eq $k.Key_usage 1}}key-modifier{{else if eq $k.Key_usage 2}}key-used{{end}}"
-							data-symbol="{{$k.Key.Symbol}}" 
-							data-command="{{$k.Key.Binding.Command}}" 
+						<div class="{{$class}}"
+							 data-symbol="{{.Key.Symbol}}" 
+							 data-command="{{.Key.Binding.Command}}" 
 							>
-							<span class="txt">{{$k.Key.Symbol}}</span>
+							<span class="txt">{{.Key.Symbol}}</span>
 						</div>
 						<!-- addEventListener("mouseover",...) -->
 						{{- end -}}
