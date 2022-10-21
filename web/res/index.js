@@ -16,6 +16,7 @@ keyTypes = {
 };
 */
 
+/*
 ansi = [
     ["single", "emptySingle", "single", "single", "single", "single", "emptySmall", "single", "single", "single", "single", "emptySmall", "single", "single", "single", "single", "emptySmall", "single", "single", "single"],
     ["single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "double", "emptySmall", "single", "single", "single", "emptySmall", "single", "single", "single", "single"],
@@ -33,10 +34,12 @@ iso = [
     ["modifier", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "large", "emptySmall", "emptySingle", "single", "emptySingle", "emptySmall", "single", "single", "single", "doubleY"],
     ["modifier", "modifier", "modifier", "space", "modifier", "modifier", "modifier", "modifier", "emptySmall", "single", "single", "single", "emptySmall", "double", "single"]
 ];
+*/
 
 let keyboardHolder = document.querySelector('#keyboard-holder');
 let stickyHeader = document.querySelector('#sticky-header');
 
+/*
 function a_name() {
     return [...arguments].join("_")
 }
@@ -84,12 +87,6 @@ function generateKeyboard(layout, modes) {
     stickyHeader.appendChild(tosList);
 
     // options panel
-    /*
-    <div id="options-panel">
-    <label for="opt-split">Split</label><br></br>
-    <input type="checkbox" id="opt-split" name="opt-split" value="1"></input>
-    </div>
-    */
 
     let optPanel = document.createElement('div');
         optPanel.id = "options-panel";
@@ -170,7 +167,7 @@ function generateKeyboardGroup(kbLayout, generated, modeName, headingID) {
     headingWrapper.className = "keyboard-heading";
 
     let headingEl2 = document.createElement('h2');
-    /*headingEl2.id = "mode_head_"+i;*/
+    //headingEl2.id = "mode_head_"+i;
     headingEl2.innerHTML = "Mode: "+(modeName||"default");
     headingWrapper.appendChild(headingEl2);
 
@@ -249,6 +246,7 @@ function generateKeyboardGroup(kbLayout, generated, modeName, headingID) {
     return kbWrapper;
 }
 
+*/
 /*
 document.getElementById('select-iso').addEventListener('click', function () {
     generateKeyboard('ISO', generatedISOmodes);
