@@ -44,8 +44,10 @@
 					<h3>{{if ne $keyb.Name ""}}<span>{{$keyb.Name}}</span>{{else}}<span class="default">no modifiers</span>{{end}}</h3>
 				</div>
 				<div class="keyboard">
+					{{- $usage_classes := mkslice "" "key-modifier" "key-used" -}}
 					{{- range keyinfo $keyb -}}
-						{{- $class := "key {{.Key_size}} row-{{.I}} {{if eq .Key_usage 1}}key-modifier{{else if eq .Key_usage 2}}key-used{{end}}" -}}
+						{{- $usage := index $usage_classes .Key_usage -}}
+						{{- $class := (printf "key %s row-%d %s" .Key_size .I $usage) -}}
 						{{- if .Key_empty -}}
 						<div class="{{$class}}"></div>
 						{{- else -}}

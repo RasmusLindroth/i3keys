@@ -47,17 +47,6 @@ type Handler struct {
 	Data     Data
 }
 
-func readResource(filename string) (string, error) {
-	i3keys_config := os.Getenv("HOME") + "/.config/i3keys/" // TODO: check XDG_CONFIG & Co., cache
-	pathname := i3keys_config + filename
-	pathname, _ = os.Readlink(pathname) // the blind readlink is *NOT* ok
-	if buf, err := os.ReadFile(pathname); err == nil {
-		return string(buf), nil
-	} else {
-		return pathname, err // horrible
-	}
-}
-
 type KeyInfo struct {
 	I, J, K   int
 	Key_size  string
@@ -67,12 +56,11 @@ type KeyInfo struct {
 	Key       keyboard.Key
 }
 
-func (h Handler) keyInfo(kbd keyboard.Keyboard) /*(ki []KeyInfo)*/ <-chan KeyInfo {
+func (h Handler) keyInfo(kbd keyboard.Keyboard) <-chan KeyInfo {
 	//kbLayout := h.Data.Layouts.ISO()
 	kbLayoutMap := h.Data.LayoutMaps.ISO()
 
 	ki := make(chan KeyInfo)
-
 	go func() {
 		enterHit := 0
 		for i, rowMap := range kbLayoutMap {
@@ -98,13 +86,26 @@ func (h Handler) keyInfo(kbd keyboard.Keyboard) /*(ki []KeyInfo)*/ <-chan KeyInf
 					gHit = enterHit
 				}
 				//println("keyinfo: ", i, j, k, key_size, key_empty, gHit, enterHit, key.Symbol)
-				//ki = append(ki, KeyInfo{i, j, k, key_size, key_empty, gHit, enterHit, key})
 				ki <- KeyInfo{i, j, k, key_size, key_empty, gHit, enterHit, key}
 			}
 		}
 		close(ki)
 	}()
 	return ki
+}
+func mkSlice(args ...interface{}) []interface{} {
+	return args
+}
+
+func readResource(filename string) (string, error) {
+	i3keys_config := os.Getenv("HOME") + "/.config/i3keys/" // TODO: check XDG_CONFIG & Co., cache
+	pathname := i3keys_config + filename
+	pathname, _ = os.Readlink(pathname) // the blind readlink is *NOT* ok
+	if buf, err := os.ReadFile(pathname); err == nil {
+		return string(buf), nil
+	} else {
+		return pathname, err // horrible
+	}
 }
 
 // New inits the handler for the web service
@@ -140,6 +141,7 @@ func New(layouts Layouts) Handler {
 	}
 	handler.Template = template.Must(template.New("index").Funcs(template.FuncMap{
 		"keyinfo": handler.keyInfo,
+		"mkslice": mkSlice,
 	}).Parse(indexTmplHTML))
 
 	if res, err := readResource("index.css"); err == nil {
