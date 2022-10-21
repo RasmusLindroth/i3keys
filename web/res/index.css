@@ -50,21 +50,21 @@ body {
 }
 
 #sticky-header {
-    position: sticky;
+    position: fixed;
     top: 0;
-    background: var(--header-bg);
-    /*border-bottom: 1px solid var(--header-border);*/
-    padding: 0;
+    width: 100%;
+    background-color: var(--header-bg);
+    /*
+    border-bottom: 1px solid var(--header-border);
+    */
+    padding: 0.25em 0 0 0;
     margin: 0;
     height: 2em;
     z-index: 99999;
 }
 
 /* most of these should really be classes */
-
-#sticky-header > h1 {
-    display: none; /* "Table of contents" */
-}
+/* note that they apply to both toc and options */
 
 #sticky-header > ul {
     top: 0.5em;
@@ -75,23 +75,19 @@ body {
 }
 
 #sticky-header > ul > li {
+    height: 1.25em;
     display: inline-block;
     background-color: var(--header-mode-bg);
     border: 1px dotted var(--header-mode-border);
     border-radius: 3px;
-    padding: 0.5ch; /* probably not the right unit */
-    margin-right: 1ch; /* distance between modes */
-}
-
-#sticky-header > ul > li > a {
-    font-weight: bold;
-    color: var(--main-fg-max);
+    padding: 0.25em;
+    margin-right: 1ch; /* distance between modes/options */
 }
 
 #sticky-header > ul > li > ul {
     display: inline;
-    padding: 0;
     margin: 0;
+    padding: 0;
 }
 
 #sticky-header > ul > li > ul > li {
@@ -99,22 +95,25 @@ body {
     margin-left: 1ch; /* distance between modifiers */
 }
 
+#sticky-header > ul > li > a {
+    font-weight: bold;
+    color: var(--main-fg-max);
+}
+
 #sticky-header > ul > li > ul > li > a {
     color: var(--main-fg-dim);
     text-decoration: dotted underline;
 }
 
+
 #options-panel {
-    display: inline;
-    position: absolute;
-    right: 1ch;
-    padding: 0.5ch; /* probably not the right unit */
+    /*display: inline-block;*/
+    float: right;
+    right: 0;
 }
 
 #options-panel * {
     display: inline;
-    padding-left: 1ch; 
-    padding-right: 1ch; 
 }
 
 #keyboard-holder {
@@ -127,12 +126,11 @@ body {
 }
 
 #keyboard-holder .keyboard-heading {
-    margin-top: 2em;
-    margin-bottom: 1em;
     position: sticky;
-    background-color: var(--main-bg);
-    height: 2em;
+    height: 2.25em;
     top: 2em; 
+    padding-top: 0.25em;
+    background-color: var(--main-bg);
 }
 
 #keyboard-holder .keyboard-heading > h2 {
@@ -158,9 +156,13 @@ body {
 }
 
 .key {
-    /*font-family: monospace;*/ /*only with literal extended characters*/
+    /*only with literal extended characters*/
+    /*
+    font-family: monospace;
+    font-size: larger;
+    */ 
     border: 1px solid var(--main-fg-max);
-    border-radius: 5px;
+    border-radius: 0.8vmin;
     background-color: var(--key-bg);
     font-size: 0.7vw;
     word-break: break-all;

@@ -30,7 +30,9 @@
 				<select id="opt-layout" name="opt-layout" value={{$.LayoutName}}>
 				{{- range $lmap_i,$lmap := .LayoutMaps -}}
 					{{- $selected := eq $lmap_i $.LayoutName -}}
-					<option value="{{$lmap_i}}" {{if $selected}}selected="true"{{end}}>{{$lmap_i}}</option>
+					<option value="{{$lmap_i}}" {{if $selected}}selected="true"{{end}}>
+						{{$lmap_i}}
+					</option>
 				{{- end -}}
 				</select>
 			</li>
@@ -38,7 +40,7 @@
 				<label for="opt-captions">captions:</label>
 				<select id="opt-captions" name="opt-captions">
 					<option value="symbol">Symbol</option>
-					<option value="symbol_split">Symbol (split)</option>
+					<option value="symbol_split">Split symbol</option>
 					<option value="character">Character</option>
 				</select>
 			</li>
