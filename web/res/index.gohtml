@@ -30,7 +30,7 @@
 				<select id="opt-layout" name="opt-layout" value={{$.LayoutName}}>
 				{{- range $lmap_i,$lmap := .LayoutMaps -}}
 					{{- $selected := eq $lmap_i $.LayoutName -}}
-					<option value="{{$lmap_i}}" {{if $selected}}selected="true"{{end}}>
+					<option value="{{$lmap_i}}" {{if $selected}}selected="true"{{end}}><!-- id="opt-layout-{{$lmap_i}}" -->
 						{{$lmap_i}}
 					</option>
 				{{- end -}}
@@ -39,9 +39,9 @@
 			<li>
 				<label for="opt-captions">captions:</label>
 				<select id="opt-captions" name="opt-captions">
-					<option value="symbol">Symbol</option>
-					<option value="symbol_split">Split symbol</option>
-					<option value="character">Character</option>
+					<option id="opt-captions-sym" value="symbol">Symbol</option>
+					<option id="opt-captions-spl" value="symbol_split">Split symbol</option>
+					<option id="opt-captions-chr" value="character">Character</option>
 				</select>
 			</li>
 		</ul>
@@ -59,17 +59,14 @@
 					{{- range keyinfo $keyb -}}
 						{{- $usage := index $usage_classes .Key_usage -}}
 						{{- $class := (printf "key %s row-%d %s" .Key_size .I $usage) -}}
-						{{- if .Key_empty -}}
-						<div class="{{$class}}"></div>
-						{{- else -}}
-						<div class="{{$class}}"
-							 data-symbol="{{.Key.Symbol}}" 
-							 data-command="{{.Key.Binding.Command}}" 
-							>
-							<span class="txt">{{.Key.Symbol}}</span>
-						</div>
-						<!-- addEventListener("mouseover",...) -->
+						<div class="{{$class}}">
+						{{- if not .Key_empty -}}
+							<span class="txt" 
+								data-symbol="{{.Key.Symbol}}" 
+								data-command="{{.Key.Binding.Command}}"
+							>{{.Key.Symbol}}</span>
 						{{- end -}}
+						</div>
 					{{- end -}}
 				</div>
 			</div>
