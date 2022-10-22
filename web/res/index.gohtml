@@ -39,9 +39,11 @@
 			<li>
 				<label for="opt-captions">captions:</label>
 				<select id="opt-captions" name="opt-captions">
-					<option id="opt-captions-sym" value="symbol" selected="true">Symbol</option>
-					<option id="opt-captions-spl" value="symbol_split">Split symbol</option>
 					<option id="opt-captions-chr" value="character">Character</option>
+					<option id="opt-captions-idr" value="identifier">Identifier</option>
+					<option id="opt-captions-sym" value="symbol">Symbol</option>
+					<option id="opt-captions-spl" value="symbol_split">Symbol (split)</option>
+					<option id="opt-captions-cod" value="symbol_code">Symbol Code</option>
 				</select>
 			</li>
 		</ul>
@@ -62,8 +64,11 @@
 						<div class="{{$class}}">
 						{{- if not .Key_empty -}}
 							<span class="txt" 
-								data-symbol="{{.Key.Symbol}}" 
-								data-command="{{.Key.Binding.Command}}"
+								data-symbol="{{.Key.Symbol}}"
+								data-symbolcode="{{.Key.SymbolCode}}"
+								data-identifier="{{.Key.Identifier}}"
+								data-bindkey="{{.Key.Binding.Key}}"
+								data-bindcommand="{{.Key.Binding.Command}}"
 							>{{.Key.Symbol}}</span>
 						{{- end -}}
 						</div>
@@ -73,9 +78,15 @@
 			{{- end -}}
 		{{- end -}}
 	</div>
-	<div class="key-info">
-		<p>Hover over a key to see the command bound to the key here:</p>
-		<span class="key-desc"></span>
+	<div id="key-info">
+		<table>
+			<!-- TODO: range mkslice here -->
+			<tr><td class="ki-item ki-property">command</td>        <td class="ki-item ki-value ki-bold" id="key-command"></td></tr>
+			<tr><td class="ki-item ki-property">identifier</td>     <td class="ki-item ki-value"         id="key-identifier"></td></tr>
+			<tr><td class="ki-item ki-property">symbol</td>         <td class="ki-item ki-value"         id="key-symbol"></td></tr>
+			<tr><td class="ki-item ki-property">symbol code</td>    <td class="ki-item ki-value"         id="key-symbolcode"></td></tr>
+		</table>
+		<p>Hover over a key to see its properties above</p>
 	</div>
 	<script>{{.JS}}</script> 
 </body>

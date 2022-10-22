@@ -5,7 +5,7 @@
 
     --main-bg:              #ffffff;
     --main-fg-max:          #000000;
-    --main-fg-dim:          #202020;
+    --main-fg-dim:          #404040;
     --header-bg:            #fefefe;
     --header-border:        #e0e0e0;
     --header-mode-bg:       #f0f0f0;
@@ -146,6 +146,39 @@ body {
     font-size: larger;
 }
 
+#key-info {
+    background-color: var(--main-bg);
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+#key-info > p {
+    margin-top: 1em;
+    margin-bottom: 0;
+    color: var(--main-fg-dim);
+}
+#key-info tr {
+    height: 1.5em;
+}
+#key-info td {
+    vertical-align: bottom;
+}
+#key-info .ki-property {
+    padding-right: 1em;
+}
+#key-info .ki-value {
+    font-family: monospace;
+    font-size: larger;
+}
+#key-info .ki-bold {
+    font-weight: bold;
+}
+
+
+span.default {
+    font-style: italic;
+}
+
 .keyboard {
     display: grid;
     grid-template-columns: repeat(1000, calc(var(--key-size) / 4 - 0.4vw));
@@ -267,26 +300,10 @@ body {
     font-size: larger;
 }
 
-.key-desc {
-    font-weight: bold;
-    font-family: monospace;
-    font-size: larger;
-}
-
 .key-modifier {
     background-color: var(--key-bg-modifier);
 }
 
 .key-used {
     background-color: var(--key-bg-inuse);
-}
-
-.key-info {
-    background-color: var(--main-bg);
-    position: sticky;
-    bottom: 0;
-}
-
-span.default {
-    font-style: italic;
 }
