@@ -65,7 +65,6 @@ var layoutMaps = LayoutMaps{
 }
 
 func (h Handler) keyInfo(kbd keyboard.Keyboard) <-chan KeyInfo {
-	//kbLayout := h.Data.Layouts[h.Data.LayoutName]
 	kbLayoutMap := h.Data.LayoutMaps[h.Data.LayoutName]
 
 	ki := make(chan KeyInfo)
@@ -125,10 +124,10 @@ func readResource(filename string) (string, bool) {
 	pathname = realName(path.Join(pathname, filename))
 
 	if buf, err := os.ReadFile(pathname); err == nil {
-		println("read resource from '" + pathname + "'")
+		//println("read resource from '" + pathname + "'")
 		return string(buf), true
 	} else {
-		println("could not read resource from '" + pathname + "', using built-in")
+		//println("could not read resource from '" + pathname + "', using built-in")
 		return "", false
 	}
 }
