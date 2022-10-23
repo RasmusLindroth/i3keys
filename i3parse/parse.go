@@ -322,7 +322,11 @@ func parseBindingParts(parts []string) ([]string, string, string) {
 		if mod[0] == '$' {
 			continue
 		}
-		modifiers[i] = strings.Title(mod)
+		mod = strings.Title(mod)
+		if mod == "Alt" {
+			mod = "Mod1" // rough fix for #26
+		}
+		modifiers[i] = mod
 	}
 
 	var cmdParts []string
