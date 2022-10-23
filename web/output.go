@@ -23,7 +23,6 @@ func Output(wm string, port string) {
 
 	layouts := make(map[string][]modeKeyboards)
 	for lt := range keyboard.KbMaps {
-		println(lt)
 		layouts[lt] = []modeKeyboards{}
 	}
 
