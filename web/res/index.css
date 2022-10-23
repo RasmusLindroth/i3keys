@@ -277,6 +277,10 @@ body {
     margin-top: calc(-1 * var(--grid-gap-v) - 1.25px); /* still needs the .25 ? */
 }
 
+.enterDown > .txt {
+	display: none;
+}
+
 .row-0 {
     grid-row-start: 1;
 }

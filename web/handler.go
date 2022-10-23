@@ -41,7 +41,6 @@ type KeyInfo struct {
 	Key_size  string
 	Key_empty bool
 	Key_usage int
-	Key_enter int
 	Key       keyboard.Key
 }
 
@@ -70,6 +69,7 @@ func (h Handler) keyInfo(kbd keyboard.Keyboard) <-chan KeyInfo {
 	ki := make(chan KeyInfo)
 	go func() {
 		enterHit := 0
+		enterKey := keyboard.Key{}
 		for i, rowMap := range kbLayoutMap {
 			k := 0
 			for j, key_size := range rowMap {
@@ -86,13 +86,16 @@ func (h Handler) keyInfo(kbd keyboard.Keyboard) <-chan KeyInfo {
 					}
 					if key_size == "enterUp" {
 						enterHit = gHit
+						enterKey = key
 					}
 					k++
 				}
 				if key_size == "enterDown" {
 					gHit = enterHit
+					ki <- KeyInfo{i, j, k, key_size, false, gHit, enterKey}
+				} else {
+					ki <- KeyInfo{i, j, k, key_size, key_empty, gHit, key}
 				}
-				ki <- KeyInfo{i, j, k, key_size, key_empty, gHit, enterHit, key}
 			}
 		}
 		close(ki)
