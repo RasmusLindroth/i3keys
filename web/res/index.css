@@ -128,7 +128,7 @@ body {
 #keyboard-holder .keyboard-heading {
     position: sticky;
     height: 2.25em;
-    top: 2em; 
+    top: 2em;
     padding-top: 0.25em;
     background-color: var(--main-bg);
 }
@@ -169,9 +169,14 @@ body {
 #key-info .ki-value {
     font-family: monospace;
     font-size: larger;
+    font-weight: bolder;
 }
 #key-info .ki-bold {
     font-weight: bold;
+}
+.monospace {
+    font-family: monospace;
+    font-weight: bolder;
 }
 
 
@@ -193,7 +198,7 @@ span.default {
     /*
     font-family: monospace;
     font-size: larger;
-    */ 
+    */
     border: 1px solid var(--main-fg-max);
     border-radius: 0.8vmin;
     background-color: var(--key-bg);

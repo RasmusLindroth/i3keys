@@ -79,7 +79,7 @@ function keyCaption(s) {
     let c = keyCaptions[s];
     return c ? c : splitSymbol(s);
 }
-    
+
 function splitSymbol(s) {
     return s
         .replaceAll(/grave|acute|left|right|slash/g," $&") // TODO: smarter, more complete regex
@@ -106,18 +106,27 @@ document.getElementById('opt-captions').addEventListener('change', (event) => {
         switch(v) {
             case "character":
                     e.innerHTML = breakSpaces(keyCaption(e.dataset.symbol));
+                    e.classList.add("monospace")
                     break;
             case "symbol":
                     e.innerHTML = e.dataset.symbol;
+                    e.classList.remove("monospace")
                     break;
             case "symbol_split":
                     e.innerHTML = breakSpaces(splitSymbol(e.dataset.symbol));
+                    e.classList.remove("monospace")
                     break;
-            case "symbol_code":
+            case "symbol_code_dec":
                     e.innerHTML = e.dataset.symbolcode;
+                    e.classList.add("monospace")
+                    break;
+            case "symbol_code_hex":
+                    e.innerHTML = parseInt(e.dataset.symbolcode).toString(16).toUpperCase();
+                    e.classList.add("monospace")
                     break;
             case "identifier":
                     e.innerHTML = e.dataset.identifier;
+                    e.classList.add("monospace")
                     break;
             default:
                     e.innerHTML = "?"; // should not happen
@@ -133,7 +142,7 @@ keyboardHolder.addEventListener('mouseover', event => {
                 // TODO: somehow generate from range
                 document.getElementById('key-command').innerHTML=key.dataset.bindcommand;
                 document.getElementById('key-symbol').innerHTML=key.dataset.symbol;
-                document.getElementById('key-symbolcode').innerHTML=key.dataset.symbolcode;
+                document.getElementById('key-symbolcode').innerHTML="0x"+parseInt(key.dataset.symbolcode).toString(16)+" ("+key.dataset.symbolcode+")";
                 document.getElementById('key-identifier').innerHTML=key.dataset.identifier;
             } else {
                 document.getElementById('key-command').innerHTML="";

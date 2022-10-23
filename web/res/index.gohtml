@@ -43,7 +43,8 @@
 					<option id="opt-captions-idr" value="identifier">Identifier</option>
 					<option id="opt-captions-sym" value="symbol">Symbol</option>
 					<option id="opt-captions-spl" value="symbol_split">Symbol (split)</option>
-					<option id="opt-captions-cod" value="symbol_code">Symbol Code</option>
+					<option id="opt-captions-cod" value="symbol_code_dec">Symbol Code (dec)</option>
+					<option id="opt-captions-coh" value="symbol_code_hex">Symbol Code (hex)</option>
 				</select>
 			</li>
 		</ul>
@@ -63,7 +64,7 @@
 						{{- $class := (printf "key %s row-%d %s" .Key_size .I $usage) -}}
 						<div class="{{$class}}">
 						{{- if not .Key_empty -}}
-							<span class="txt" 
+							<span class="txt"
 								data-symbol="{{.Key.Symbol}}"
 								data-symbolcode="{{.Key.SymbolCode}}"
 								data-identifier="{{.Key.Identifier}}"
@@ -88,6 +89,6 @@
 		</table>
 		<p>Hover over a key to see its properties above</p>
 	</div>
-	<script>{{.JS}}</script> 
+	<script>{{.JS}}</script>
 </body>
 </html>
