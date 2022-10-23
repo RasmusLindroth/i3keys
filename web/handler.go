@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"net/http"
 	"os"
+	"path"
 	"strings"
 
 	"github.com/RasmusLindroth/i3keys/keyboard"
@@ -103,15 +104,32 @@ func mkSlice(args ...interface{}) []interface{} {
 	return args
 }
 
+func realName(pathname string) string {
+	if fileinfo, err := os.Lstat(pathname); err == nil {
+		if fileinfo.Mode()&os.ModeSymlink == os.ModeSymlink {
+			if realname, err := os.Readlink(pathname); err == nil {
+				return realname
+			}
+		}
+	}
+	return pathname
+}
+
 func readResource(filename string) (string, bool) {
-	i3keys_config := os.Getenv("HOME") + "/.config/i3keys/" // TODO: check XDG_CONFIG & Co. (and cache?)
-	pathname := i3keys_config + filename
-	pathname, _ = os.Readlink(pathname) // TODO: FIXME: the blind readlink is *NOT* ok
+	pathname := path.Join(os.Getenv("HOME"), ".config")
+	if xdg_config_home, ok := os.LookupEnv("XDG_CONFIG_HOME"); ok {
+		pathname = xdg_config_home
+	}
+	pathname = realName(pathname)
+	pathname = realName(path.Join(pathname, "i3keys"))
+	pathname = realName(path.Join(pathname, filename))
+
 	if buf, err := os.ReadFile(pathname); err == nil {
+		println("read resource from '" + pathname + "'")
 		return string(buf), true
 	} else {
 		println("could not read resource from '" + pathname + "', using built-in")
-		return pathname, false // horrible, and not needed anymore
+		return "", false
 	}
 }
 
