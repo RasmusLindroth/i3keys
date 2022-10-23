@@ -62,11 +62,6 @@ func getLineType(parts []string, c context) lineType {
 	return skipLine
 }
 
-/* TODO:
-See i3 documentation for group1,group2,etc.
-type Group string
-*/
-
 // ParseFromRunning loads config from the running i3 instance
 func ParseFromRunning(wm string, logError bool) ([]Mode, []Variable, error) {
 	switch wm {
