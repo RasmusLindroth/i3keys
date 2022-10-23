@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>i3keys</title>
+	<style>
+	{{.CSS}}
+	</style>
+</head>
+<body>
+	<div id="sticky-header">
+		<ul id="toc-panel">
+		{{- $layoutData := index .Layouts .LayoutName -}}
+		{{- range $mode_i,$mode := $layoutData -}}
+			<li>
+				<a href="#mode_{{$mode_i}}.0">{{if ne .Name ""}}<span>{{.Name}}</span>{{else}}<span class="default">default</span>{{end}}</a>
+				<ul>
+				{{- range $keyb_i,$keyb := .Keyboards -}}
+					<li><a href="#mode_{{$mode_i}}.{{$keyb_i}}">{{if ne .Name ""}}<span>{{.Name}}</span>{{else}}<span class="default">no modifiers</span>{{end}}</a></li>
+				{{- end -}}
+				</ul>
+			</li>
+		{{- end -}}
+		</ul>
+		<ul id="options-panel">
+			<li>
+				<label for="opt-layout">layout:</label>
+				<select id="opt-layout" name="opt-layout" value={{$.LayoutName}}>
+				{{- range $lmap_i,$lmap := .LayoutMaps -}}
+					{{- $selected := eq $lmap_i $.LayoutName -}}
+					<option value="{{$lmap_i}}" {{if $selected}}selected="true"{{end}}><!-- id="opt-layout-{{$lmap_i}}" -->
+						{{$lmap_i}}
+					</option>
+				{{- end -}}
+				</select>
+			</li>
+			<li>
+				<label for="opt-captions">captions:</label>
+				<select id="opt-captions" name="opt-captions">
+					<option id="opt-captions-chr" value="character">Character</option>
+					<option id="opt-captions-idr" value="identifier">Identifier</option>
+					<option id="opt-captions-sym" value="symbol">Symbol</option>
+					<option id="opt-captions-spl" value="symbol_split">Symbol (split)</option>
+					<option id="opt-captions-cod" value="symbol_code_dec">Symbol Code (dec)</option>
+					<option id="opt-captions-coh" value="symbol_code_hex">Symbol Code (hex)</option>
+				</select>
+			</li>
+		</ul>
+	</div>
+	<div id="keyboard-holder">
+		{{- range $mode_i,$mode := $layoutData -}}
+			{{- range $keyb_i,$keyb := .Keyboards -}}
+			<div id="mode_{{$mode_i}}.{{$keyb_i}}">
+				<div class="keyboard-heading">
+					<h2>{{if ne $mode.Name ""}}<span>{{$mode.Name}}</span>{{else}}<span class="default">default</span>{{end}}</h2>
+					<h3>{{if ne $keyb.Name ""}}<span>{{$keyb.Name}}</span>{{else}}<span class="default">no modifiers</span>{{end}}</h3>
+				</div>
+				<div class="keyboard">
+					{{- $usage_classes := mkslice "" "key-modifier" "key-used" -}}
+					{{- range keyinfo $keyb -}}
+						{{- $usage := index $usage_classes .Key_usage -}}
+						{{- $class := (printf "key %s row-%d %s" .Key_size .I $usage) -}}
+						<div class="{{$class}}">
+						{{- if not .Key_empty -}}
+							<span class="txt"
+								data-symbol="{{.Key.Symbol}}"
+								data-symbolcode="{{.Key.SymbolCode}}"
+								data-identifier="{{.Key.Identifier}}"
+								data-bindkey="{{.Key.Binding.Key}}"
+								data-bindcommand="{{.Key.Binding.Command}}"
+							>{{.Key.Symbol}}</span>
+						{{- end -}}
+						</div>
+					{{- end -}}
+				</div>
+			</div>
+			{{- end -}}
+		{{- end -}}
+	</div>
+	<div id="key-info">
+		<table>
+			<!-- TODO: range mkslice here -->
+			<tr><td class="ki-item ki-property">command</td>        <td class="ki-item ki-value ki-bold" id="key-command"></td></tr>
+			<tr><td class="ki-item ki-property">identifier</td>     <td class="ki-item ki-value"         id="key-identifier"></td></tr>
+			<tr><td class="ki-item ki-property">symbol</td>         <td class="ki-item ki-value"         id="key-symbol"></td></tr>
+			<tr><td class="ki-item ki-property">symbol code</td>    <td class="ki-item ki-value"         id="key-symbolcode"></td></tr>
+		</table>
+		<p>Hover over a key to see its properties above</p>
+	</div>
+	<script>{{.JS}}</script>
+</body>
+</html>

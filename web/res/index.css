@@ -1,0 +1,314 @@
+:root {
+    --original-red-1:       #ff655c;
+    --original-red-2:       #e0453c;
+    --original-green:       #5cff87;
+
+    --main-bg:              #ffffff;
+    --main-fg-max:          #000000;
+    --main-fg-dim:          #404040;
+    --header-bg:            #fefefe;
+    --header-border:        #e0e0e0;
+    --header-mode-bg:       #f0f0f0;
+    --header-mode-border:   #e0e0e0;
+    --key-bg:               #f0f0f0;
+    --key-bg-hover:         #e7e7e7;
+    --key-bg-inuse:         hsl(10, 70%, 80%);
+    --key-bg-modifier:      hsl(100, 70%, 75%);
+
+    --key-size: calc(100vw / 24);
+
+    --grid-gap-h: 0.4vw;
+    --grid-gap-v: calc(var(--key-size) / 6);
+
+}
+
+html,
+body {
+    font-family: helveticaneue-light, helvetica neue light, helvetica neue, Helvetica, Arial, lucida grande, sans-serif;
+    font-weight: 300;
+    background-color: var(--main-bg);
+}
+
+#select-layout {
+    text-align: center;
+}
+
+.layoutbtn {
+    width: 45vw;
+    height: 5em;
+
+    background-color: var(--original-red-1);
+    border: 1px solid var(--original-red-1);
+    color: #fff;
+    font-size: 1.2em;
+    cursor: pointer;
+}
+
+.layoutbtn:hover {
+    background-color: var(--original-red-2);
+    border-color: var(--original-red-2);
+}
+
+#sticky-header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background-color: var(--header-bg);
+    /*
+    border-bottom: 1px solid var(--header-border);
+    */
+    padding: 0.25em 0 0 0;
+    margin: 0;
+    height: 2em;
+    z-index: 99999;
+}
+
+/* most of these should really be classes */
+/* note that they apply to both toc and options */
+
+#sticky-header > ul {
+    top: 0.5em;
+    bottom: 100%;
+    padding: 1px;
+    margin: 0;
+    display: inline-block;
+}
+
+#sticky-header > ul > li {
+    height: 1.25em;
+    display: inline-block;
+    background-color: var(--header-mode-bg);
+    border: 1px dotted var(--header-mode-border);
+    border-radius: 3px;
+    padding: 0.25em;
+    margin-right: 1ch; /* distance between modes/options */
+}
+
+#sticky-header > ul > li > ul {
+    display: inline;
+    margin: 0;
+    padding: 0;
+}
+
+#sticky-header > ul > li > ul > li {
+    display: inline;
+    margin-left: 1ch; /* distance between modifiers */
+}
+
+#sticky-header > ul > li > a {
+    font-weight: bold;
+    color: var(--main-fg-max);
+}
+
+#sticky-header > ul > li > ul > li > a {
+    color: var(--main-fg-dim);
+    text-decoration: dotted underline;
+}
+
+
+#options-panel {
+    /*display: inline-block;*/
+    float: right;
+    right: 0;
+}
+
+#options-panel * {
+    display: inline;
+}
+
+#keyboard-holder {
+    margin-left: var(--grid-gap-h);
+}
+
+#keyboard-holder > div {
+    margin-bottom: 2em;
+    height: 100vh;
+}
+
+#keyboard-holder .keyboard-heading {
+    position: sticky;
+    height: 2.25em;
+    top: 2em;
+    padding-top: 0.25em;
+    background-color: var(--main-bg);
+}
+
+#keyboard-holder .keyboard-heading > h2 {
+    display: inline;
+    color: var(--main-fg-max);
+    margin-right: 2ch;
+}
+
+#keyboard-holder .keyboard-heading > h3 {
+    display: inline;
+    color: var(--main-fg-dim);
+    font-weight: normal;
+    font-size: larger;
+}
+
+#key-info {
+    background-color: var(--main-bg);
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+#key-info > p {
+    margin-top: 1em;
+    margin-bottom: 0;
+    color: var(--main-fg-dim);
+}
+#key-info tr {
+    height: 1.5em;
+}
+#key-info td {
+    vertical-align: bottom;
+}
+#key-info .ki-property {
+    padding-right: 1em;
+}
+#key-info .ki-value {
+    font-family: monospace;
+    font-size: larger;
+    font-weight: bolder;
+}
+#key-info .ki-bold {
+    font-weight: bold;
+}
+.monospace {
+    font-family: monospace;
+    font-weight: bolder;
+}
+
+
+span.default {
+    font-style: italic;
+}
+
+.keyboard {
+    display: grid;
+    grid-template-columns: repeat(1000, calc(var(--key-size) / 4 - 0.4vw));
+    grid-template-rows: repeat(6, var(--key-size));
+    grid-column-gap: var(--grid-gap-h);
+    grid-row-gap: var(--grid-gap-v);
+    margin-top: 4em;
+}
+
+.key {
+    /*only with literal extended characters*/
+    /*
+    font-family: monospace;
+    font-size: larger;
+    */
+    border: 1px solid var(--main-fg-max);
+    border-radius: 0.8vmin;
+    background-color: var(--key-bg);
+    font-size: 0.7vw;
+    word-break: break-all;
+    text-align: center;
+    line-height: var(--key-size);
+}
+
+.key > .txt {
+    pointer-events: none;
+}
+
+.emptySmall {
+    grid-column: auto / span 2;
+    border: 1px solid transparent;
+    background-color: var(--main-bg);
+}
+
+.single {
+    grid-column: auto / span 4;
+}
+
+.emptySingle {
+    grid-column: auto / span 4;
+    border: 1px solid transparent;
+    background-color: var(--main-bg);
+}
+
+.modifier {
+    grid-column: auto / span 5;
+}
+
+.onehalf {
+    grid-column: auto / span 6;
+}
+
+.semidouble {
+    grid-column: auto / span 7;
+}
+
+.double {
+    grid-column: auto / span 8;
+}
+
+.semilarge {
+    grid-column: auto / span 9;
+}
+
+.large {
+    grid-column: auto / span 11;
+}
+
+.space {
+    grid-column: auto / span 25;
+}
+
+.doubleY {
+    grid-column: auto / span 4;
+    grid-row: auto / span 2;
+}
+
+.enterUp {
+    grid-column: auto / span 6;
+    border-radius: 5px 5px 0px 5px;
+}
+
+.enterDown {
+    border-top: none;
+    border-radius: 0px 0px 5px 5px;
+    grid-column: auto / span 5;
+    height: calc(var(--key-size) + var(--grid-gap-v));
+    margin-top: calc(-1 * var(--grid-gap-v) - 1.25px); /* still needs the .25 ? */
+}
+
+.row-0 {
+    grid-row-start: 1;
+}
+
+.row-1 {
+    grid-row-start: 2;
+}
+
+.row-2 {
+    grid-row-start: 3;
+}
+
+.row-3 {
+    grid-row-start: 4;
+}
+
+.row-4 {
+    grid-row-start: 5;
+}
+
+.row-5 {
+    grid-row-start: 6;
+}
+
+.txt {
+    display: inline-block;
+    vertical-align: middle;
+    line-height: normal;
+    font-size: larger;
+}
+
+.key-modifier {
+    background-color: var(--key-bg-modifier);
+}
+
+.key-used {
+    background-color: var(--key-bg-inuse);
+}

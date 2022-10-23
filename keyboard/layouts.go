@@ -8,33 +8,76 @@ import (
 	"github.com/RasmusLindroth/i3keys/xlib"
 )
 
-//ANSI holds evdev keys for an ANSI layout
-var ANSI = [][]string{
-	{"ESC", "FK01", "FK02", "FK03", "FK04", "FK05", "FK06", "FK07", "FK08", "FK09", "FK10", "FK11", "FK12", "PRSC", "SCLK", "PAUS"},
-	{"TLDE", "AE01", "AE02", "AE03", "AE04", "AE05", "AE06", "AE07", "AE08", "AE09", "AE10", "AE11", "AE12", "BKSP", "INS", "HOME", "PGUP", "NMLK", "KPDV", "KPMU", "KPSU"},
-	{"TAB", "AD01", "AD02", "AD03", "AD04", "AD05", "AD06", "AD07", "AD08", "AD09", "AD10", "AD11", "AD12", "BKSL", "DELE", "END", "PGDN", "KP7", "KP8", "KP9", "KPAD"},
-	{"CAPS", "AC01", "AC02", "AC03", "AC04", "AC05", "AC06", "AC07", "AC08", "AC09", "AC10", "AC11", "RTRN", "KP4", "KP5", "KP6"},
-	{"LFSH", "AB01", "AB02", "AB03", "AB04", "AB05", "AB06", "AB07", "AB08", "AB09", "AB10", "RTSH", "UP", "KP1", "KP2", "KP3", "KPEN"},
-	{"LCTL", "LWIN", "LALT", "SPCE", "RALT", "RWIN", "MENU", "RCTL", "LEFT", "DOWN", "RGHT", "KP0", "KPDL"},
+/*
+	keyTypes = {
+	  'single': [1, 1], //one key
+	  'emptySingle': [1, 1], //empty one key
+	  'emptySmall': [0.5, 1], //gap between f-keys
+	  'double': [2, 1], //backspace
+	  'onehalf': [1.5, 1], //tab
+	  'doubleY': [1, 2], //numpad +, enter
+	  'semidouble': [1.75, 1], //caps
+	  'modifier': [1.25, 1], //ctrl
+	  'semilarge': [2.25, 1],
+	  'large': [2.75, 1], //right shift
+	  'space': [6.25, 1], //space
+	  'enterUp': [1.5, 1],  //enter
+	  'enterDown': [1.25, 1],  //enter
+	};
+*/
+
+type KbMap struct {
+	Symbols [][]string
+	Sizes   [][]string
 }
 
-//ISO holds evdev keys for an ANSI layout
-var ISO = [][]string{
-	{"ESC", "FK01", "FK02", "FK03", "FK04", "FK05", "FK06", "FK07", "FK08", "FK09", "FK10", "FK11", "FK12", "PRSC", "SCLK", "PAUS"},
-	{"TLDE", "AE01", "AE02", "AE03", "AE04", "AE05", "AE06", "AE07", "AE08", "AE09", "AE10", "AE11", "AE12", "BKSP", "INS", "HOME", "PGUP", "NMLK", "KPDV", "KPMU", "KPSU"},
-	{"TAB", "AD01", "AD02", "AD03", "AD04", "AD05", "AD06", "AD07", "AD08", "AD09", "AD10", "AD11", "AD12", "RTRN", "DELE", "END", "PGDN", "KP7", "KP8", "KP9", "KPAD"},
-	{"CAPS", "AC01", "AC02", "AC03", "AC04", "AC05", "AC06", "AC07", "AC08", "AC09", "AC10", "AC11", "AC12", "KP4", "KP5", "KP6"},
-	{"LFSH", "LSGT", "AB01", "AB02", "AB03", "AB04", "AB05", "AB06", "AB07", "AB08", "AB09", "AB10", "RTSH", "UP", "KP1", "KP2", "KP3", "KPEN"},
-	{"LCTL", "LWIN", "LALT", "SPCE", "RALT", "RWIN", "MENU", "RCTL", "LEFT", "DOWN", "RGHT", "KP0", "KPDL"},
+var KbMaps = map[string]KbMap{
+	"ANSI": {
+		[][]string{
+			{"ESC", "FK01", "FK02", "FK03", "FK04", "FK05", "FK06", "FK07", "FK08", "FK09", "FK10", "FK11", "FK12", "PRSC", "SCLK", "PAUS"},
+			{"TLDE", "AE01", "AE02", "AE03", "AE04", "AE05", "AE06", "AE07", "AE08", "AE09", "AE10", "AE11", "AE12", "BKSP", "INS", "HOME", "PGUP", "NMLK", "KPDV", "KPMU", "KPSU"},
+			{"TAB", "AD01", "AD02", "AD03", "AD04", "AD05", "AD06", "AD07", "AD08", "AD09", "AD10", "AD11", "AD12", "BKSL", "DELE", "END", "PGDN", "KP7", "KP8", "KP9", "KPAD"},
+			{"CAPS", "AC01", "AC02", "AC03", "AC04", "AC05", "AC06", "AC07", "AC08", "AC09", "AC10", "AC11", "RTRN", "KP4", "KP5", "KP6"},
+			{"LFSH", "AB01", "AB02", "AB03", "AB04", "AB05", "AB06", "AB07", "AB08", "AB09", "AB10", "RTSH", "UP", "KP1", "KP2", "KP3", "KPEN"},
+			{"LCTL", "LWIN", "LALT", "SPCE", "RALT", "RWIN", "MENU", "RCTL", "LEFT", "DOWN", "RGHT", "KP0", "KPDL"},
+		},
+		[][]string{
+			{"single", "emptySingle", "single", "single", "single", "single", "emptySmall", "single", "single", "single", "single", "emptySmall", "single", "single", "single", "single", "emptySmall", "single", "single", "single"},
+			{"single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "double", "emptySmall", "single", "single", "single", "emptySmall", "single", "single", "single", "single"},
+			{"onehalf", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "enterUp", "emptySmall", "single", "single", "single", "emptySmall", "single", "single", "single", "doubleY"},
+			{"semidouble", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "enterDown", "emptySmall", "emptySingle", "emptySingle", "emptySingle", "emptySmall", "single", "single", "single"},
+			{"modifier", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "large", "emptySmall", "emptySingle", "single", "emptySingle", "emptySmall", "single", "single", "single", "doubleY"},
+			{"modifier", "modifier", "modifier", "space", "modifier", "modifier", "modifier", "modifier", "emptySmall", "single", "single", "single", "emptySmall", "double", "single"},
+		},
+	},
+	"ISO": {
+		[][]string{
+			{"ESC", "FK01", "FK02", "FK03", "FK04", "FK05", "FK06", "FK07", "FK08", "FK09", "FK10", "FK11", "FK12", "PRSC", "SCLK", "PAUS"},
+			{"TLDE", "AE01", "AE02", "AE03", "AE04", "AE05", "AE06", "AE07", "AE08", "AE09", "AE10", "AE11", "AE12", "BKSP", "INS", "HOME", "PGUP", "NMLK", "KPDV", "KPMU", "KPSU"},
+			{"TAB", "AD01", "AD02", "AD03", "AD04", "AD05", "AD06", "AD07", "AD08", "AD09", "AD10", "AD11", "AD12", "RTRN", "DELE", "END", "PGDN", "KP7", "KP8", "KP9", "KPAD"},
+			{"CAPS", "AC01", "AC02", "AC03", "AC04", "AC05", "AC06", "AC07", "AC08", "AC09", "AC10", "AC11", "AC12", "KP4", "KP5", "KP6"},
+			{"LFSH", "LSGT", "AB01", "AB02", "AB03", "AB04", "AB05", "AB06", "AB07", "AB08", "AB09", "AB10", "RTSH", "UP", "KP1", "KP2", "KP3", "KPEN"},
+			{"LCTL", "LWIN", "LALT", "SPCE", "RALT", "RWIN", "MENU", "RCTL", "LEFT", "DOWN", "RGHT", "KP0", "KPDL"},
+		},
+		[][]string{
+			{"single", "emptySingle", "single", "single", "single", "single", "emptySmall", "single", "single", "single", "single", "emptySmall", "single", "single", "single", "single", "emptySmall", "single", "single", "single"},
+			{"single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "double", "emptySmall", "single", "single", "single", "emptySmall", "single", "single", "single", "single"},
+			{"onehalf", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "onehalf", "emptySmall", "single", "single", "single", "emptySmall", "single", "single", "single", "doubleY"},
+			{"semidouble", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "semilarge", "emptySmall", "emptySingle", "emptySingle", "emptySingle", "emptySmall", "single", "single", "single"},
+			{"semilarge", "single", "single", "single", "single", "single", "single", "single", "single", "single", "single", "large", "emptySmall", "emptySingle", "single", "emptySingle", "emptySmall", "single", "single", "single", "doubleY"},
+			{"modifier", "modifier", "modifier", "space", "modifier", "modifier", "modifier", "modifier", "emptySmall", "single", "single", "single", "emptySmall", "double", "single"},
+		},
+	},
 }
 
-//Keyboard holds one keyboard for one modifier group
+// Keyboard holds one keyboard for one modifier group
 type Keyboard struct {
-	Name string
-	Keys [][]Key
+	Name      string
+	Modifiers []string
+	Keys      [][]Key
 }
 
-//Key holds one key. Used for rendering
+// Key holds one key. Used for rendering
 type Key struct {
 	Binding    i3parse.Binding
 	Modifier   bool
@@ -76,29 +119,24 @@ func bindingMatch(symbol string, symbolCode int, identifier string, group i3pars
 	return rKey
 }
 
-//MapKeyboard returns a Keyboard matching desired layout
+// MapKeyboard returns a Keyboard matching desired layout
 func MapKeyboard(layout string, group i3parse.ModifierGroup, modifiers map[string][]string) (Keyboard, error) {
 	var kb [][]Key
-	var kbMap [][]string
-
-	switch layout {
-	case "ANSI":
-		kbMap = ANSI
-	case "ISO":
-		kbMap = ISO
-	default:
+	var kbMap, ok = KbMaps[layout]
+	if !ok {
 		return Keyboard{}, errors.New("no keyboard with that layout")
 	}
+	kSym := kbMap.Symbols
 
 	defaultVal := "NULL"
 
-	for i := 0; i < len(kbMap); i++ {
+	for i := 0; i < len(kSym); i++ {
 		var row []Key
 
-		for j := 0; j < len(kbMap[i]); j++ {
+		for j := 0; j < len(kSym[i]); j++ {
 			symbol := defaultVal
 			symbolCode := 0
-			if val, ok := xlib.Evdev[kbMap[i][j]]; ok {
+			if val, ok := xlib.Evdev[kSym[i][j]]; ok {
 				symbolCode = xlib.KeyCodeToInt(val)
 
 				if x, ok := xlib.KeySyms[xlib.ToHex(symbolCode)]; ok {
@@ -106,14 +144,12 @@ func MapKeyboard(layout string, group i3parse.ModifierGroup, modifiers map[strin
 				}
 			}
 
-			k := bindingMatch(symbol, symbolCode, kbMap[i][j], group, modifiers)
+			k := bindingMatch(symbol, symbolCode, kSym[i][j], group, modifiers)
 			row = append(row, k)
 		}
 		kb = append(kb, row)
 	}
+
 	name := strings.Join(group.Modifiers, "+")
-	if name == "" {
-		name = "No modifiers"
-	}
-	return Keyboard{Name: name, Keys: kb}, nil
+	return Keyboard{Name: name, Keys: kb, Modifiers: group.Modifiers}, nil
 }

@@ -71,6 +71,9 @@ i3keys text ISO
 //or filter text output
 i3keys text ISO Mod4+Ctrl
 
+//or output json to the terminal
+i3keys json ISO
+
 //or output SVG to the current directory
 i3keys svg ISO ./
 
@@ -144,11 +147,14 @@ The commands are:
 	web [port]
 		start the web ui and listen on random port or [port]
 
-	text <layout> [mods]
-		output available keybindings in the terminal
-
 	svg <layout> [dest] [mods]
 		outputs one SVG file for each modifier group
+
+	json <layout>
+		output all keybindings as json
+
+	text <layout> [mods]
+		output available keybindings in the terminal
 
 	version
 		print i3keys version

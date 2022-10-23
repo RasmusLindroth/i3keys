@@ -56,9 +56,9 @@ func createGroup(layout string, dest string, group i3parse.ModifierGroup, modifi
 	file.Write(data)
 }
 
-//Output generates svg-files of the keyboards at the desired location
+// Output generates svg-files of the keyboards at the desired location
 func Output(wm string, layout string, dest string, filter string) {
-	modes, keys, err := i3parse.ParseFromRunning(wm)
+	modes, _, err := i3parse.ParseFromRunning(wm, true)
 
 	if err != nil {
 		log.Fatalln(err)
@@ -68,34 +68,25 @@ func Output(wm string, layout string, dest string, filter string) {
 	filterMods := helpers.HandleFilterArgs(filter)
 
 	layout = strings.ToUpper(layout)
+
+	modifiers := xlib.GetModifiers()
+
 	if dest == "" {
 		dest = filepath.Join("./")
 	}
-
-	groups := i3parse.GetModifierGroups(keys)
-	modifiers := xlib.GetModifiers()
 
 	err = os.MkdirAll(dest, os.ModePerm)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	for _, group := range groups {
-		if toFilter {
-			if !helpers.CompareSlices(group.Modifiers, filterMods) {
-				continue
-			}
-			createGroup(layout, dest, group, modifiers)
-			return
-		}
-		createGroup(layout, dest, group, modifiers)
-	}
-
 	for i, mode := range modes {
 		groups := i3parse.GetModifierGroups(mode.Bindings)
 
-		modeDir := fmt.Sprintf("mode%d-", i)
-		modeDir += sanitizeDirName(mode.Name)
+		modeDir := fmt.Sprintf("mode%d", i)
+		if len(mode.Name) > 0 {
+			modeDir += "-" + sanitizeDirName(mode.Name)
+		}
 
 		if len(modeDir) > 50 {
 			modeDir = modeDir[0:50]
@@ -107,17 +98,17 @@ func Output(wm string, layout string, dest string, filter string) {
 			log.Fatalln(err)
 		}
 
-		file, err := os.Create(filepath.Join(mDest, "mode-full-name.txt"))
-
-		if err != nil {
+		if file, err := os.Create(filepath.Join(mDest, "mode-full-name.txt")); err == nil {
+			file.Write([]byte(mode.Name))
+			file.Close()
+		} else {
 			log.Fatalln(err)
 		}
 
-		file.Write([]byte(mode.Name))
-		file.Close()
-
 		for _, group := range groups {
-			createGroup(layout, mDest, group, modifiers)
+			if !toFilter || helpers.CompareSlices(group.Modifiers, filterMods) {
+				createGroup(layout, mDest, group, modifiers)
+			}
 		}
 	}
 }

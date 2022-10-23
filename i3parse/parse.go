@@ -62,26 +62,25 @@ func getLineType(parts []string, c context) lineType {
 	return skipLine
 }
 
-/* TODO:
-See i3 documentation for group1,group2,etc.
-type Group string
-*/
-
-//ParseFromRunning loads config from the running i3 instance
-func ParseFromRunning(wm string) ([]Mode, []Binding, error) {
+// ParseFromRunning loads config from the running i3 instance
+func ParseFromRunning(wm string, logError bool) ([]Mode, []Variable, error) {
 	switch wm {
 	case "i3":
-		return parse(getConfigFromRunningi3())
+		r, err := getConfigFromRunningi3()
+		return parse(r, logError, err)
 	case "sway":
-		return parse(getConfigFromRunningSway())
+		r, err := getConfigFromRunningSway()
+		return parse(r, logError, err)
 	default:
-		return parse(getAutoWM())
+		r, err := getAutoWM()
+		return parse(r, logError, err)
 	}
 }
 
-//ParseFromFile loads config from path
-func ParseFromFile(path string) ([]Mode, []Binding, error) {
-	return parse(getConfigFromFile(path))
+// ParseFromFile loads config from path
+func ParseFromFile(path string, logError bool) ([]Mode, []Variable, error) {
+	r, err := getConfigFromFile(path)
+	return parse(r, logError, err)
 }
 
 func readLine(reader *bufio.Reader, c context, variables []Variable) (string, []string, lineType, error) {
@@ -136,15 +135,15 @@ func readLine(reader *bufio.Reader, c context, variables []Variable) (string, []
 	return line, lineParts, lineType, err
 }
 
-func parseConfig(confReader io.Reader, confPath string, variables []Variable, err error) ([]Mode, []Binding, []Variable, []string, error) {
+func parseConfig(confReader io.Reader, confPath string, variables []Variable, logError bool, err error) ([]Mode, []Variable, []string, error) {
 	if err != nil {
-		return []Mode{}, []Binding{}, []Variable{}, []string{}, errors.New("couldn't get the config file")
+		return []Mode{}, []Variable{}, []string{}, errors.New("couldn't get the config file")
 	}
 
 	reader := bufio.NewReader(confReader)
 
-	var modes []Mode
-	var bindings []Binding
+	modes := []Mode{{}}
+
 	var includes []helpers.Include
 
 	context := mainContext
@@ -156,7 +155,7 @@ func parseConfig(confReader io.Reader, confPath string, variables []Variable, er
 		_, lineParts, lineType, readErr = readLine(reader, context, variables)
 
 		if readErr != nil && readErr != io.EOF {
-			return []Mode{}, []Binding{}, []Variable{}, []string{}, readErr
+			return []Mode{}, []Variable{}, []string{}, readErr
 		}
 
 		switch lineType {
@@ -208,42 +207,41 @@ func parseConfig(confReader io.Reader, confPath string, variables []Variable, er
 		bindingLine := lineType == bindSymLine || lineType == bindCodeLine
 
 		binding, err := parseBinding(lineParts)
-		if err != nil {
+		if err != nil && logError {
 			log.Println(err)
 			continue
 		}
 
 		isMainContext := context == mainContext || context == bindCodeMainContext || context == bindSymMainContext
 		if isMainContext && bindingLine {
-			bindings = append(bindings, binding)
+			modes[0].Bindings = append(modes[0].Bindings, binding)
 		}
 
 		isModeContext := context == modeContext || context == bindCodeModeContext || context == bindSymModeContext
 		if isModeContext && bindingLine {
-			modes[len(modes)-1].Bindings = append(modes[len(modes)-1].Bindings,
-				binding,
-			)
+			l := len(modes) - 1
+			modes[l].Bindings = append(modes[l].Bindings, binding)
 		}
 	}
 
 	var includePaths []string
 	for _, incl := range includes {
 		matches, err := helpers.GetPaths(incl)
-		if err != nil {
+		if err != nil && logError {
 			log.Printf("couldn't parse the following include \"%s\" got error %v", incl, err)
 			continue
 		}
 		includePaths = append(includePaths, matches...)
 	}
 
-	return modes, bindings, variables, includePaths, nil
+	return modes, variables, includePaths, nil
 }
 
-func parse(confReader io.Reader, err error) ([]Mode, []Binding, error) {
+func parse(confReader io.Reader, logError bool, err error) ([]Mode, []Variable, error) {
 	configPath, _ := helpers.GetSwayDefaultConfig()
-	modes, bindings, variables, includes, err := parseConfig(confReader, configPath, []Variable{}, err)
+	modes, variables, includes, err := parseConfig(confReader, configPath, []Variable{}, logError, err)
 	if err != nil {
-		return []Mode{}, []Binding{}, errors.New("couldn't get the config file")
+		return []Mode{}, []Variable{}, errors.New("couldn't get the config file")
 	}
 	var parsedIncludes []string
 	for j := 0; j < len(includes); j++ {
@@ -258,16 +256,28 @@ func parse(confReader io.Reader, err error) ([]Mode, []Binding, error) {
 			continue
 		}
 		f, ferr := os.Open(incl)
-		if err != nil {
+		if err != nil && logError {
 			log.Printf("couldn't open the included file %s, got err: %v\n", incl, ferr)
 		}
-		m, b, v, i, perr := parseConfig(f, incl, variables, err)
-		if err != nil {
+		m, v, i, perr := parseConfig(f, incl, variables, logError, err)
+		if err != nil && logError {
 			log.Printf("couldn't parse the included file %s, got err: %v\n", incl, perr)
 		}
-		modes = append(modes, m...)
-		bindings = append(bindings, b...)
-		variables = v
+		// add modes merging existing bindings
+		for iNew := range m {
+			found := false
+			for iOld := range modes {
+				if m[iNew].Name == modes[iOld].Name {
+					found = true
+					modes[iOld].Bindings = append(modes[iOld].Bindings, m[iNew].Bindings...) // duplicates?
+					break
+				}
+			}
+			if !found {
+				modes = append(modes, m[iNew])
+			}
+		}
+		variables = v // NOTE: variables are updated in parseConfig
 		includes = append(includes, i...)
 		parsedIncludes = append(parsedIncludes, incl)
 	}
@@ -275,9 +285,8 @@ func parse(confReader io.Reader, err error) ([]Mode, []Binding, error) {
 	for key := range modes {
 		modes[key].Bindings = sortModifiers(modes[key].Bindings)
 	}
-	bindings = sortModifiers(bindings)
 
-	return modes, bindings, nil
+	return modes, variables, nil
 }
 
 func parseMode(line string) string {
