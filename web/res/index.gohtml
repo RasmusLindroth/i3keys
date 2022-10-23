@@ -30,7 +30,7 @@
 				<select id="opt-layout" name="opt-layout" value={{$.LayoutName}}>
 				{{- range $lmap_i,$lmap := .LayoutMaps -}}
 					{{- $selected := eq $lmap_i $.LayoutName -}}
-					<option value="{{$lmap_i}}" {{if $selected}}selected="true"{{end}}><!-- id="opt-layout-{{$lmap_i}}" -->
+					<option value="{{$lmap_i}}"><!-- id="opt-layout-{{$lmap_i}}" -->
 						{{$lmap_i}}
 					</option>
 				{{- end -}}
