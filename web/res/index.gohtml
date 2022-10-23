@@ -52,12 +52,13 @@
 	<div id="keyboard-holder">
 		{{- range $mode_i,$mode := $layoutData -}}
 			{{- range $keyb_i,$keyb := .Keyboards -}}
-			<div id="mode_{{$mode_i}}.{{$keyb_i}}">
+			<div class="keyboard" id="mode_{{$mode_i}}.{{$keyb_i}}">
 				<div class="keyboard-heading">
-					<h2>{{if ne $mode.Name ""}}<span>{{$mode.Name}}</span>{{else}}<span class="default">default</span>{{end}}</h2>
-					<h3>{{if ne $keyb.Name ""}}<span>{{$keyb.Name}}</span>{{else}}<span class="default">no modifiers</span>{{end}}</h3>
+					{{if ne $mode.Name ""}}<span class="mode">{{$mode.Name}}</span>{{else}}<span class="mode default">default</span>{{end}}
+					{{if ne $keyb.Name ""}}<span class="keyb">{{$keyb.Name}}</span>{{else}}<span class="keyb default">no modifiers</span>{{end}}
+					<span class="default"></span><!-- dummy one always italics to fix an alignment issue the dumb way -->
 				</div>
-				<div class="keyboard">
+				<div class="keyboard-layout">
 					{{- $usage_classes := mkslice "" "key-modifier" "key-used" -}}
 					{{- range keyinfo $keyb -}}
 						{{- $usage := index $usage_classes .Key_usage -}}
