@@ -122,6 +122,7 @@ func replaceAccent(s string, mapping func(string) string) string {
 }
 
 func ExpandCommand(s string) string {
+	s = os.ExpandEnv(s)
 	s = replaceDollar(s, runCMD)
 	s = replaceAccent(s, runCMD)
 	return s
