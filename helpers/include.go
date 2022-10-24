@@ -191,3 +191,31 @@ func GetSwayDefaultConfig() (string, error) {
 	}
 	return configPath, e
 }
+
+func Geti3DefaultConfig() (string, error) {
+	home, _ := os.LookupEnv("HOME")
+	xdgConfig, exists := os.LookupEnv("XDG_CONFIG_HOME")
+	if !exists {
+		xdgConfig = home + "/.config"
+	}
+	configs := []string{
+		home + "/.i3/config",
+		xdgConfig + "/i3/config",
+		"/etc/sway/config",
+		"/etc/i3/config",
+	}
+	configPath := ""
+	for _, c := range configs {
+		_, err := os.Stat(c)
+		if os.IsNotExist(err) {
+			continue
+		}
+		configPath = c
+		break
+	}
+	var e error
+	if configPath == "" {
+		e = errors.New("couldn't find a config file")
+	}
+	return configPath, e
+}

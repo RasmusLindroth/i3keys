@@ -35,16 +35,18 @@ func getWM() wmType {
 	return wmNil
 }
 
-func getAutoWM() (*strings.Reader, error) {
+func getAutoWM() (string, *strings.Reader, error) {
 	wm := getWM()
 	switch wm {
 	case wmi3:
-		return getConfigFromRunningi3()
+		s, err := getConfigFromRunningi3()
+		return "i3", s, err
 	case wmSway:
-		return getConfigFromRunningSway()
+		s, err := getConfigFromRunningSway()
+		return "sway", s, err
 	default:
 		err := errors.New("couldn't determine if you're running i3 or Sway. Test the -i or -s flag")
-		return nil, err
+		return "", nil, err
 	}
 
 }
