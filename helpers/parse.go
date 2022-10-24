@@ -4,9 +4,12 @@ import (
 	"sort"
 	"strings"
 	"unicode"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
-//TabsToSpaces replaces all tabs with spaces
+// TabsToSpaces replaces all tabs with spaces
 func TabsToSpaces(s string) string {
 	var res string
 
@@ -21,13 +24,13 @@ func TabsToSpaces(s string) string {
 	return res
 }
 
-//TrimSpace removes spaces, before and after. And removes newlines
+// TrimSpace removes spaces, before and after. And removes newlines
 func TrimSpace(s string) string {
 	s = strings.TrimSuffix(s, "\n")
 	return strings.TrimSpace(s)
 }
 
-//SplitBySpace splits by space and remove empty parts
+// SplitBySpace splits by space and remove empty parts
 func SplitBySpace(s string) []string {
 	s = TabsToSpaces(s)
 	var parts []string
@@ -42,14 +45,14 @@ func SplitBySpace(s string) []string {
 	return parts
 }
 
-//HandleFilterArgs sorts and splits strings like Mod4+Shift
+// HandleFilterArgs sorts and splits strings like Mod4+Shift
 func HandleFilterArgs(s string) []string {
 	var a []string
 	var b []string
 
 	parts := strings.Split(s, "+")
 	for _, item := range parts {
-		p := strings.Title(item)
+		p := cases.Title(language.Und, cases.NoLower).String(item)
 		if len(p) > 2 && p[:3] == "Mod" {
 			a = append(a, p)
 			continue
@@ -61,7 +64,7 @@ func HandleFilterArgs(s string) []string {
 	return append(a, b...)
 }
 
-//CompareSlices compares if two slices are equal
+// CompareSlices compares if two slices are equal
 func CompareSlices(a []string, b []string) bool {
 	if len(a) != len(b) {
 		return false

@@ -7,7 +7,7 @@ import (
 	"github.com/RasmusLindroth/i3keys/xlib"
 )
 
-//CodeToSymbol returns a code binding with the symbol equivalent
+// CodeToSymbol returns a code binding with the symbol equivalent
 func CodeToSymbol(key string) (string, error) {
 	i, err := strconv.Atoi(key)
 

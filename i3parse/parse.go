@@ -10,6 +10,8 @@ import (
 	"strings"
 
 	"github.com/RasmusLindroth/i3keys/helpers"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 func getLineType(parts []string, c context) lineType {
@@ -322,7 +324,7 @@ func parseBindingParts(parts []string) ([]string, string, string) {
 		if mod[0] == '$' {
 			continue
 		}
-		mod = strings.Title(mod)
+		mod = cases.Title(language.Und, cases.NoLower).String(mod)
 		if mod == "Alt" {
 			mod = "Mod1" // rough fix for #26
 		}

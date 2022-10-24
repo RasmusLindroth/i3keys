@@ -9,5 +9,5 @@ require (
 	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.8.0
 	go.i3wm.org/i3/v4 v4.18.0
-	golang.org/x/net v0.0.0-20190322120337-addf6b3196f6 // indirect
+	golang.org/x/text v0.4.0
 )
