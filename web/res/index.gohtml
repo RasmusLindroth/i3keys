@@ -27,10 +27,10 @@
 		<ul id="options-panel">
 			<li>
 				<label for="opt-layout">layout:</label>
-				<select id="opt-layout" name="opt-layout" value={{$.LayoutName}}>
+				<select id="opt-layout" name="opt-layout">
 				{{- range $lmap_i,$lmap := .LayoutMaps -}}
 					{{- $selected := eq $lmap_i $.LayoutName -}}
-					<option value="{{$lmap_i}}"><!-- id="opt-layout-{{$lmap_i}}" -->
+					<option value="{{$lmap_i}}" {{if $selected}}selected{{end}}>
 						{{$lmap_i}}
 					</option>
 				{{- end -}}
@@ -82,7 +82,6 @@
 	</div>
 	<div id="key-info">
 		<table>
-			<!-- TODO: range mkslice here -->
 			<tr><td class="ki-item ki-property">command</td>        <td class="ki-item ki-value ki-bold" id="key-command"></td></tr>
 			<tr><td class="ki-item ki-property">identifier</td>     <td class="ki-item ki-value"         id="key-identifier"></td></tr>
 			<tr><td class="ki-item ki-property">symbol</td>         <td class="ki-item ki-value"         id="key-symbol"></td></tr>
