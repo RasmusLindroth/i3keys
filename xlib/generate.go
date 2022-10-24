@@ -20,7 +20,7 @@ var KeySyms = map[string]string{#(range $k, $v := . )#
 }
 `
 
-//Generate generates keysyms.go, only used for making
+// Generate generates keysyms.go, only used for making
 func Generate() {
 	keysyms := parseKeysymdef()
 

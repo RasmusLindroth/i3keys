@@ -18,7 +18,7 @@ var (
 	dpy        = C.XOpenDisplay(x11display)
 )
 
-//ToHex converts int to hexadecimal with max two 0 padding
+// ToHex converts int to hexadecimal with max two 0 padding
 func ToHex(val int) string {
 	str := fmt.Sprintf("%x", val)
 
@@ -39,7 +39,7 @@ func KeyCodeToHex(code int) string {
 	return ToHex(val)
 }
 
-//KeyCodeToInt returns the integer representation of the keycode
+// KeyCodeToInt returns the integer representation of the keycode
 func KeyCodeToInt(code int) int {
 
 	var keysymsPerKeycodeReturn C.int
@@ -53,14 +53,14 @@ func KeyCodeToInt(code int) int {
 	return int(*keysym)
 }
 
-//CanUse returns a bool if the X11 display is found
+// CanUse returns a bool if the X11 display is found
 func CanUse() bool {
 	return dpy != nil
 }
 
 /* Almost all under is taken from https://github.com/Unrud/remote-touchpad/blob/147a4b2874fc87b9a8dddace0005fb8785ae311c/backend_x11.go */
 
-//GetModifiers grabs the name of the keys that corresponds the each modifier
+// GetModifiers grabs the name of the keys that corresponds the each modifier
 func GetModifiers() map[string][]string {
 	var modifierIndices = [...]uint{C.ShiftMapIndex, C.ControlMapIndex, C.Mod1MapIndex, C.Mod2MapIndex, C.Mod3MapIndex, C.Mod4MapIndex, C.Mod5MapIndex}
 	modKeymap := C.XGetModifierMapping(dpy)

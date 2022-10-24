@@ -14,7 +14,7 @@ type Include struct {
 	Path       string
 }
 
-//Equal to os/exec Expand but changed ${} to $()
+// Equal to os/exec Expand but changed ${} to $()
 func replaceDollar(s string, mapping func(string) string) string {
 	var buf []byte
 	// $() is all ASCII, so bytes are fine for this operation.
@@ -46,7 +46,7 @@ func replaceDollar(s string, mapping func(string) string) string {
 	return string(buf) + s[i:]
 }
 
-//Equal to os/exec Expand but changed ${} to $()
+// Equal to os/exec Expand but changed ${} to $()
 func getShellName(s string) (string, int) {
 	switch {
 	case s[0] == '(':
@@ -73,7 +73,7 @@ func getShellName(s string) (string, int) {
 	return s[:i], i
 }
 
-//Equal to os/exec Expand but changed ${} to $()
+// Equal to os/exec Expand but changed ${} to $()
 func isShellSpecialVar(c uint8) bool {
 	switch c {
 	case '*', '#', '$', '@', '!', '?', '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
@@ -82,7 +82,7 @@ func isShellSpecialVar(c uint8) bool {
 	return false
 }
 
-//Equal to os/exec Expand but changed ${} to $()
+// Equal to os/exec Expand but changed ${} to $()
 func isAlphaNum(c uint8) bool {
 	return c == '_' || '0' <= c && c <= '9' || 'a' <= c && c <= 'z' || 'A' <= c && c <= 'Z'
 }

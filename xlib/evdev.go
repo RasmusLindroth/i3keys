@@ -1,6 +1,6 @@
 package xlib
 
-//Evdev maps evdev name to keycode
+// Evdev maps evdev name to keycode
 var Evdev = map[string]int{
 	"LSGT": 94,
 	"TLDE": 49,

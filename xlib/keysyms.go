@@ -1,6 +1,6 @@
 package xlib
 
-//KeySyms = /usr/include/X11/keysymdef.h
+// KeySyms = /usr/include/X11/keysymdef.h
 var KeySyms = map[string]string{
 	"0x0020":    "space",
 	"0x0021":    "exclam",
