@@ -82,7 +82,7 @@ function keyCaption(s) {
 
 function splitSymbol(s) {
     return s
-        .replaceAll(/grave|acute|left|right|slash/g," $&") // TODO: smarter, more complete regex
+        .replaceAll(/grave|acute|left|right|slash/g," $&") 
         .replaceAll("_"," ")
         ;
 }
@@ -139,7 +139,6 @@ keyboardHolder.addEventListener('mouseover', event => {
     for (el of keyElements) {
         if (el == event.target) {
             if (key = event.target.firstChild) { // key is actually .txt
-                // TODO: somehow generate from range
                 document.getElementById('key-command').innerHTML=key.dataset.bindcommand;
                 document.getElementById('key-symbol').innerHTML=key.dataset.symbol;
                 document.getElementById('key-symbolcode').innerHTML="0x"+parseInt(key.dataset.symbolcode).toString(16)+" ("+key.dataset.symbolcode+")";

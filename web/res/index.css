@@ -116,16 +116,17 @@ body {
     display: inline;
 }
 
+
 #keyboard-holder {
     margin-left: var(--grid-gap-h);
 }
 
-#keyboard-holder > div {
+.keyboard {
     margin-bottom: 2em;
     height: 100vh;
 }
 
-#keyboard-holder .keyboard-heading {
+.keyboard-heading {
     position: sticky;
     height: 2.25em;
     top: 2em;
@@ -133,17 +134,22 @@ body {
     background-color: var(--main-bg);
 }
 
-#keyboard-holder .keyboard-heading > h2 {
-    display: inline;
-    color: var(--main-fg-max);
-    margin-right: 2ch;
+.keyboard-heading span {
+    font-size: x-large;
+    margin-right: 1ch;
 }
 
-#keyboard-holder .keyboard-heading > h3 {
-    display: inline;
+.keyboard-heading .mode {
+    color: var(--main-fg-max);
+    font-weight: bold;
+}
+
+.keyboard-heading .keyb {
     color: var(--main-fg-dim);
-    font-weight: normal;
-    font-size: larger;
+}
+
+.keyboard-heading .default, #toc-panel .default {
+    font-style: italic;
 }
 
 #key-info {
@@ -180,11 +186,8 @@ body {
 }
 
 
-span.default {
-    font-style: italic;
-}
 
-.keyboard {
+.keyboard-layout {
     display: grid;
     grid-template-columns: repeat(1000, calc(var(--key-size) / 4 - 0.4vw));
     grid-template-rows: repeat(6, var(--key-size));
@@ -272,6 +275,10 @@ span.default {
     grid-column: auto / span 5;
     height: calc(var(--key-size) + var(--grid-gap-v));
     margin-top: calc(-1 * var(--grid-gap-v) - 1.25px); /* still needs the .25 ? */
+}
+
+.enterDown > .txt {
+	display: none;
 }
 
 .row-0 {
