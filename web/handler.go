@@ -41,7 +41,6 @@ type KeyInfo struct {
 	Key_size  string
 	Key_empty bool
 	Key_usage int
-	Key_enter int
 	Key       keyboard.Key
 }
 
@@ -65,12 +64,12 @@ var layoutMaps = LayoutMaps{
 }
 
 func (h Handler) keyInfo(kbd keyboard.Keyboard) <-chan KeyInfo {
-	//kbLayout := h.Data.Layouts[h.Data.LayoutName]
 	kbLayoutMap := h.Data.LayoutMaps[h.Data.LayoutName]
 
 	ki := make(chan KeyInfo)
 	go func() {
 		enterHit := 0
+		enterKey := keyboard.Key{}
 		for i, rowMap := range kbLayoutMap {
 			k := 0
 			for j, key_size := range rowMap {
@@ -87,13 +86,16 @@ func (h Handler) keyInfo(kbd keyboard.Keyboard) <-chan KeyInfo {
 					}
 					if key_size == "enterUp" {
 						enterHit = gHit
+						enterKey = key
 					}
 					k++
 				}
 				if key_size == "enterDown" {
 					gHit = enterHit
+					ki <- KeyInfo{i, j, k, key_size, false, gHit, enterKey}
+				} else {
+					ki <- KeyInfo{i, j, k, key_size, key_empty, gHit, key}
 				}
-				ki <- KeyInfo{i, j, k, key_size, key_empty, gHit, enterHit, key}
 			}
 		}
 		close(ki)
@@ -125,10 +127,10 @@ func readResource(filename string) (string, bool) {
 	pathname = realName(path.Join(pathname, filename))
 
 	if buf, err := os.ReadFile(pathname); err == nil {
-		println("read resource from '" + pathname + "'")
+		//println("read resource from '" + pathname + "'")
 		return string(buf), true
 	} else {
-		println("could not read resource from '" + pathname + "', using built-in")
+		//println("could not read resource from '" + pathname + "', using built-in")
 		return "", false
 	}
 }
