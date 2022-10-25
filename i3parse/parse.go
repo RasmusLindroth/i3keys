@@ -69,20 +69,14 @@ func ParseFromRunning(wm string, logError bool) ([]Mode, []Variable, error) {
 	switch wm {
 	case "i3":
 		r, err := getConfigFromRunningi3()
-		return parse(r, logError, err)
+		return parse("i3", r, logError, err)
 	case "sway":
 		r, err := getConfigFromRunningSway()
-		return parse(r, logError, err)
+		return parse("sway", r, logError, err)
 	default:
-		r, err := getAutoWM()
-		return parse(r, logError, err)
+		wmName, r, err := getAutoWM()
+		return parse(wmName, r, logError, err)
 	}
-}
-
-// ParseFromFile loads config from path
-func ParseFromFile(path string, logError bool) ([]Mode, []Variable, error) {
-	r, err := getConfigFromFile(path)
-	return parse(r, logError, err)
 }
 
 func readLine(reader *bufio.Reader, c context, variables []Variable) (string, []string, lineType, error) {
@@ -239,8 +233,13 @@ func parseConfig(confReader io.Reader, confPath string, variables []Variable, lo
 	return modes, variables, includePaths, nil
 }
 
-func parse(confReader io.Reader, logError bool, err error) ([]Mode, []Variable, error) {
-	configPath, _ := helpers.GetSwayDefaultConfig()
+func parse(wmName string, confReader io.Reader, logError bool, err error) ([]Mode, []Variable, error) {
+	var configPath string
+	if wmName == "i3" {
+		configPath, _ = helpers.Geti3DefaultConfig()
+	} else {
+		configPath, _ = helpers.GetSwayDefaultConfig()
+	}
 	modes, variables, includes, err := parseConfig(confReader, configPath, []Variable{}, logError, err)
 	if err != nil {
 		return []Mode{}, []Variable{}, errors.New("couldn't get the config file")
