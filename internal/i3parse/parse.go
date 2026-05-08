@@ -9,7 +9,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/RasmusLindroth/i3keys/helpers"
+	"github.com/RasmusLindroth/i3keys/internal/helpers"
 )
 
 func getLineType(parts []string, c context) lineType {
@@ -256,11 +256,11 @@ func parse(confReader io.Reader, logError bool, err error) ([]Mode, []Variable, 
 			continue
 		}
 		f, ferr := os.Open(incl)
-		if err != nil && logError {
+		if ferr != nil && logError {
 			log.Printf("couldn't open the included file %s, got err: %v\n", incl, ferr)
 		}
 		m, v, i, perr := parseConfig(f, incl, variables, logError, err)
-		if err != nil && logError {
+		if perr != nil && logError {
 			log.Printf("couldn't parse the included file %s, got err: %v\n", incl, perr)
 		}
 		// add modes merging existing bindings

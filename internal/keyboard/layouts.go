@@ -4,8 +4,8 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/RasmusLindroth/i3keys/i3parse"
-	"github.com/RasmusLindroth/i3keys/xlib"
+	"github.com/RasmusLindroth/i3keys/internal/i3parse"
+	"github.com/RasmusLindroth/i3keys/internal/xlib"
 )
 
 /*
@@ -98,7 +98,7 @@ func bindingMatch(symbol string, symbolCode int, identifier string, group i3pars
 	}
 
 	for _, key := range group.Bindings {
-		if strings.ToLower(symbol) == strings.ToLower(key.Key) {
+		if strings.EqualFold(symbol, key.Key) {
 			rKey.InUse = true
 			rKey.Binding = key
 			return rKey

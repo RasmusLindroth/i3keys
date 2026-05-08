@@ -7,9 +7,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/RasmusLindroth/i3keys/keyboard"
-	"github.com/gorilla/handlers"
-	"github.com/gorilla/mux"
+	"github.com/RasmusLindroth/i3keys/internal/keyboard"
 )
 
 // ...
@@ -102,6 +100,7 @@ func (h Handler) keyInfo(kbd keyboard.Keyboard) <-chan KeyInfo {
 	}()
 	return ki
 }
+
 func mkSlice(args ...interface{}) []interface{} {
 	return args
 }
@@ -147,12 +146,10 @@ func New(layouts Layouts) Handler {
 
 // Start fires up the server
 func (handler Handler) Start(port string) error {
-	r := mux.NewRouter()
-	r.HandleFunc("/", handler.HomeHandler)
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", handler.HomeHandler)
 
-	gzip := handlers.CompressHandler(r)
-
-	err := http.ListenAndServe(":"+port, handlers.RecoveryHandler()(gzip))
+	err := http.ListenAndServe(":"+port, mux)
 
 	return err
 }

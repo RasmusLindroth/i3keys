@@ -8,10 +8,10 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/RasmusLindroth/i3keys/helpers"
-	"github.com/RasmusLindroth/i3keys/i3parse"
-	"github.com/RasmusLindroth/i3keys/keyboard"
-	"github.com/RasmusLindroth/i3keys/xlib"
+	"github.com/RasmusLindroth/i3keys/internal/helpers"
+	"github.com/RasmusLindroth/i3keys/internal/i3parse"
+	"github.com/RasmusLindroth/i3keys/internal/keyboard"
+	"github.com/RasmusLindroth/i3keys/internal/xlib"
 )
 
 func sanitizeDirName(s string) string {

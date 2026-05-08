@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/RasmusLindroth/i3keys/xlib"
+	"github.com/RasmusLindroth/i3keys/internal/xlib"
 )
 
-//CodeToSymbol returns a code binding with the symbol equivalent
+// CodeToSymbol returns a code binding with the symbol equivalent
 func CodeToSymbol(key string) (string, error) {
 	i, err := strconv.Atoi(key)
 

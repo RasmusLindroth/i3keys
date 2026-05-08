@@ -6,9 +6,9 @@ import (
 	"net"
 	"strconv"
 
-	"github.com/RasmusLindroth/i3keys/i3parse"
-	"github.com/RasmusLindroth/i3keys/keyboard"
-	"github.com/RasmusLindroth/i3keys/xlib"
+	"github.com/RasmusLindroth/i3keys/internal/i3parse"
+	"github.com/RasmusLindroth/i3keys/internal/keyboard"
+	"github.com/RasmusLindroth/i3keys/internal/xlib"
 )
 
 // Output starts the server at desired port

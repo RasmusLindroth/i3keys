@@ -7,7 +7,7 @@ import (
 	"math"
 	"text/template"
 
-	"github.com/RasmusLindroth/i3keys/keyboard"
+	"github.com/RasmusLindroth/i3keys/internal/keyboard"
 )
 
 var tmpl = `<svg width="1500" height="450" xmlns="http://www.w3.org/2000/svg">
@@ -81,7 +81,7 @@ var iso = [][]keyType{
 	{modifier, modifier, modifier, space, modifier, modifier, modifier, modifier, emptySmall, single, single, single, emptySmall, double, single},
 }
 
-//Generate creates an SVG image of the keyboard
+// Generate creates an SVG image of the keyboard
 func Generate(layout string, kb keyboard.Keyboard) []byte {
 	funcMap := template.FuncMap{
 		// The name "inc" is what the function will be called in the template text.

@@ -5,10 +5,10 @@ import (
 	"os"
 	"strings"
 
-	"github.com/RasmusLindroth/i3keys/json"
-	"github.com/RasmusLindroth/i3keys/svg"
-	"github.com/RasmusLindroth/i3keys/text"
-	"github.com/RasmusLindroth/i3keys/web"
+	"github.com/RasmusLindroth/i3keys/internal/json"
+	"github.com/RasmusLindroth/i3keys/internal/svg"
+	"github.com/RasmusLindroth/i3keys/internal/text"
+	"github.com/RasmusLindroth/i3keys/internal/web"
 )
 
 const version string = "0.0.16"

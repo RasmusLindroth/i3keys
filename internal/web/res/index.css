@@ -22,11 +22,32 @@
 
 }
 
-html,
 body {
     font-family: helveticaneue-light, helvetica neue light, helvetica neue, Helvetica, Arial, lucida grande, sans-serif;
     font-weight: 300;
     background-color: var(--main-bg);
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    position: sticky;
+    top: 0;
+    background-color: var(--main-bg);
+}
+
+#options-panel {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    column-gap: 1ch;
+}
+
+.options-panel-sub {
+    background-color: var(--header-mode-bg);
+    border: 1px dotted var(--header-mode-border);
+    border-radius: 3px;
+    padding: 0.5em;
 }
 
 #select-layout {
@@ -49,74 +70,6 @@ body {
     border-color: var(--original-red-2);
 }
 
-#sticky-header {
-    position: fixed;
-    top: 0;
-    width: 100%;
-    background-color: var(--header-bg);
-    /*
-    border-bottom: 1px solid var(--header-border);
-    */
-    padding: 0.25em 0 0 0;
-    margin: 0;
-    height: 2em;
-    z-index: 99999;
-}
-
-/* most of these should really be classes */
-/* note that they apply to both toc and options */
-
-#sticky-header > ul {
-    top: 0.5em;
-    bottom: 100%;
-    padding: 1px;
-    margin: 0;
-    display: inline-block;
-}
-
-#sticky-header > ul > li {
-    height: 1.25em;
-    display: inline-block;
-    background-color: var(--header-mode-bg);
-    border: 1px dotted var(--header-mode-border);
-    border-radius: 3px;
-    padding: 0.25em;
-    margin-right: 1ch; /* distance between modes/options */
-}
-
-#sticky-header > ul > li > ul {
-    display: inline;
-    margin: 0;
-    padding: 0;
-}
-
-#sticky-header > ul > li > ul > li {
-    display: inline;
-    margin-left: 1ch; /* distance between modifiers */
-}
-
-#sticky-header > ul > li > a {
-    font-weight: bold;
-    color: var(--main-fg-max);
-}
-
-#sticky-header > ul > li > ul > li > a {
-    color: var(--main-fg-dim);
-    text-decoration: dotted underline;
-}
-
-
-#options-panel {
-    /*display: inline-block;*/
-    float: right;
-    right: 0;
-}
-
-#options-panel * {
-    display: inline;
-}
-
-
 #keyboard-holder {
     margin-left: var(--grid-gap-h);
 }
@@ -127,11 +80,10 @@ body {
 }
 
 .keyboard-heading {
-    position: sticky;
-    height: 2.25em;
-    top: 2em;
-    padding-top: 0.25em;
     background-color: var(--main-bg);
+    position: sticky;
+    top: 2.2em;
+    padding-top: 0.25em;
 }
 
 .keyboard-heading span {
@@ -152,12 +104,38 @@ body {
     font-style: italic;
 }
 
-#key-info {
+footer {
     background-color: var(--main-bg);
     position: fixed;
     bottom: 0;
     width: 100%;
 }
+
+#toc-panel {
+    padding-top: 1ch;
+}
+#toc-panel, .toc-panel-mode, .toc-panel-mode-mod {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 0.5em;
+}
+
+.toc-panel-mode {
+    background-color: var(--header-mode-bg);
+    padding: 0.25em;
+}
+
+.toc-panel-mode > a {
+    font-weight: bold;
+    color: var(--main-fg-max);
+}
+
+.toc-panel-mode-mod > a {
+    color: var(--main-fg-dim);
+    text-decoration: dotted underline;
+}
+
 #key-info > p {
     margin-top: 1em;
     margin-bottom: 0;

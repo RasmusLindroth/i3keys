@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/RasmusLindroth/i3keys/i3parse"
-	"github.com/RasmusLindroth/i3keys/keyboard"
-	"github.com/RasmusLindroth/i3keys/xlib"
+	"github.com/RasmusLindroth/i3keys/internal/i3parse"
+	"github.com/RasmusLindroth/i3keys/internal/keyboard"
+	"github.com/RasmusLindroth/i3keys/internal/xlib"
 )
 
 type KeyboardModesJSON struct {
