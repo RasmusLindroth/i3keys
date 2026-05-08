@@ -98,7 +98,7 @@ func bindingMatch(symbol string, symbolCode int, identifier string, group i3pars
 	}
 
 	for _, key := range group.Bindings {
-		if symbol == key.Key {
+		if strings.ToLower(symbol) == strings.ToLower(key.Key) {
 			rKey.InUse = true
 			rKey.Binding = key
 			return rKey
