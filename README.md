@@ -2,10 +2,9 @@
 A program for the tiling window manager [i3](https://i3wm.org/).
 It also supports [Sway](https://swaywm.org/).
 
-This is program lists all the keys that are bound to some action in i3 or sway, and 
+This program lists all the keys that are bound to some action in i3 or sway, and 
 all keys that are not bound to any actions. Now you don't have to search 
-through your configuration file or going down the track of trial and error 
-anymore.
+through your configuration file or resorting to trial and error.
 
 The program will output one separate keyboard for all of your different modifier 
 combinations. It will also output each combination for all of your modes.
@@ -22,7 +21,7 @@ output the keyboards as text in the terminal or generate SVG files.
 
 
 ## How to
-Currently there is one binary for Linux amd64. You can find it under [releases](https://github.com/RasmusLindroth/i3keys/releases). Download it and make it exacutable with `chmod +x i3keys` and then you can run it with `./i3keys`. If you want to use it "everywhere" you must move it to somewhere in your $PATH.
+Currently there is one binary for Linux amd64. You can find it under [releases](https://github.com/RasmusLindroth/i3keys/releases). Download it and make it executable with `chmod +x i3keys` and then you can run it with `./i3keys`. If you want to use it "everywhere" you must move it to somewhere in your $PATH.
 
 ### Using Arch?
 
@@ -32,56 +31,48 @@ https://aur.archlinux.org/packages/i3keys/
 
 #### Go getting and installing
 
-If your version of Go have support for modules
+If your version of Go has support for modules
 ```
-//Get this project
+# Get this project
 git clone https://github.com/RasmusLindroth/i3keys.git
 
-//Install
-go install
+# Go to folder
+cd i3keys
 
-//If starting doesn't work try running it from $HOME/go/bin
-```
+# Install
+go install cmd/i3keys/i3keys.go
 
-Alternative way to install
-```
-//Get this program
-go get -u github.com/RasmusLindroth/i3keys
-
-//Go to the project directory
-cd $HOME/go/src/github.com/RasmusLindroth/i3keys
-
-//Install
-go install
-
-//If starting doesn't work try running it from $HOME/go/bin
+# If starting doesn't work try running it from $HOME/go/bin
 ```
 
 Example usage
 ```
-//Run web interface with a random port
+# Open the tui
+i3keys tui ISO
+
+# Run web interface with a random port
 i3keys web 
 
-//Run web interface on port 8080
+# Run web interface on port 8080
 i3keys web 8080
 
-//or output text to the terminal
+# or output text to the terminal
 i3keys text ISO
 
-//or filter text output
+# or filter text output
 i3keys text ISO Mod4+Ctrl
 
-//or output json to the terminal
+# or output json to the terminal
 i3keys json ISO
 
-//or output SVG to the current directory
+# or output SVG to the current directory
 i3keys svg ISO ./
 
-//or filter SVG
+# or filter SVG
 i3keys svg ISO ./ Mod4+Ctrl
 ```
 
-If you still having problems see the 
+If you're still having problems see the 
 [installation guide for Go](https://golang.org/doc/install#install) or open 
 up an issue.
 
@@ -94,10 +85,10 @@ autodetection doesn't work. But then you should file an issue.
 #### You have started i3keys
 
 For web output you will need to start your browser and head over to the URL 
-printed in  your terminal e.g. http://localhost:8080. This is is the most 
+printed in  your terminal e.g. http://localhost:8080. This is the most 
 feature-rich option. Because here you can see the command bound to each key.
 
-If you have selected to out SVG files. Open them with a program that supports 
+If you have selected to output SVG files. Open them with a program that supports 
 SVG files. For example your program for viewing images, InkScape or a browser.
 Note that each mode will be located in a folder named mode\<int\>-name-of-mode.
 Inside that folder you will find a file named `mode-full-name` where you can see
@@ -156,6 +147,9 @@ The commands are:
 	text <layout> [mods]
 		output available keybindings in the terminal
 
+	tui <layout>
+		tui with available keybindings in the terminal
+
 	version
 		print i3keys version
 
@@ -173,5 +167,5 @@ Arguments:
 
 ### Disclaimer
 * It's only tested with evdev handling input. So maybe you get the wrong 
- mappings. Open an issue in that case and I will look in to it.
+ mappings. Open an issue in that case and I will look into it.
 * There are no tests right now. So you might run into some issues.

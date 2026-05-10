@@ -10,6 +10,8 @@ import (
 	"strings"
 
 	"github.com/RasmusLindroth/i3keys/internal/helpers"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 func getLineType(parts []string, c context) lineType {
@@ -258,6 +260,7 @@ func parse(confReader io.Reader, logError bool, err error) ([]Mode, []Variable, 
 		f, ferr := os.Open(incl)
 		if ferr != nil && logError {
 			log.Printf("couldn't open the included file %s, got err: %v\n", incl, ferr)
+			continue
 		}
 		m, v, i, perr := parseConfig(f, incl, variables, logError, err)
 		if perr != nil && logError {
@@ -318,11 +321,12 @@ func parseBindingParts(parts []string) ([]string, string, string) {
 
 	key := keys[len(keys)-1]
 	modifiers = append(modifiers, keys[:len(keys)-1]...)
+	caser := cases.Title(language.Und)
 	for i, mod := range modifiers {
 		if mod[0] == '$' {
 			continue
 		}
-		mod = strings.Title(mod)
+		mod = caser.String(mod)
 		if mod == "Alt" {
 			mod = "Mod1" // rough fix for #26
 		}

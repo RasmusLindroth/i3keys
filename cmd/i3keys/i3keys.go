@@ -8,10 +8,11 @@ import (
 	"github.com/RasmusLindroth/i3keys/internal/json"
 	"github.com/RasmusLindroth/i3keys/internal/svg"
 	"github.com/RasmusLindroth/i3keys/internal/text"
+	"github.com/RasmusLindroth/i3keys/internal/tui"
 	"github.com/RasmusLindroth/i3keys/internal/web"
 )
 
-const version string = "0.0.16"
+const version string = "0.0.17"
 
 func helpText(exitCode int) {
 	fmt.Print("Usage:\n\n\ti3keys [-i|-s] <command> [arguments]\n")
@@ -21,12 +22,18 @@ func helpText(exitCode int) {
 	fmt.Print("\tsvg <layout> [dest] [mods]\n\t\toutputs one SVG file for each modifier group\n\n")
 	fmt.Print("\tjson <layout>\n\t\toutput all keybindings as json\n\n")
 	fmt.Print("\ttext <layout> [mods]\n\t\toutput available keybindings in the terminal\n\n")
+	fmt.Print("\ttui <layout>\n\t\ttui with available keybindings in the terminal\n\n")
 	fmt.Print("\tversion\n\t\tprint i3keys version\n\n")
 	fmt.Print("Arguments:\n\n")
 	fmt.Print("\t<layout>\n\t\tis required. Can be ISO or ANSI\n\n")
 	fmt.Print("\t[mods]\n\t\tis optional. Can be a single modifier or a group of modifiers. Group them with a plus sign, e.g. Mod4+Ctrl\n\n")
 	fmt.Print("\t[dest]\n\t\tis optional. Where to output files, defaults to the current directory\n\n")
 	os.Exit(exitCode)
+}
+
+func printVersion() {
+	fmt.Printf("i3keys version %s by Rasmus Lindroth\n", version)
+	os.Exit(0)
 }
 
 func main() {
@@ -43,6 +50,10 @@ func main() {
 	case "-s":
 		wm = "sway"
 		sIndex = 2
+	case "-h", "--help":
+		helpText(0)
+	case "-v", "--version":
+		printVersion()
 	}
 	cmd := os.Args[sIndex]
 
@@ -52,7 +63,7 @@ func main() {
 	}
 
 	layout := ""
-	if cmd == "text" || cmd == "json" || cmd == "svg" {
+	if cmd == "text" || cmd == "json" || cmd == "svg" || cmd == "tui" {
 		if len(os.Args) <= 1+sIndex {
 			fmt.Println("You need to set the <layout> to ISO or ANSI")
 			os.Exit(2)
@@ -83,9 +94,10 @@ func main() {
 		} else {
 			svg.Output(wm, os.Args[1+sIndex], os.Args[2+sIndex], os.Args[3+sIndex])
 		}
+	case "tui":
+		tui.Start(wm, os.Args[1+sIndex])
 	case "version":
-		fmt.Printf("i3keys version %s by Rasmus Lindroth\n", version)
-		os.Exit(0)
+		printVersion()
 	case "help":
 		helpText(0)
 	default:

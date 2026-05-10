@@ -1,6 +1,7 @@
 package web
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
 	"os"
@@ -126,10 +127,8 @@ func readResource(filename string) (string, bool) {
 	pathname = realName(path.Join(pathname, filename))
 
 	if buf, err := os.ReadFile(pathname); err == nil {
-		//println("read resource from '" + pathname + "'")
 		return string(buf), true
 	} else {
-		//println("could not read resource from '" + pathname + "', using built-in")
 		return "", false
 	}
 }
@@ -183,6 +182,6 @@ func (handler *Handler) HomeHandler(w http.ResponseWriter, r *http.Request) {
 
 	err := handler.Template.Execute(w, handler.Data)
 	if err != nil {
-		println("Handler.HomeHandler: failed to execute template:\n", err.Error())
+		fmt.Println("Handler.HomeHandler: failed to execute template:\n", err.Error())
 	}
 }
