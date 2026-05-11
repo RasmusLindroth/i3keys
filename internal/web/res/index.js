@@ -73,6 +73,8 @@ let keyCaptions = {
     "KP_Equal":     "KP ="
 }
 
+let fold = false;
+
 function breakSpaces(s) { return s.replaceAll(" ","<br/>") }
 
 function keyCaption(s) {
@@ -97,6 +99,20 @@ document.getElementById('opt-layout').addEventListener('change', (event) => {
     let url = new URL(window.location.href);
     url.searchParams.set('layout', v);
     window.location.replace(url.toString());
+});
+
+document.getElementById('toc-panel-fold').addEventListener('click', (event) => {
+    let el = document.querySelector('#toc-panel-fold > p');
+    let pm = document.getElementById('toc-panel');
+    if(!fold) {
+        el.textContent = "[+] Unfold";
+        fold = true;
+        pm.style.display = 'none';
+    }else {
+        el.textContent = "[-] Fold";
+        fold = false;
+        pm.style.display = 'block';
+    }
 });
 
 document.getElementById('opt-captions').addEventListener('change', (event) => {

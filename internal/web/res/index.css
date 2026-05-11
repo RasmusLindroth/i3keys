@@ -114,6 +114,14 @@ footer {
 #toc-panel {
     padding-top: 1ch;
 }
+
+#toc-panel-fold p {
+    font-size: 1em;
+    font-weight: bold;
+    margin: 0;
+    width: 100%;
+}
+
 #toc-panel, .toc-panel-mode, .toc-panel-mode-mod {
     display: flex;
     flex-wrap: wrap;

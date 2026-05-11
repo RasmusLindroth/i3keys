@@ -69,6 +69,7 @@
 		{{- end -}}
 	</main>
 	<footer>
+		<div id="toc-panel-fold"><p>[-] Fold</p></div>
 		<div id="toc-panel">
 		{{- range $mode_i,$mode := $layoutData -}}
 			<div class="toc-panel-mode">
@@ -88,7 +89,6 @@
 				<tr><td class="ki-item ki-property">symbol</td>         <td class="ki-item ki-value"         id="key-symbol"></td></tr>
 				<tr><td class="ki-item ki-property">symbol code</td>    <td class="ki-item ki-value"         id="key-symbolcode"></td></tr>
 			</table>
-			<p>Hover over a key to see its properties above</p>
 		</div>
 	</footer>
 	<script>{{.JS}}</script>
